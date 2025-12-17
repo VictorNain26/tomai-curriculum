@@ -19,7 +19,16 @@ import typer
 from mistralai import Mistral
 from pydantic import ValidationError
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, PointStruct, VectorParams
+from qdrant_client.models import (
+    Distance,
+    HnswConfigDiff,
+    OptimizersConfigDiff,
+    PointStruct,
+    ScalarQuantization,
+    ScalarQuantizationConfig,
+    ScalarType,
+    VectorParams,
+)
 from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
@@ -322,12 +331,38 @@ def run(
     collections = [c.name for c in qdrant_client.get_collections().collections]
 
     if collection not in collections:
-        rprint(f"\n[bold cyan]3. Creation de la collection '{collection}'...[/bold cyan]")
+        rprint(f"\n[bold cyan]3. Creation de la collection '{collection}' (optimisée)...[/bold cyan]")
+
+        # Best Practice Qdrant 2025: Configuration optimisée dès la création
+        # - HNSW optimisé pour 1024D
+        # - Scalar quantization (int8) pour -75% mémoire
+        # - Optimizers pour batch operations
         qdrant_client.create_collection(
             collection_name=collection,
-            vectors_config=VectorParams(size=EMBEDDING_DIM, distance=Distance.COSINE),
+            vectors_config=VectorParams(
+                size=EMBEDDING_DIM,
+                distance=Distance.COSINE,
+            ),
+            hnsw_config=HnswConfigDiff(
+                m=16,                 # Connections par node (optimal pour 1024D)
+                ef_construct=100,     # Qualité de l'index
+                full_scan_threshold=10000,
+            ),
+            quantization_config=ScalarQuantization(
+                scalar=ScalarQuantizationConfig(
+                    type=ScalarType.INT8,
+                    always_ram=True,  # Utiliser quantized vectors pour search
+                )
+            ),
+            optimizers_config=OptimizersConfigDiff(
+                indexing_threshold=20000,  # Rebuild index tous les 20k points
+                flush_interval_sec=5,
+            ),
         )
-        rprint(f"   [green]Collection '{collection}' creee[/green]")
+        rprint(f"   [green]Collection '{collection}' creee avec optimisations:[/green]")
+        rprint("   • HNSW: m=16, ef_construct=100")
+        rprint("   • Quantization: int8 (-75% mémoire)")
+        rprint("   • Optimizers: batch-friendly")
     else:
         rprint(f"\n[bold cyan]3. Collection '{collection}' existe[/bold cyan]")
 
