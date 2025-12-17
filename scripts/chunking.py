@@ -83,47 +83,60 @@ def group_documents_by_theme(documents: list[dict]) -> dict:
     return dict(groups)
 
 
-def merge_documents(docs_group: list[dict], target_tokens: int = 350) -> list[dict]:
+def merge_documents(docs_group: list[dict], target_tokens: int = 350, overlap_pct: float = 0.15) -> list[dict]:
     """
-    Fusionne des documents pour atteindre la cible de tokens.
+    Fusionne des documents pour atteindre la cible de tokens avec overlap.
+
+    Best Practice 2025: Overlap de 15% entre chunks pour préserver le contexte.
+    Source: https://www.firecrawl.dev/blog/best-chunking-strategies-rag-2025
 
     Args:
         docs_group: Groupe de documents à fusionner
         target_tokens: Nombre de tokens cible (défaut: 350)
+        overlap_pct: Pourcentage d'overlap (défaut: 0.15 = 15%)
 
     Returns:
-        Liste de documents fusionnés
+        Liste de documents fusionnés avec overlap
     """
+    if len(docs_group) <= 1:
+        return [_create_merged_document(docs_group)] if docs_group else []
+
     merged = []
-    current_batch = []
-    current_tokens = 0
+    i = 0
 
-    for doc_data in docs_group:
-        doc = doc_data["doc"]
-        doc_tokens = estimate_tokens(doc.content)
+    while i < len(docs_group):
+        current_batch = []
+        current_tokens = 0
+        start_idx = i
 
-        # Si l'ajout dépasse 450 tokens, créer un nouveau chunk
-        if current_tokens + doc_tokens > 450 and current_batch:
-            merged.append(_create_merged_document(current_batch))
-            current_batch = [doc_data]
-            current_tokens = doc_tokens
-        else:
+        # Construire un chunk jusqu'à atteindre la cible
+        while i < len(docs_group) and current_tokens < target_tokens:
+            doc_data = docs_group[i]
+            doc_tokens = estimate_tokens(doc_data["doc"].content)
+
+            # Vérifier si l'ajout ne dépasse pas trop la limite (max 500 tokens)
+            if current_tokens > 0 and current_tokens + doc_tokens > 500:
+                break
+
             current_batch.append(doc_data)
             current_tokens += doc_tokens
+            i += 1
 
-        # Si on atteint la cible, créer le chunk
-        if current_tokens >= target_tokens and len(current_batch) >= 2:
+        # Si le chunk est trop petit, ajouter encore un document
+        if current_tokens < 250 and i < len(docs_group):
+            current_batch.append(docs_group[i])
+            current_tokens += estimate_tokens(docs_group[i]["doc"].content)
+            i += 1
+
+        # Créer le chunk
+        if current_batch:
             merged.append(_create_merged_document(current_batch))
-            current_batch = []
-            current_tokens = 0
 
-    # Derniers documents
-    if current_batch:
-        if current_tokens < 200 and merged:
-            # Trop petit, fusionner avec le dernier
-            last = merged.pop()
-            current_batch = [{"doc": Document.model_validate(last)}] + current_batch
-        merged.append(_create_merged_document(current_batch))
+        # OVERLAP: Reculer de 15% pour le prochain chunk
+        # Cela permet de capturer le contexte aux bordures
+        if i < len(docs_group) and len(current_batch) > 1:
+            overlap_size = max(1, int(len(current_batch) * overlap_pct))
+            i -= overlap_size  # Reculer pour créer l'overlap
 
     return merged
 
