@@ -1,0 +1,118 @@
+{
+  "version": "1.0.0",
+  "description": "Test queries for RAG evaluation - Questions types d'élèves de 5ème",
+  "created_at": "2025-12-17",
+  "metrics_target": {
+    "recall@5": 0.90,
+    "mrr": 0.85,
+    "ndcg@5": 0.88
+  },
+  "queries": [
+    {
+      "id": "math_001",
+      "query": "Comment calculer l'aire d'un triangle ?",
+      "expected_docs": ["mathematiques_cinquieme_grandeurs_mesures_001"],
+      "difficulty": "facile",
+      "matiere": "mathematiques",
+      "domaine": "Grandeurs et Mesures"
+    },
+    {
+      "id": "math_002",
+      "query": "Qu'est-ce que le théorème de Pythagore ?",
+      "expected_docs": ["mathematiques_cinquieme_geometrie_002"],
+      "difficulty": "moyen",
+      "matiere": "mathematiques",
+      "domaine": "Géométrie"
+    },
+    {
+      "id": "math_003",
+      "query": "Comment additionner deux nombres relatifs de signes différents ?",
+      "expected_docs": ["mathematiques_cinquieme_nombres_calculs_001"],
+      "difficulty": "moyen",
+      "matiere": "mathematiques",
+      "domaine": "Nombres et Calculs"
+    },
+    {
+      "id": "math_004",
+      "query": "Comment développer une expression avec la distributivité ?",
+      "expected_docs": ["mathematiques_cinquieme_calcul_litteral_001"],
+      "difficulty": "moyen",
+      "matiere": "mathematiques",
+      "domaine": "Calcul littéral"
+    },
+    {
+      "id": "math_005",
+      "query": "Quelle est la différence entre un parallélogramme et un rectangle ?",
+      "expected_docs": ["mathematiques_cinquieme_geometrie_quadrilateres_001"],
+      "difficulty": "facile",
+      "matiere": "mathematiques",
+      "domaine": "Géométrie"
+    },
+    {
+      "id": "francais_001",
+      "query": "Qu'est-ce qu'un COD en grammaire ?",
+      "expected_docs": ["francais_cinquieme_grammaire_fonctions_001"],
+      "difficulty": "facile",
+      "matiere": "francais",
+      "domaine": "Grammaire"
+    },
+    {
+      "id": "francais_002",
+      "query": "Comment conjuguer un verbe du premier groupe au présent ?",
+      "expected_docs": ["francais_cinquieme_conjugaison_present_001"],
+      "difficulty": "facile",
+      "matiere": "francais",
+      "domaine": "Conjugaison"
+    },
+    {
+      "id": "francais_003",
+      "query": "Quelle est la différence entre COD et COI ?",
+      "expected_docs": ["francais_cinquieme_grammaire_fonctions_002"],
+      "difficulty": "moyen",
+      "matiere": "francais",
+      "domaine": "Grammaire"
+    },
+    {
+      "id": "pc_001",
+      "query": "Quels sont les trois états de l'eau ?",
+      "expected_docs": ["physique_chimie_cinquieme_eau_001"],
+      "difficulty": "facile",
+      "matiere": "physique_chimie",
+      "domaine": "L'eau dans notre environnement"
+    },
+    {
+      "id": "pc_002",
+      "query": "Comment faire un circuit électrique simple ?",
+      "expected_docs": ["physique_chimie_cinquieme_electricite_001"],
+      "difficulty": "facile",
+      "matiere": "physique_chimie",
+      "domaine": "Les circuits électriques"
+    },
+    {
+      "id": "svt_001",
+      "query": "Qu'est-ce que la photosynthèse ?",
+      "expected_docs": ["svt_cinquieme_vivant_evolution_001"],
+      "difficulty": "moyen",
+      "matiere": "svt",
+      "domaine": "Le vivant et son évolution"
+    },
+    {
+      "id": "complex_001",
+      "query": "Je ne comprends pas la différence entre l'aire et le périmètre, peux-tu m'expliquer avec un exemple ?",
+      "expected_docs": ["mathematiques_cinquieme_grandeurs_mesures_002", "mathematiques_cinquieme_grandeurs_mesures_003"],
+      "difficulty": "difficile",
+      "matiere": "mathematiques",
+      "domaine": "Grandeurs et Mesures",
+      "notes": "Query complexe multi-document"
+    },
+    {
+      "id": "complex_002",
+      "query": "J'ai un devoir de maths sur les triangles et je dois prouver qu'un triangle est rectangle, comment faire ?",
+      "expected_docs": ["mathematiques_cinquieme_geometrie_triangles_001", "mathematiques_cinquieme_geometrie_002"],
+      "difficulty": "difficile",
+      "matiere": "mathematiques",
+      "domaine": "Géométrie",
+      "notes": "Query complexe avec contexte réel"
+    }
+  ]
+}

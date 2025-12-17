@@ -1,4 +1,4 @@
-"""Schema exports."""
+"""Schema exports - VERSION 2.0 RAG 2025."""
 
 from .document import (
     ContentType,
@@ -6,20 +6,35 @@ from .document import (
     DatasetMetadata,
     Difficulty,
     Document,
+    DocumentRelation,
+    EnrichedContent,
     Matiere,
     Niveau,
     NiveauCollege,
     NiveauLycee,
+    QualityMetrics,
+    RelationType,
+    ReviewStatus,
 )
 
 __all__ = [
+    # Core types
+    "Document",
+    "DatasetMetadata",
+
+    # Enums
     "ContentType",
     "Cycle",
-    "DatasetMetadata",
     "Difficulty",
-    "Document",
     "Matiere",
     "Niveau",
     "NiveauCollege",
     "NiveauLycee",
+    "RelationType",
+    "ReviewStatus",
+
+    # Auxiliary models
+    "DocumentRelation",
+    "EnrichedContent",
+    "QualityMetrics",
 ]
