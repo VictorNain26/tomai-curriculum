@@ -259,10 +259,25 @@ def create_payload(doc_data: dict) -> dict:
     if learning_objectives:
         payload["learning_objectives"] = learning_objectives
 
+    # Erreurs courantes (V2)
+    common_errors = getattr(doc, 'common_errors', None)
+    if common_errors:
+        payload["common_errors"] = common_errors
+
     # Métriques de qualité pour reranking
     quality = getattr(doc, 'quality', None)
     if quality:
         payload["quality_score"] = quality.overall_score
+
+    # Niveau de confiance
+    confidence_level = getattr(doc, 'confidence_level', None)
+    if confidence_level is not None:
+        payload["confidence_level"] = confidence_level
+
+    # Tags
+    tags = getattr(doc, 'tags', None)
+    if tags:
+        payload["tags"] = tags
 
     # Version et statut
     version = getattr(doc, 'version', None)
@@ -438,7 +453,7 @@ def run(
             for doc_data, embedding in zip(batch_docs, batch_embeddings):
                 point = PointStruct(
                     id=doc_data["id"],
-                    vector={"dense": embedding},
+                    vector=embedding,
                     payload=create_payload(doc_data),
                 )
                 points.append(point)

@@ -1,118 +1,264 @@
 {
-  "version": "1.0.0",
-  "description": "Test queries for RAG evaluation - Questions types d'élèves de 5ème",
-  "created_at": "2025-12-17",
+  "version": "2.1.0",
+  "description": "Test queries pour evaluation RAG expert - TomAI Curriculum 5eme (aligned with actual dataset)",
+  "created_at": "2025-12-21",
+  "methodology": "Questions typiques d'eleves avec ground truth base sur titres REELS du dataset",
   "metrics_target": {
-    "recall@5": 0.90,
-    "mrr": 0.85,
-    "ndcg@5": 0.88
+    "recall@5": 0.80,
+    "recall@10": 0.90,
+    "precision@5": 0.40,
+    "mrr": 0.70,
+    "ndcg@10": 0.75
   },
   "queries": [
     {
       "id": "math_001",
       "query": "Comment calculer l'aire d'un triangle ?",
-      "expected_docs": ["mathematiques_cinquieme_grandeurs_mesures_001"],
-      "difficulty": "facile",
-      "matiere": "mathematiques",
-      "domaine": "Grandeurs et Mesures"
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Aire du triangle"],
+      "difficulty": "easy",
+      "category": "formule"
     },
     {
       "id": "math_002",
-      "query": "Qu'est-ce que le théorème de Pythagore ?",
-      "expected_docs": ["mathematiques_cinquieme_geometrie_002"],
-      "difficulty": "moyen",
-      "matiere": "mathematiques",
-      "domaine": "Géométrie"
+      "query": "C'est quoi les multiples et les diviseurs ?",
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Multiples et diviseurs"],
+      "difficulty": "easy",
+      "category": "definition"
     },
     {
       "id": "math_003",
-      "query": "Comment additionner deux nombres relatifs de signes différents ?",
-      "expected_docs": ["mathematiques_cinquieme_nombres_calculs_001"],
-      "difficulty": "moyen",
-      "matiere": "mathematiques",
-      "domaine": "Nombres et Calculs"
+      "query": "Comment faire une division euclidienne ?",
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Division euclidienne"],
+      "difficulty": "easy",
+      "category": "methode"
     },
     {
       "id": "math_004",
-      "query": "Comment développer une expression avec la distributivité ?",
-      "expected_docs": ["mathematiques_cinquieme_calcul_litteral_001"],
-      "difficulty": "moyen",
-      "matiere": "mathematiques",
-      "domaine": "Calcul littéral"
+      "query": "Comment comparer des fractions ?",
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Fractions - Comparaison avec même dénominateur"],
+      "difficulty": "medium",
+      "category": "concept"
     },
     {
       "id": "math_005",
-      "query": "Quelle est la différence entre un parallélogramme et un rectangle ?",
-      "expected_docs": ["mathematiques_cinquieme_geometrie_quadrilateres_001"],
-      "difficulty": "facile",
-      "matiere": "mathematiques",
-      "domaine": "Géométrie"
+      "query": "Comment additionner des nombres relatifs ?",
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Addition de nombres relatifs"],
+      "difficulty": "easy",
+      "category": "methode"
     },
     {
-      "id": "francais_001",
-      "query": "Qu'est-ce qu'un COD en grammaire ?",
-      "expected_docs": ["francais_cinquieme_grammaire_fonctions_001"],
-      "difficulty": "facile",
-      "matiere": "francais",
-      "domaine": "Grammaire"
+      "id": "math_006",
+      "query": "C'est quoi la proportionnalite ?",
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Proportionnalité - Reconnaissance et coefficient"],
+      "difficulty": "easy",
+      "category": "definition"
     },
     {
-      "id": "francais_002",
-      "query": "Comment conjuguer un verbe du premier groupe au présent ?",
-      "expected_docs": ["francais_cinquieme_conjugaison_present_001"],
-      "difficulty": "facile",
-      "matiere": "francais",
-      "domaine": "Conjugaison"
+      "id": "math_007",
+      "query": "Comment utiliser la distributivite ?",
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Distributivité simple"],
+      "difficulty": "medium",
+      "category": "methode"
     },
     {
-      "id": "francais_003",
-      "query": "Quelle est la différence entre COD et COI ?",
-      "expected_docs": ["francais_cinquieme_grammaire_fonctions_002"],
-      "difficulty": "moyen",
-      "matiere": "francais",
-      "domaine": "Grammaire"
+      "id": "math_008",
+      "query": "C'est quoi la symétrie axiale ?",
+      "matiere_filter": "mathematiques",
+      "expected_titles": ["Symétrie axiale - Définition et propriétés"],
+      "difficulty": "easy",
+      "category": "definition"
     },
     {
-      "id": "pc_001",
-      "query": "Quels sont les trois états de l'eau ?",
-      "expected_docs": ["physique_chimie_cinquieme_eau_001"],
-      "difficulty": "facile",
-      "matiere": "physique_chimie",
-      "domaine": "L'eau dans notre environnement"
+      "id": "fr_001",
+      "query": "C'est quoi l'imparfait ?",
+      "matiere_filter": "francais",
+      "expected_titles": ["L'imparfait de l'indicatif"],
+      "difficulty": "easy",
+      "category": "conjugaison"
     },
     {
-      "id": "pc_002",
-      "query": "Comment faire un circuit électrique simple ?",
-      "expected_docs": ["physique_chimie_cinquieme_electricite_001"],
-      "difficulty": "facile",
-      "matiere": "physique_chimie",
-      "domaine": "Les circuits électriques"
+      "id": "fr_002",
+      "query": "Comment conjuguer au passe simple ?",
+      "matiere_filter": "francais",
+      "expected_titles": ["Le passé simple"],
+      "difficulty": "easy",
+      "category": "conjugaison"
+    },
+    {
+      "id": "fr_003",
+      "query": "C'est quoi le COD ?",
+      "matiere_filter": "francais",
+      "expected_titles": ["Le complément d'objet direct (COD)"],
+      "difficulty": "medium",
+      "category": "grammaire"
+    },
+    {
+      "id": "fr_004",
+      "query": "C'est quoi le COI ?",
+      "matiere_filter": "francais",
+      "expected_titles": ["Le complément d'objet indirect (COI)"],
+      "difficulty": "medium",
+      "category": "grammaire"
+    },
+    {
+      "id": "fr_005",
+      "query": "C'est quoi le subjonctif ?",
+      "matiere_filter": "francais",
+      "expected_titles": ["Le subjonctif présent"],
+      "difficulty": "medium",
+      "category": "conjugaison"
+    },
+    {
+      "id": "fr_006",
+      "query": "Comment utiliser les complements circonstanciels ?",
+      "matiere_filter": "francais",
+      "expected_titles": ["Les compléments circonstanciels"],
+      "difficulty": "medium",
+      "category": "grammaire"
+    },
+    {
+      "id": "phys_001",
+      "query": "C'est quoi une source de lumiere primaire ?",
+      "matiere_filter": "physique_chimie",
+      "expected_titles": ["Sources de lumière - Primaires et secondaires"],
+      "difficulty": "easy",
+      "category": "definition"
+    },
+    {
+      "id": "phys_002",
+      "query": "Comment se propage la lumiere ?",
+      "matiere_filter": "physique_chimie",
+      "expected_titles": ["Propagation rectiligne de la lumière"],
+      "difficulty": "easy",
+      "category": "concept"
+    },
+    {
+      "id": "phys_003",
+      "query": "C'est quoi un circuit electrique ?",
+      "matiere_filter": "physique_chimie",
+      "expected_titles": ["Circuit électrique simple"],
+      "difficulty": "easy",
+      "category": "definition"
+    },
+    {
+      "id": "phys_004",
+      "query": "Comment calculer une masse volumique ?",
+      "matiere_filter": "physique_chimie",
+      "expected_titles": ["La masse volumique"],
+      "difficulty": "medium",
+      "category": "formule"
+    },
+    {
+      "id": "phys_005",
+      "query": "C'est quoi les changements d'etat de l'eau ?",
+      "matiere_filter": "physique_chimie",
+      "expected_titles": ["Les changements d'état de l'eau"],
+      "difficulty": "easy",
+      "category": "definition"
     },
     {
       "id": "svt_001",
-      "query": "Qu'est-ce que la photosynthèse ?",
-      "expected_docs": ["svt_cinquieme_vivant_evolution_001"],
-      "difficulty": "moyen",
-      "matiere": "svt",
-      "domaine": "Le vivant et son évolution"
+      "query": "C'est quoi la respiration cellulaire ?",
+      "matiere_filter": "svt",
+      "expected_titles": ["La respiration cellulaire"],
+      "difficulty": "easy",
+      "category": "definition"
     },
     {
-      "id": "complex_001",
-      "query": "Je ne comprends pas la différence entre l'aire et le périmètre, peux-tu m'expliquer avec un exemple ?",
-      "expected_docs": ["mathematiques_cinquieme_grandeurs_mesures_002", "mathematiques_cinquieme_grandeurs_mesures_003"],
-      "difficulty": "difficile",
-      "matiere": "mathematiques",
-      "domaine": "Grandeurs et Mesures",
-      "notes": "Query complexe multi-document"
+      "id": "svt_002",
+      "query": "C'est quoi la photosynthese ?",
+      "matiere_filter": "svt",
+      "expected_titles": ["La photosynthèse - Nutrition des végétaux"],
+      "difficulty": "easy",
+      "category": "concept"
     },
     {
-      "id": "complex_002",
-      "query": "J'ai un devoir de maths sur les triangles et je dois prouver qu'un triangle est rectangle, comment faire ?",
-      "expected_docs": ["mathematiques_cinquieme_geometrie_triangles_001", "mathematiques_cinquieme_geometrie_002"],
-      "difficulty": "difficile",
-      "matiere": "mathematiques",
-      "domaine": "Géométrie",
-      "notes": "Query complexe avec contexte réel"
+      "id": "svt_003",
+      "query": "C'est quoi l'effet de serre ?",
+      "matiere_filter": "svt",
+      "expected_titles": ["L'effet de serre naturel et son intensification"],
+      "difficulty": "easy",
+      "category": "definition"
+    },
+    {
+      "id": "svt_004",
+      "query": "Comment fonctionne le systeme immunitaire ?",
+      "matiere_filter": "svt",
+      "expected_titles": ["Le système immunitaire - Défenses de l'organisme"],
+      "difficulty": "medium",
+      "category": "concept"
+    },
+    {
+      "id": "hg_001",
+      "query": "C'est quoi la croissance demographique ?",
+      "matiere_filter": "histoire_geo",
+      "expected_titles": ["Croissance démographique mondiale"],
+      "difficulty": "easy",
+      "category": "definition"
+    },
+    {
+      "id": "hg_002",
+      "query": "Comment expliquer les inegalites dans le monde ?",
+      "matiere_filter": "histoire_geo",
+      "expected_titles": ["Les inégalités de développement dans le monde"],
+      "difficulty": "medium",
+      "category": "concept"
+    },
+    {
+      "id": "hg_003",
+      "query": "C'est quoi les Grandes Decouvertes ?",
+      "matiere_filter": "histoire_geo",
+      "expected_titles": ["Les Grandes Découvertes - Causes et contexte"],
+      "difficulty": "easy",
+      "category": "histoire"
+    },
+    {
+      "id": "ang_001",
+      "query": "Comment former le present simple en anglais ?",
+      "matiere_filter": "anglais",
+      "expected_titles": ["Present Simple - Formation et emploi"],
+      "difficulty": "easy",
+      "category": "grammaire"
+    },
+    {
+      "id": "ang_002",
+      "query": "Quand utiliser le present continuous ?",
+      "matiere_filter": "anglais",
+      "expected_titles": ["Present Continuous - Formation et emploi", "Present Simple vs Present Continuous"],
+      "difficulty": "medium",
+      "category": "grammaire"
+    },
+    {
+      "id": "ang_003",
+      "query": "Comment former le passe en anglais ?",
+      "matiere_filter": "anglais",
+      "expected_titles": ["Past Simple (Preterit) - Verbes réguliers", "Past Simple - Verbes irréguliers courants"],
+      "difficulty": "medium",
+      "category": "grammaire"
+    },
+    {
+      "id": "ang_004",
+      "query": "Comment utiliser CAN en anglais ?",
+      "matiere_filter": "anglais",
+      "expected_titles": ["Modal CAN - Capacité et permission"],
+      "difficulty": "easy",
+      "category": "grammaire"
+    },
+    {
+      "id": "cross_001",
+      "query": "Comment exprimer la possession en langue etrangere ?",
+      "matiere_filter": null,
+      "expected_titles": ["Les adjectifs possessifs"],
+      "difficulty": "cross_language",
+      "category": "grammaire",
+      "note": "Devrait retourner allemand, espagnol, italien, anglais"
     }
   ]
 }

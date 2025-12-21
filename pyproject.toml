@@ -8,13 +8,15 @@ license = { text = "MIT" }
 authors = [{ name = "TomAI Team" }]
 
 dependencies = [
-    "pydantic>=2.0",           # Validation schemas
-    "jsonlines>=4.0",          # JSONL I/O
-    "httpx>=0.27",             # API calls (Qdrant, embeddings)
-    "rich>=13.0",              # CLI output
-    "typer>=0.12",             # CLI framework
-    "qdrant-client>=1.12",     # Qdrant vector DB
-    "mistralai>=1.0",          # Mistral embeddings (migration from Gemini - Jan 2025)
+    "pydantic>=2.0", # Validation schemas
+    "jsonlines>=4.0", # JSONL I/O
+    "httpx>=0.27", # API calls (Qdrant, embeddings)
+    "rich>=13.0", # CLI output
+    "typer>=0.12", # CLI framework
+    "qdrant-client>=1.12", # Qdrant vector DB
+    "mistralai>=1.0", # Mistral embeddings (migration from Gemini - Jan 2025)
+    "python-dotenv>=1.2.1",
+    "fastembed>=0.7.4",
 ]
 
 [project.optional-dependencies]

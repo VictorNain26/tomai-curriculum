@@ -412,7 +412,7 @@ def merge(
 
     Best practice 2025: chunking sémantique par thème avec enrichissement auto.
     """
-    rprint("\n[bold cyan]📦 Chunking Optimal - RAG 2025[/bold cyan]\n")
+    rprint("\n[bold cyan]Chunking Optimal - RAG 2025[/bold cyan]\n")
 
     # Trouver les fichiers
     files = []

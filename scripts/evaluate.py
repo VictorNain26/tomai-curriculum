@@ -1,367 +1,348 @@
 #!/usr/bin/env python3
 """
-Script d'évaluation RAG - Best Practices 2025.
+Evaluation RAG Expert - Metriques standards 2025.
 
-Mesure la qualité du retrieval avec des métriques standard:
-- Recall@K: Proportion de documents pertinents retrouvés dans les top-K
-- MRR (Mean Reciprocal Rank): Position moyenne du premier document pertinent
-- NDCG@K (Normalized Discounted Cumulative Gain): Qualité du ranking
+Calcule les metriques de retrieval:
+- Recall@K: % de documents pertinents retrouves
+- Precision@K: % de documents retrouves qui sont pertinents
+- MRR: Mean Reciprocal Rank (position du 1er doc pertinent)
+- NDCG@K: Normalized Discounted Cumulative Gain (qualite du ranking)
 
-Usage:
-    uv run python scripts/evaluate.py run --test-queries data/test_queries.json
-    uv run python scripts/evaluate.py run --test-queries data/test_queries.json --output metrics.json
+Sources:
+- https://qdrant.tech/blog/rag-evaluation-guide/
+- https://www.confident-ai.com/blog/rag-evaluation-metrics-answer-relevancy-faithfulness-and-more
 """
 
 import json
 import math
-import sys
+import os
+import time
 from pathlib import Path
 from typing import Annotated
 
+from dotenv import load_dotenv
+import typer
+from mistralai import Mistral
+
+# Charger .env
+load_dotenv()
+from qdrant_client import QdrantClient
+from qdrant_client.models import Filter, FieldCondition, MatchValue
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+app = typer.Typer(name="evaluate", help="Evaluation RAG expert")
 console = Console()
 
-# Add parent to path for schema import
-sys.path.insert(0, str(Path(__file__).parent.parent))
+EMBEDDING_MODEL = "mistral-embed"
 
 
-def recall_at_k(retrieved: list[str], expected: list[str], k: int = 5) -> float:
+def normalize_title(title: str) -> str:
+    """Normalise un titre pour comparaison (lowercase, sans accents basiques)."""
+    import unicodedata
+    # Lowercase
+    title = title.lower().strip()
+    # Supprimer accents
+    title = unicodedata.normalize('NFD', title)
+    title = ''.join(c for c in title if unicodedata.category(c) != 'Mn')
+    return title
+
+
+def title_matches(retrieved_title: str, expected_title: str) -> bool:
+    """Verifie si un titre recupere correspond a un titre attendu (fuzzy)."""
+    r = normalize_title(retrieved_title)
+    e = normalize_title(expected_title)
+    # Match exact ou contenu
+    return r == e or e in r or r in e
+
+
+def calculate_recall_at_k(retrieved_titles: list[str], expected_titles: list[str], k: int) -> float:
     """
-    Calcule le Recall@K.
-
-    Mesure la proportion de documents pertinents retrouvés dans les top-K.
-
-    Args:
-        retrieved: Liste des IDs de documents retrouvés (ordonnés par score)
-        expected: Liste des IDs de documents pertinents
-        k: Nombre de résultats à considérer
-
-    Returns:
-        Score entre 0 et 1
+    Recall@K = |retrieved_relevant| / |expected_relevant|
+    Proportion de documents pertinents qui ont ete retrouves.
     """
-    if not expected:
-        return 1.0  # Pas de document attendu
+    if not expected_titles:
+        return 1.0
 
-    top_k = set(retrieved[:k])
-    relevant_found = len(top_k.intersection(expected))
+    top_k = retrieved_titles[:k]
+    found = 0
+    for expected in expected_titles:
+        for retrieved in top_k:
+            if title_matches(retrieved, expected):
+                found += 1
+                break
 
-    return relevant_found / len(expected)
+    return found / len(expected_titles)
 
 
-def mean_reciprocal_rank(retrieved: list[str], expected: list[str]) -> float:
+def calculate_precision_at_k(retrieved_titles: list[str], expected_titles: list[str], k: int) -> float:
     """
-    Calcule le MRR (Mean Reciprocal Rank).
-
-    Mesure la position du premier document pertinent.
-    Plus le document pertinent est haut dans le ranking, meilleur est le score.
-
-    Args:
-        retrieved: Liste des IDs de documents retrouvés (ordonnés par score)
-        expected: Liste des IDs de documents pertinents
-
-    Returns:
-        Score entre 0 et 1 (1/position du premier document pertinent)
+    Precision@K = |retrieved_relevant| / K
+    Proportion de documents retrouves qui sont pertinents.
     """
-    for i, doc_id in enumerate(retrieved, 1):
-        if doc_id in expected:
-            return 1.0 / i
-
-    return 0.0  # Aucun document pertinent trouvé
-
-
-def ndcg_at_k(retrieved: list[str], expected: list[str], k: int = 5) -> float:
-    """
-    Calcule le NDCG@K (Normalized Discounted Cumulative Gain).
-
-    Mesure la qualité du ranking en pénalisant les documents pertinents
-    placés loin dans la liste.
-
-    Args:
-        retrieved: Liste des IDs de documents retrouvés (ordonnés par score)
-        expected: Liste des IDs de documents pertinents
-        k: Nombre de résultats à considérer
-
-    Returns:
-        Score entre 0 et 1
-    """
-    def dcg(relevances: list[int], k: int) -> float:
-        """Calcule le DCG (Discounted Cumulative Gain)."""
-        return sum(
-            (2 ** rel - 1) / math.log2(i + 2)
-            for i, rel in enumerate(relevances[:k])
-        )
-
-    # Relevances pour les documents récupérés
-    relevances = [1 if doc_id in expected else 0 for doc_id in retrieved[:k]]
-
-    # DCG idéal (documents pertinents en premier)
-    ideal_relevances = sorted(relevances, reverse=True)
-
-    dcg_score = dcg(relevances, k)
-    idcg_score = dcg(ideal_relevances, k)
-
-    if idcg_score == 0:
+    top_k = retrieved_titles[:k]
+    if not top_k:
         return 0.0
 
-    return dcg_score / idcg_score
+    relevant = 0
+    for retrieved in top_k:
+        for expected in expected_titles:
+            if title_matches(retrieved, expected):
+                relevant += 1
+                break
+
+    return relevant / len(top_k)
 
 
-def precision_at_k(retrieved: list[str], expected: list[str], k: int = 5) -> float:
+def calculate_mrr(retrieved_titles: list[str], expected_titles: list[str]) -> float:
     """
-    Calcule la Precision@K.
-
-    Mesure la proportion de documents pertinents parmi les top-K.
-
-    Args:
-        retrieved: Liste des IDs de documents retrouvés (ordonnés par score)
-        expected: Liste des IDs de documents pertinents
-        k: Nombre de résultats à considérer
-
-    Returns:
-        Score entre 0 et 1
+    MRR = 1 / rank_of_first_relevant
+    Reciprocal rank du premier document pertinent.
     """
-    if k == 0:
+    for i, retrieved in enumerate(retrieved_titles, 1):
+        for expected in expected_titles:
+            if title_matches(retrieved, expected):
+                return 1.0 / i
+    return 0.0
+
+
+def calculate_ndcg_at_k(retrieved_titles: list[str], expected_titles: list[str], k: int) -> float:
+    """
+    NDCG@K = DCG@K / IDCG@K
+    Mesure la qualite du ranking (documents pertinents en haut).
+    """
+    top_k = retrieved_titles[:k]
+
+    # DCG: Discounted Cumulative Gain
+    dcg = 0.0
+    for i, retrieved in enumerate(top_k, 1):
+        rel = 0
+        for expected in expected_titles:
+            if title_matches(retrieved, expected):
+                rel = 1
+                break
+        dcg += rel / math.log2(i + 1)
+
+    # IDCG: Ideal DCG (tous les pertinents en premier)
+    ideal_rels = [1] * min(len(expected_titles), k) + [0] * max(0, k - len(expected_titles))
+    idcg = sum(rel / math.log2(i + 2) for i, rel in enumerate(ideal_rels))
+
+    if idcg == 0:
         return 0.0
 
-    top_k = retrieved[:k]
-    relevant_in_top_k = len([doc_id for doc_id in top_k if doc_id in expected])
-
-    return relevant_in_top_k / k
+    return dcg / idcg
 
 
-def evaluate_query(query: dict, retrieval_fn, k: int = 5) -> dict:
-    """
-    Évalue une query unique.
-
-    Args:
-        query: Dict contenant 'query', 'expected_docs', etc.
-        retrieval_fn: Fonction de retrieval qui prend une query et retourne une liste d'IDs
-        k: Nombre de résultats à considérer
-
-    Returns:
-        Dict avec les métriques
-    """
-    query_text = query["query"]
-    expected_docs = query["expected_docs"]
-
-    # Récupérer les documents
-    retrieved_docs = retrieval_fn(query_text, k=k)
-
-    # Calculer les métriques
-    metrics = {
-        "query_id": query["id"],
-        "recall@5": recall_at_k(retrieved_docs, expected_docs, k=5),
-        "recall@10": recall_at_k(retrieved_docs, expected_docs, k=10),
-        "mrr": mean_reciprocal_rank(retrieved_docs, expected_docs),
-        "ndcg@5": ndcg_at_k(retrieved_docs, expected_docs, k=5),
-        "precision@5": precision_at_k(retrieved_docs, expected_docs, k=5),
-        "retrieved_count": len(retrieved_docs),
-        "expected_count": len(expected_docs),
-    }
-
-    return metrics
+def generate_embedding(client: Mistral, text: str) -> list[float]:
+    """Genere un embedding Mistral 1024D."""
+    result = client.embeddings.create(model=EMBEDDING_MODEL, inputs=[text])
+    embedding = result.data[0].embedding
+    # Normaliser
+    magnitude = math.sqrt(sum(v * v for v in embedding))
+    return [v / magnitude for v in embedding]
 
 
-def aggregate_metrics(results: list[dict]) -> dict:
-    """
-    Agrège les métriques sur toutes les queries.
+@app.command()
+def run(
+    test_file: Annotated[str, typer.Option(help="Fichier de test queries")] = "data/test_queries.json",
+    qdrant_url: Annotated[str | None, typer.Option("--qdrant-url", envvar="QDRANT_URL")] = None,
+    qdrant_api_key: Annotated[str | None, typer.Option("--qdrant-api-key", envvar="QDRANT_API_KEY")] = None,
+    mistral_api_key: Annotated[str | None, typer.Option("--mistral-api-key", envvar="MISTRAL_API_KEY")] = None,
+    collection: Annotated[str, typer.Option(envvar="QDRANT_COLLECTION")] = "tomai_educational",
+    top_k: Annotated[int, typer.Option(help="Nombre de resultats a recuperer")] = 10,
+    output: Annotated[str | None, typer.Option(help="Fichier de sortie JSON")] = None,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
+):
+    """Execute l'evaluation RAG avec les metriques standard."""
 
-    Args:
-        results: Liste des résultats individuels
-
-    Returns:
-        Dict avec moyennes et écarts-types
-    """
-    if not results:
-        return {}
-
-    metrics_keys = ["recall@5", "recall@10", "mrr", "ndcg@5", "precision@5"]
-    aggregated = {}
-
-    for key in metrics_keys:
-        values = [r[key] for r in results if key in r]
-        aggregated[f"{key}_mean"] = sum(values) / len(values) if values else 0.0
-        aggregated[f"{key}_min"] = min(values) if values else 0.0
-        aggregated[f"{key}_max"] = max(values) if values else 0.0
-
-    return aggregated
-
-
-def mock_retrieval(query: str, k: int = 5) -> list[str]:
-    """
-    Fonction de retrieval mock pour tests.
-
-    Dans une vraie implémentation, cela ferait appel à Qdrant + embeddings.
-
-    Args:
-        query: Texte de la query
-        k: Nombre de résultats à retourner
-
-    Returns:
-        Liste d'IDs de documents simulés
-    """
-    # Simulation simple basée sur des mots-clés
-    query_lower = query.lower()
-
-    mock_results = []
-
-    # Mathématiques
-    if "triangle" in query_lower or "pythagore" in query_lower:
-        mock_results.extend([
-            "mathematiques_cinquieme_geometrie_002",
-            "mathematiques_cinquieme_geometrie_triangles_001"
-        ])
-    if "aire" in query_lower or "périmètre" in query_lower:
-        mock_results.extend([
-            "mathematiques_cinquieme_grandeurs_mesures_001",
-            "mathematiques_cinquieme_grandeurs_mesures_002"
-        ])
-    if "relatif" in query_lower or "additionner" in query_lower:
-        mock_results.extend([
-            "mathematiques_cinquieme_nombres_calculs_001"
-        ])
-    if "distributivité" in query_lower or "développer" in query_lower:
-        mock_results.extend([
-            "mathematiques_cinquieme_calcul_litteral_001"
-        ])
-    if "parallélogramme" in query_lower or "rectangle" in query_lower:
-        mock_results.extend([
-            "mathematiques_cinquieme_geometrie_quadrilateres_001"
-        ])
-
-    # Français
-    if "cod" in query_lower:
-        mock_results.extend([
-            "francais_cinquieme_grammaire_fonctions_001",
-            "francais_cinquieme_grammaire_fonctions_002"
-        ])
-    if "conjuguer" in query_lower or "présent" in query_lower:
-        mock_results.extend([
-            "francais_cinquieme_conjugaison_present_001"
-        ])
-    if "coi" in query_lower:
-        mock_results.extend([
-            "francais_cinquieme_grammaire_fonctions_002"
-        ])
-
-    # Physique-Chimie
-    if "eau" in query_lower or "états" in query_lower:
-        mock_results.extend([
-            "physique_chimie_cinquieme_eau_001"
-        ])
-    if "circuit" in query_lower or "électrique" in query_lower:
-        mock_results.extend([
-            "physique_chimie_cinquieme_electricite_001"
-        ])
-
-    # SVT
-    if "photosynthèse" in query_lower:
-        mock_results.extend([
-            "svt_cinquieme_vivant_evolution_001"
-        ])
-
-    # Dédupliquer et limiter
-    seen = set()
-    unique_results = []
-    for doc_id in mock_results:
-        if doc_id not in seen:
-            unique_results.append(doc_id)
-            seen.add(doc_id)
-
-    return unique_results[:k]
-
-
-def run_evaluation(test_queries_path: Path, output_path: Path | None = None, k: int = 5):
-    """
-    Lance l'évaluation complète.
-
-    Args:
-        test_queries_path: Chemin vers le fichier de test queries
-        output_path: Chemin de sortie pour les métriques (optionnel)
-        k: Nombre de résultats à considérer
-    """
-    rprint("\n[bold cyan]📊 Évaluation RAG - Best Practices 2025[/bold cyan]\n")
+    if not qdrant_url or not qdrant_api_key or not mistral_api_key:
+        rprint("[red]QDRANT_URL, QDRANT_API_KEY et MISTRAL_API_KEY requis[/red]")
+        raise typer.Exit(1)
 
     # Charger les test queries
-    with open(test_queries_path, "r", encoding="utf-8") as f:
+    test_path = Path(test_file)
+    if not test_path.exists():
+        rprint(f"[red]Fichier de test non trouve: {test_file}[/red]")
+        raise typer.Exit(1)
+
+    with open(test_path, "r", encoding="utf-8") as f:
         test_data = json.load(f)
 
     queries = test_data["queries"]
     targets = test_data.get("metrics_target", {})
 
-    rprint(f"📝 Nombre de queries: {len(queries)}")
-    rprint(f"🎯 Objectifs: Recall@5={targets.get('recall@5', 'N/A')}, MRR={targets.get('mrr', 'N/A')}")
+    rprint(f"\n[bold cyan]Evaluation RAG Expert[/bold cyan]")
+    rprint(f"  Collection: {collection}")
+    rprint(f"  Test queries: {len(queries)}")
+    rprint(f"  Top-K: {top_k}")
 
-    # Évaluer chaque query
+    # Initialiser clients
+    mistral_client = Mistral(api_key=mistral_api_key)
+    qdrant_client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
+
+    # Resultats
     results = []
-    for query in queries:
-        metrics = evaluate_query(query, mock_retrieval, k=k)
-        results.append(metrics)
+    all_recall_5 = []
+    all_recall_10 = []
+    all_precision_5 = []
+    all_mrr = []
+    all_ndcg_10 = []
 
-    # Agréger les métriques
-    aggregated = aggregate_metrics(results)
+    rprint(f"\n[bold]Execution des queries...[/bold]")
 
-    # Afficher les résultats
-    table = Table(title="Métriques par Query")
-    table.add_column("Query ID", style="cyan")
-    table.add_column("Recall@5", justify="right")
-    table.add_column("MRR", justify="right")
-    table.add_column("NDCG@5", justify="right")
-    table.add_column("Precision@5", justify="right")
+    for i, q in enumerate(queries, 1):
+        query_id = q["id"]
+        query_text = q["query"]
+        expected_titles = q["expected_titles"]
+        matiere_filter = q.get("matiere_filter")
 
-    for result in results[:10]:  # Afficher les 10 premières
-        table.add_row(
-            result["query_id"],
-            f"{result['recall@5']:.3f}",
-            f"{result['mrr']:.3f}",
-            f"{result['ndcg@5']:.3f}",
-            f"{result['precision@5']:.3f}"
+        # Generer embedding
+        try:
+            embedding = generate_embedding(mistral_client, query_text)
+            time.sleep(0.5)  # Rate limit
+        except Exception as e:
+            rprint(f"  [red]Erreur embedding {query_id}: {e}[/red]")
+            continue
+
+        # Construire filtre
+        search_filter = None
+        if matiere_filter:
+            search_filter = Filter(
+                must=[FieldCondition(key="matiere", match=MatchValue(value=matiere_filter))]
+            )
+
+        # Recherche Qdrant (API v2: query_points)
+        search_results = qdrant_client.query_points(
+            collection_name=collection,
+            query=embedding,
+            query_filter=search_filter,
+            limit=top_k,
+            with_payload=True,
         )
+
+        retrieved_titles = [r.payload.get("title", "") for r in search_results.points]
+
+        # Calculer metriques
+        recall_5 = calculate_recall_at_k(retrieved_titles, expected_titles, 5)
+        recall_10 = calculate_recall_at_k(retrieved_titles, expected_titles, 10)
+        precision_5 = calculate_precision_at_k(retrieved_titles, expected_titles, 5)
+        mrr = calculate_mrr(retrieved_titles, expected_titles)
+        ndcg_10 = calculate_ndcg_at_k(retrieved_titles, expected_titles, 10)
+
+        all_recall_5.append(recall_5)
+        all_recall_10.append(recall_10)
+        all_precision_5.append(precision_5)
+        all_mrr.append(mrr)
+        all_ndcg_10.append(ndcg_10)
+
+        result = {
+            "id": query_id,
+            "query": query_text,
+            "expected": expected_titles,
+            "retrieved": retrieved_titles[:5],
+            "recall@5": recall_5,
+            "recall@10": recall_10,
+            "precision@5": precision_5,
+            "mrr": mrr,
+            "ndcg@10": ndcg_10,
+        }
+        results.append(result)
+
+        # Affichage verbose
+        if verbose:
+            status = "[green]OK[/green]" if recall_5 >= 0.8 else "[yellow]PARTIAL[/yellow]" if recall_5 > 0 else "[red]MISS[/red]"
+            rprint(f"  [{i}/{len(queries)}] {query_id}: {status} (R@5={recall_5:.2f}, MRR={mrr:.2f})")
+        else:
+            rprint(f"  [{i}/{len(queries)}] {query_id}...", end="\r")
+
+    # Moyennes
+    avg_recall_5 = sum(all_recall_5) / len(all_recall_5) if all_recall_5 else 0
+    avg_recall_10 = sum(all_recall_10) / len(all_recall_10) if all_recall_10 else 0
+    avg_precision_5 = sum(all_precision_5) / len(all_precision_5) if all_precision_5 else 0
+    avg_mrr = sum(all_mrr) / len(all_mrr) if all_mrr else 0
+    avg_ndcg_10 = sum(all_ndcg_10) / len(all_ndcg_10) if all_ndcg_10 else 0
+
+    # Affichage resultats
+    rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
+    rprint(f"[bold cyan]RESULTATS DE L'EVALUATION RAG[/bold cyan]")
+    rprint(f"[bold cyan]{'='*60}[/bold cyan]")
+
+    table = Table(show_header=True)
+    table.add_column("Metrique")
+    table.add_column("Score", justify="right")
+    table.add_column("Target", justify="right")
+    table.add_column("Status", justify="center")
+
+    def status_icon(score: float, target: float) -> str:
+        if score >= target:
+            return "[green]PASS[/green]"
+        elif score >= target * 0.8:
+            return "[yellow]CLOSE[/yellow]"
+        else:
+            return "[red]FAIL[/red]"
+
+    metrics_display = [
+        ("Recall@5", avg_recall_5, targets.get("recall@5", 0.8)),
+        ("Recall@10", avg_recall_10, targets.get("recall@10", 0.9)),
+        ("Precision@5", avg_precision_5, targets.get("precision@5", 0.4)),
+        ("MRR", avg_mrr, targets.get("mrr", 0.7)),
+        ("NDCG@10", avg_ndcg_10, targets.get("ndcg@10", 0.75)),
+    ]
+
+    for name, score, target in metrics_display:
+        table.add_row(name, f"{score:.3f}", f"{target:.2f}", status_icon(score, target))
 
     console.print(table)
 
-    # Afficher les moyennes
-    rprint("\n[bold]Résultats agrégés:[/bold]")
-    for key, value in aggregated.items():
-        if "_mean" in key:
-            metric_name = key.replace("_mean", "")
-            target_val = targets.get(metric_name, None)
-            status = ""
-            if target_val:
-                status = " ✓" if value >= target_val else " ✗"
-            rprint(f"  • {metric_name:15s}: {value:.3f}{status}")
+    # Score global
+    passed = sum(1 for _, score, target in metrics_display if score >= target)
+    total = len(metrics_display)
+    global_score = passed / total * 100
 
-    # Sauvegarder les résultats
-    if output_path:
-        output_data = {
-            "version": "1.0.0",
-            "timestamp": "2025-12-17",
-            "test_queries": test_queries_path.name,
-            "k": k,
-            "aggregated": aggregated,
-            "details": results
+    rprint(f"\n[bold]Score global: {passed}/{total} metriques passees ({global_score:.0f}%)[/bold]")
+
+    if global_score >= 80:
+        rprint("[green]Excellent! Le systeme RAG est performant.[/green]")
+    elif global_score >= 60:
+        rprint("[yellow]Correct, mais des ameliorations sont recommandees.[/yellow]")
+    else:
+        rprint("[red]Ameliorations necessaires - verifier embeddings et documents.[/red]")
+
+    # Details par categorie
+    rprint(f"\n[bold]Details par query:[/bold]")
+
+    # Queries avec problemes
+    failed_queries = [r for r in results if r["recall@5"] < 0.5]
+    if failed_queries:
+        rprint(f"\n[yellow]Queries avec faible recall (<0.5):[/yellow]")
+        for r in failed_queries[:5]:
+            rprint(f"  - {r['id']}: '{r['query'][:50]}...'")
+            rprint(f"    Attendu: {r['expected']}")
+            rprint(f"    Obtenu: {r['retrieved'][:3]}")
+
+    # Export JSON
+    if output:
+        export_data = {
+            "evaluation_date": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "collection": collection,
+            "num_queries": len(queries),
+            "top_k": top_k,
+            "metrics": {
+                "recall@5": avg_recall_5,
+                "recall@10": avg_recall_10,
+                "precision@5": avg_precision_5,
+                "mrr": avg_mrr,
+                "ndcg@10": avg_ndcg_10,
+            },
+            "targets": targets,
+            "global_score": global_score,
+            "results": results,
         }
-
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dumps(output_data, f, ensure_ascii=False, indent=2)
-
-        rprint(f"\n[green]✓ Résultats sauvegardés: {output_path}[/green]")
+        with open(output, "w", encoding="utf-8") as f:
+            json.dump(export_data, f, indent=2, ensure_ascii=False)
+        rprint(f"\n[dim]Resultats exportes vers {output}[/dim]")
 
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Évaluation RAG")
-    parser.add_argument("--test-queries", required=True, help="Fichier test queries JSON")
-    parser.add_argument("--output", help="Fichier de sortie pour métriques")
-    parser.add_argument("--k", type=int, default=5, help="Nombre de résultats top-K")
-
-    args = parser.parse_args()
-
-    run_evaluation(
-        test_queries_path=Path(args.test_queries),
-        output_path=Path(args.output) if args.output else None,
-        k=args.k
-    )
+    app()

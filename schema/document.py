@@ -265,9 +265,9 @@ class Document(BaseModel):
     # === Contenu principal (OPTIMISÉ 2025: 300-400 tokens cible) ===
     content: str = Field(
         ...,
-        min_length=800,    # ~200 tokens minimum (4 chars/token)
-        max_length=6000,   # ~1500 tokens maximum
-        description="Contenu pédagogique principal (cible 1200-1600 chars = 300-400 tokens)"
+        min_length=200,    # ~50 tokens minimum (accepte contenu atomique)
+        max_length=2400,   # ~600 tokens maximum
+        description="Contenu pédagogique principal (cible 1200-1600 chars = 300-400 tokens, min 200 chars pour contenu atomique)"
     )
 
     # === Metadata pour retrieval ===
@@ -372,14 +372,15 @@ class Document(BaseModel):
         Valide que le contenu respecte les best practices 2025 pour chunking.
 
         Cible: 300-400 tokens (1200-1600 chars en français)
-        Acceptable: 200-600 tokens (800-2400 chars)
+        Acceptable: 50-600 tokens (200-2400 chars)
+        Atomique: 50-150 tokens pour contenu très spécifique (vocabulaire, définitions courtes)
         """
         token_estimate = len(v) / 4  # Approximation: 1 token ≈ 4 chars français
 
-        if token_estimate < 200:
+        if token_estimate < 50:
             raise ValueError(
-                f"Contenu trop court (~{int(token_estimate)} tokens, min 200). "
-                f"Best practice 2025: 300-400 tokens cible pour retrieval optimal."
+                f"Contenu trop court (~{int(token_estimate)} tokens, min 50). "
+                f"Même pour du contenu atomique, un minimum de contexte est nécessaire."
             )
         if token_estimate > 600:
             raise ValueError(
