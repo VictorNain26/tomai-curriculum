@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol 2020** (Bulletin Officiel 30/07/2020). Documents JSONL optimisés pour RAG avec Qdrant et Mistral embeddings 1024D.
+Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol 2024** (BO 13/06/2024 pour EMC, BO 29/02/2024 pour Technologie, BO 30/07/2020 pour autres matières). Documents JSONL optimisés pour RAG avec Qdrant et Mistral embeddings 1024D.
 
 ## Setup
 
@@ -40,7 +40,6 @@ uv run python scripts/evaluate.py --output evaluation_results.json  # Export JSO
 
 # === Recherche et testing ===
 uv run python scripts/search.py                    # Test recherche interactive
-uv run python scripts/rerank.py                    # Test BM25 reranking
 
 # === Linting et formatage ===
 uv run ruff check .
@@ -61,25 +60,26 @@ scripts/
 ├── chunking.py         # Chunking optimal: merge + overlap + enrichment
 ├── evaluate.py         # Évaluation RAG expert: Recall@K, Precision@K, MRR, NDCG@K
 ├── audit_qdrant.py     # Audit collection Qdrant: config, indexes, duplicates
-├── rerank.py           # Reranking hybride: BM25 + metadata boost
 └── search.py           # CLI de recherche interactive (test)
 
 data/
 ├── processed/          # JSONL optimisés RAG 2025 (50-600 tokens/doc)
 │   └── college/cinquieme/
-│       ├── mathematiques.jsonl    # 33 docs, ~7,890 tokens (~239 tok/doc)
-│       ├── francais.jsonl          # 35 docs, ~10,962 tokens (~313 tok/doc)
-│       ├── physique_chimie.jsonl   # 20 docs, ~6,506 tokens (~325 tok/doc)
-│       ├── svt.jsonl               # 17 docs, ~5,942 tokens (~350 tok/doc)
-│       ├── histoire_geo.jsonl      # 27 docs, ~7,851 tokens (~291 tok/doc)
-│       ├── anglais.jsonl           # 18 docs, ~2,077 tokens (~115 tok/doc, atomique)
-│       ├── allemand.jsonl          # 20 docs, ~5,140 tokens (~257 tok/doc)
-│       ├── espagnol.jsonl          # 20 docs, ~5,222 tokens (~261 tok/doc)
-│       └── italien.jsonl           # 22 docs, ~2,919 tokens (~133 tok/doc, atomique)
+│       ├── mathematiques.jsonl    # 33 docs (~239 tok/doc)
+│       ├── francais.jsonl          # 35 docs (~313 tok/doc)
+│       ├── histoire_geo.jsonl      # 27 docs (~291 tok/doc)
+│       ├── physique_chimie.jsonl   # 20 docs (~325 tok/doc)
+│       ├── svt.jsonl               # 17 docs (~350 tok/doc)
+│       ├── emc.jsonl               # 18 docs - Éduscol 2024 (~320 tok/doc)
+│       ├── technologie.jsonl       # 20 docs - Éduscol 2024 (~350 tok/doc)
+│       ├── anglais.jsonl           # 18 docs (~115 tok/doc, atomique)
+│       ├── allemand.jsonl          # 20 docs (~257 tok/doc)
+│       ├── espagnol.jsonl          # 20 docs (~261 tok/doc)
+│       └── italien.jsonl           # 22 docs (~133 tok/doc, atomique)
 ├── raw/                # Sources brutes et références Éduscol
 └── test_queries.json   # Test queries pour évaluation RAG
 
-**Total: 212 documents, ~54,509 tokens (~257 tokens/doc)**
+**Total: 250 documents, 11 matières (curriculum 5ème complet)**
 ```
 
 ## Schéma Document (Version 2.0 - RAG 2025)
