@@ -15,22 +15,21 @@ Sources:
 
 import json
 import math
-import os
 import time
 from pathlib import Path
 from typing import Annotated
 
-from dotenv import load_dotenv
 import typer
+from dotenv import load_dotenv
 from mistralai import Mistral
-
-# Charger .env
-load_dotenv()
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue
+from qdrant_client.models import FieldCondition, Filter, MatchValue
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
+
+# Charger .env avant toute lecture d'env var par les commandes Typer
+load_dotenv()
 
 app = typer.Typer(name="evaluate", help="Evaluation RAG expert")
 console = Console()
@@ -166,13 +165,13 @@ def run(
         rprint(f"[red]Fichier de test non trouve: {test_file}[/red]")
         raise typer.Exit(1)
 
-    with open(test_path, "r", encoding="utf-8") as f:
+    with open(test_path, encoding="utf-8") as f:
         test_data = json.load(f)
 
     queries = test_data["queries"]
     targets = test_data.get("metrics_target", {})
 
-    rprint(f"\n[bold cyan]Evaluation RAG Expert[/bold cyan]")
+    rprint("\n[bold cyan]Evaluation RAG Expert[/bold cyan]")
     rprint(f"  Collection: {collection}")
     rprint(f"  Test queries: {len(queries)}")
     rprint(f"  Top-K: {top_k}")
@@ -189,7 +188,7 @@ def run(
     all_mrr = []
     all_ndcg_10 = []
 
-    rprint(f"\n[bold]Execution des queries...[/bold]")
+    rprint("\n[bold]Execution des queries...[/bold]")
 
     for i, q in enumerate(queries, 1):
         query_id = q["id"]
@@ -265,7 +264,7 @@ def run(
 
     # Affichage resultats
     rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
-    rprint(f"[bold cyan]RESULTATS DE L'EVALUATION RAG[/bold cyan]")
+    rprint("[bold cyan]RESULTATS DE L'EVALUATION RAG[/bold cyan]")
     rprint(f"[bold cyan]{'='*60}[/bold cyan]")
 
     table = Table(show_header=True)
@@ -310,12 +309,12 @@ def run(
         rprint("[red]Ameliorations necessaires - verifier embeddings et documents.[/red]")
 
     # Details par categorie
-    rprint(f"\n[bold]Details par query:[/bold]")
+    rprint("\n[bold]Details par query:[/bold]")
 
     # Queries avec problemes
     failed_queries = [r for r in results if r["recall@5"] < 0.5]
     if failed_queries:
-        rprint(f"\n[yellow]Queries avec faible recall (<0.5):[/yellow]")
+        rprint("\n[yellow]Queries avec faible recall (<0.5):[/yellow]")
         for r in failed_queries[:5]:
             rprint(f"  - {r['id']}: '{r['query'][:50]}...'")
             rprint(f"    Attendu: {r['expected']}")

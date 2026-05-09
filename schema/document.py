@@ -16,20 +16,23 @@ Sources:
 - https://unstructured.io/blog/chunking-for-rag-best-practices
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 
+from schema._examples import DOCUMENT_EXAMPLES
 
 # =============================================================================
 # ENUMS - Vocabulaire contrôlé
 # =============================================================================
 
 class Cycle(str, Enum):
-    """Cycles scolaires français."""
-    CYCLE3 = "cycle3"  # CM1, CM2, 6ème
+    """
+    Cycles scolaires français — scope Tom mai 2026 : 6ème → Terminale.
+    Le primaire (cycle 2 CP-CE2, cycle 3 CM1-CM2) sera ajouté ultérieurement.
+    """
+    CYCLE3 = "cycle3"  # 6ème uniquement (le reste du cycle 3 est primaire, hors scope actuel)
     CYCLE4 = "cycle4"  # 5ème, 4ème, 3ème
     LYCEE = "lycee"    # 2nde, 1ère, Terminale
 
@@ -50,13 +53,38 @@ class NiveauLycee(str, Enum):
 
 
 class Matiere(str, Enum):
-    """Matières supportées par TomAI."""
+    """
+    Matières supportées par TomAI (6ème → Terminale).
+    Source de vérité unique : tout JSONL ingéré doit utiliser une de ces valeurs.
+    """
+    # Tronc commun collège + lycée
     MATHEMATIQUES = "mathematiques"
     FRANCAIS = "francais"
+    HISTOIRE_GEO = "histoire_geo"
     PHYSIQUE_CHIMIE = "physique_chimie"
     SVT = "svt"
-    HISTOIRE_GEO = "histoire_geo"
+    EMC = "emc"
+    # Langues vivantes
     ANGLAIS = "anglais"
+    ALLEMAND = "allemand"
+    ESPAGNOL = "espagnol"
+    ITALIEN = "italien"
+    # Spécifiques collège
+    TECHNOLOGIE = "technologie"
+    SCIENCES_TECHNOLOGIE = "sciences_technologie"
+    # Tronc commun lycée
+    SNT = "snt"
+    ENSEIGNEMENT_SCIENTIFIQUE = "enseignement_scientifique"
+    PHILOSOPHIE = "philosophie"
+    # Spécialités lycée
+    SES = "ses"
+    NSI = "nsi"
+    HGGSP = "hggsp"
+    LLCER_ANGLAIS = "llcer_anglais"
+    HLP = "hlp"
+    # Options Terminale
+    MATHEMATIQUES_COMPLEMENTAIRES = "mathematiques_complementaires"
+    MATHEMATIQUES_EXPERTES = "mathematiques_expertes"
 
 
 class ContentType(str, Enum):
@@ -267,7 +295,11 @@ class Document(BaseModel):
         ...,
         min_length=200,    # ~50 tokens minimum (accepte contenu atomique)
         max_length=2400,   # ~600 tokens maximum
-        description="Contenu pédagogique principal (cible 1200-1600 chars = 300-400 tokens, min 200 chars pour contenu atomique)"
+        description=(
+            "Contenu pédagogique principal "
+            "(cible 1200-1600 chars = 300-400 tokens, "
+            "min 200 chars pour contenu atomique)"
+        ),
     )
 
     # === Metadata pour retrieval ===
@@ -319,12 +351,12 @@ class Document(BaseModel):
         description="Version sémantique du document"
     )
     created_at: str = Field(
-        default_factory=lambda: datetime.utcnow().isoformat(),
-        description="Date de création ISO 8601"
+        default_factory=lambda: datetime.now(UTC).isoformat(),
+        description="Date de création ISO 8601 (UTC)"
     )
     updated_at: str = Field(
-        default_factory=lambda: datetime.utcnow().isoformat(),
-        description="Date de dernière modification ISO 8601"
+        default_factory=lambda: datetime.now(UTC).isoformat(),
+        description="Date de dernière modification ISO 8601 (UTC)"
     )
     author: str | None = Field(
         None,
@@ -390,12 +422,17 @@ class Document(BaseModel):
 
         return v
 
-    @model_validator(mode='after')
-    def compute_quality_if_missing(self) -> 'Document':
-        """Calcule automatiquement les métriques de qualité si absentes."""
-        if self.quality is None:
-            self.quality = self._compute_quality_metrics()
-        return self
+    def compute_quality(self) -> QualityMetrics:
+        """
+        Calcule et assigne les métriques de qualité.
+
+        À appeler explicitement à l'ingestion (pas en model_validator) pour
+        éviter les effets de bord à la simple validation : charger un JSONL pour
+        valider ne doit pas modifier le score, sinon le stockage et la lecture
+        peuvent diverger.
+        """
+        self.quality = self._compute_quality_metrics()
+        return self.quality
 
     def _compute_quality_metrics(self) -> QualityMetrics:
         """
@@ -439,43 +476,7 @@ class Document(BaseModel):
         )
 
     model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "id": "math_5eme_pythagore_001",
-                    "title": "Théorème de Pythagore - Énoncé, conditions et applications",
-                    "domaine": "Géométrie",
-                    "sousdomaine": "Triangles rectangles",
-                    "content_type": "theoreme",
-                    "difficulty": "standard",
-                    "content": "Dans un triangle rectangle, le carré de l'hypoténuse est égal à la somme des carrés des deux autres côtés. Si ABC est un triangle rectangle en A, alors BC² = AB² + AC². Ce théorème ne s'applique QUE dans un triangle rectangle. L'hypoténuse est toujours le côté opposé à l'angle droit, c'est le plus grand côté du triangle. Exemple d'application : Dans un triangle rectangle dont les côtés de l'angle droit mesurent 3 cm et 4 cm, l'hypoténuse mesure √(3² + 4²) = √(9 + 16) = √25 = 5 cm. Cette relation permet de vérifier qu'un triangle est rectangle : si BC² = AB² + AC², alors le triangle ABC est rectangle en A. Attention aux erreurs courantes : ne pas confondre l'hypoténuse avec un des côtés de l'angle droit, et bien identifier l'angle droit avant d'appliquer le théorème.",
-                    "keywords": ["pythagore", "triangle rectangle", "hypoténuse", "carré", "théorème", "géométrie", "côtés", "angle droit"],
-                    "prerequis": ["math_5eme_triangle_rectangle_001", "math_5eme_carre_nombre_001"],
-                    "typical_questions": [
-                        "Comment calculer l'hypoténuse d'un triangle rectangle ?",
-                        "Qu'est-ce que le théorème de Pythagore ?",
-                        "Comment vérifier qu'un triangle est rectangle ?"
-                    ],
-                    "learning_objectives": [
-                        "Connaître et appliquer le théorème de Pythagore",
-                        "Calculer la longueur d'un côté d'un triangle rectangle"
-                    ],
-                    "common_errors": [
-                        "Confondre l'hypoténuse avec un côté de l'angle droit",
-                        "Appliquer le théorème à un triangle non rectangle"
-                    ],
-                    "enriched": {
-                        "latex_formulas": ["BC^2 = AB^2 + AC^2", "c^2 = a^2 + b^2"]
-                    },
-                    "version": "1.0.0",
-                    "author": "Éduscol - Programme officiel",
-                    "source_revision": "BO 30/07/2020",
-                    "review_status": "validated",
-                    "confidence_level": 1.0,
-                    "tags": ["essentiel", "programme_5eme", "géométrie_plane"]
-                }
-            ]
-        }
+        "json_schema_extra": {"examples": DOCUMENT_EXAMPLES},
     }
 
 

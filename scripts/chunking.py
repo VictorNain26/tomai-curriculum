@@ -18,12 +18,9 @@ Usage:
 
 import json
 import sys
-import uuid
 from collections import defaultdict
 from pathlib import Path
-from typing import Annotated
 
-import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
@@ -31,11 +28,23 @@ from rich.table import Table
 # Add parent to path for schema import
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from schema import Document, ContentType, ReviewStatus
+from schema import ContentType, ReviewStatus
+from scripts.utils import DATA_DIR
 
 console = Console()
 
-DATA_DIR = Path(__file__).parent.parent / "data" / "processed"
+
+class UnvalidatedDocument:
+    """
+    Wrapper minimal pour charger les documents v1 sans déclencher la validation
+    Pydantic v2 stricte. Sert uniquement au pipeline de migration/chunking où on
+    veut tolérer des documents non-conformes pour les fusionner et les ré-émettre
+    aux contraintes v2.
+    """
+
+    def __init__(self, **kwargs: object) -> None:
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
 def estimate_tokens(text: str) -> int:
@@ -107,7 +116,6 @@ def merge_documents(docs_group: list[dict], target_tokens: int = 350, overlap_pc
     while i < len(docs_group):
         current_batch = []
         current_tokens = 0
-        start_idx = i
 
         # Construire un chunk jusqu'à atteindre la cible
         while i < len(docs_group) and current_tokens < target_tokens:
@@ -372,22 +380,14 @@ def load_documents_from_jsonl(file_path: Path, niveau: str, matiere: str, cycle:
     """
     documents = []
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
             try:
                 data = json.loads(line)
-
-                # Créer un objet document-like sans validation stricte
-                # pour les anciens documents
-                class OldDocument:
-                    def __init__(self, **kwargs):
-                        for k, v in kwargs.items():
-                            setattr(self, k, v)
-
-                doc = OldDocument(**data)
+                doc = UnvalidatedDocument(**data)
                 documents.append({
                     "niveau": niveau,
                     "matiere": matiere,
@@ -482,7 +482,7 @@ def merge(
                 f"{reduction:.0f}%"
             )
         else:
-            rprint(f"[yellow]  Aucun document valide trouvé[/yellow]")
+            rprint("[yellow]  Aucun document valide trouvé[/yellow]")
 
         # Sauvegarder
         if not dry_run:
@@ -498,7 +498,7 @@ def merge(
 
     console.print(table)
 
-    rprint(f"\n[bold]Résumé:[/bold]")
+    rprint("\n[bold]Résumé:[/bold]")
     rprint(f"  • Documents originaux: {total_original}")
     rprint(f"  • Documents fusionnés: {total_merged}")
     rprint(f"  • Réduction: {((total_original - total_merged) / total_original * 100):.1f}%")

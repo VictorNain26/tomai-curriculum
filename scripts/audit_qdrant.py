@@ -11,12 +11,11 @@ Vérifie:
 """
 
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from typing import Annotated
 
 import typer
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue, ScrollRequest
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
@@ -59,7 +58,7 @@ def run(
 
     info = client.get_collection(collection_name=collection)
 
-    rprint(f"\n[bold]Statistiques generales:[/bold]")
+    rprint("\n[bold]Statistiques generales:[/bold]")
     rprint(f"  Points totaux: {info.points_count}")
     rprint(f"  Vecteurs indexes: {info.indexed_vectors_count}")
     rprint(f"  Status: {info.status}")
@@ -69,7 +68,7 @@ def run(
     audit_results["status"] = str(info.status)
 
     # Vérifier la configuration des vecteurs
-    rprint(f"\n[bold]Configuration des vecteurs:[/bold]")
+    rprint("\n[bold]Configuration des vecteurs:[/bold]")
     vectors_config = info.config.params.vectors
     if hasattr(vectors_config, 'size'):
         rprint(f"  Dimension: {vectors_config.size}")
@@ -85,7 +84,7 @@ def run(
             audit_results["warnings"].append(f"Dimension {vectors_config.size} au lieu de 1024")
 
     # Vérifier HNSW config
-    rprint(f"\n[bold]Configuration HNSW:[/bold]")
+    rprint("\n[bold]Configuration HNSW:[/bold]")
     hnsw = info.config.hnsw_config
     rprint(f"  m: {hnsw.m}")
     rprint(f"  ef_construct: {hnsw.ef_construct}")
@@ -101,7 +100,7 @@ def run(
         audit_results["warnings"].append("HNSW non optimisé")
 
     # Vérifier Quantization
-    rprint(f"\n[bold]Quantization:[/bold]")
+    rprint("\n[bold]Quantization:[/bold]")
     quant = info.config.quantization_config
     if quant:
         rprint(f"  Type: {quant}")
@@ -114,7 +113,7 @@ def run(
         audit_results["warnings"].append("Quantization non activée")
 
     # Vérifier les payload indexes
-    rprint(f"\n[bold]Payload Indexes:[/bold]")
+    rprint("\n[bold]Payload Indexes:[/bold]")
     payload_schema = info.payload_schema
     if payload_schema:
         indexed_fields = list(payload_schema.keys())
@@ -242,7 +241,7 @@ def run(
         min_len = min(content_lengths)
         max_len = max(content_lengths)
 
-        rprint(f"\n[bold]Longueur du contenu (caracteres):[/bold]")
+        rprint("\n[bold]Longueur du contenu (caracteres):[/bold]")
         rprint(f"  Moyenne: {avg_len:.0f} chars (~{avg_len/4:.0f} tokens)")
         rprint(f"  Min: {min_len} chars (~{min_len/4:.0f} tokens)")
         rprint(f"  Max: {max_len} chars (~{max_len/4:.0f} tokens)")
@@ -257,13 +256,12 @@ def run(
         # Vérifier les best practices RAG 2025
         optimal_min = 200
         optimal_max = 2400
-        optimal_target = 1200
 
-        too_short = sum(1 for l in content_lengths if l < optimal_min)
-        too_long = sum(1 for l in content_lengths if l > optimal_max)
-        optimal = sum(1 for l in content_lengths if optimal_min <= l <= optimal_max)
+        too_short = sum(1 for length in content_lengths if length < optimal_min)
+        too_long = sum(1 for length in content_lengths if length > optimal_max)
+        optimal = sum(1 for length in content_lengths if optimal_min <= length <= optimal_max)
 
-        rprint(f"\n[bold]Distribution par taille:[/bold]")
+        rprint("\n[bold]Distribution par taille:[/bold]")
         rprint(f"  Optimal ({optimal_min}-{optimal_max} chars): {optimal} ({100*optimal/len(content_lengths):.1f}%)")
         rprint(f"  Trop court (<{optimal_min}): {too_short}")
         rprint(f"  Trop long (>{optimal_max}): {too_long}")
@@ -294,7 +292,7 @@ def run(
         audit_results["issues"].append(f"{len(real_duplicates)} vrais doublons")
         audit_results["duplicates"] = real_duplicates
     elif shared_titles:
-        rprint(f"  [green]OK: Aucun doublon reel[/green]")
+        rprint("  [green]OK: Aucun doublon reel[/green]")
         rprint(f"  [dim]Note: {len(shared_titles)} titres partages entre matieres (normal pour langues)[/dim]")
         audit_results["best_practices"].append("Aucun doublon réel")
         audit_results["shared_titles"] = len(shared_titles)

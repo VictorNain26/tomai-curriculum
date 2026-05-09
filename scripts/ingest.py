@@ -6,16 +6,19 @@ Utilise Mistral AI pour générer les embeddings et Qdrant Cloud pour le stockag
 Migration Gemini → Mistral (Janvier 2025)
 """
 
-import hashlib
 import json
 import math
-import os
 import sys
 import time
+import uuid
 from pathlib import Path
 from typing import Annotated
 
+# Add parent to path for schema import (must come before schema imports)
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import typer
+from dotenv import load_dotenv
 from mistralai import Mistral
 from pydantic import ValidationError
 from qdrant_client import QdrantClient
@@ -32,14 +35,14 @@ from qdrant_client.models import (
 from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-# Add parent to path for schema import
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from schema import Document
+from schema.document import Matiere, NiveauCollege, NiveauLycee
+from scripts.utils import get_all_jsonl_files
+
+# Charger .env avant toute lecture d'env var par les commandes Typer
+load_dotenv()
 
 app = typer.Typer(name="ingest", help="Ingestion du dataset dans Qdrant")
-
-DATA_DIR = Path(__file__).parent.parent / "data" / "processed"
 
 # Mistral embedding config (migration from Gemini 768D)
 EMBEDDING_MODEL = "mistral-embed"
@@ -48,28 +51,8 @@ EMBEDDING_DIM = 1024
 
 def generate_doc_id(niveau: str, matiere: str, title: str) -> str:
     """Génère un UUID unique pour un document."""
-    import uuid
     content = f"{niveau}:{matiere}:{title}"
-    # Générer un UUID déterministe à partir du contenu
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, content))
-
-
-def get_all_jsonl_files(niveau: str | None = None, matiere: str | None = None) -> list[Path]:
-    """Récupère tous les fichiers JSONL du dataset."""
-    files = []
-    for cycle_dir in DATA_DIR.iterdir():
-        if not cycle_dir.is_dir():
-            continue
-        for niveau_dir in cycle_dir.iterdir():
-            if not niveau_dir.is_dir():
-                continue
-            if niveau and niveau_dir.name != niveau:
-                continue
-            for jsonl_file in niveau_dir.glob("*.jsonl"):
-                if matiere and jsonl_file.stem != matiere:
-                    continue
-                files.append(jsonl_file)
-    return sorted(files)
 
 
 def load_documents(files: list[Path]) -> list[dict]:
@@ -81,7 +64,7 @@ def load_documents(files: list[Path]) -> list[dict]:
         matiere = file_path.stem
         cycle = file_path.parent.parent.name
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
@@ -189,12 +172,11 @@ def create_embedding_text(doc_data: dict) -> str:
     text_parts.append(f"\n{doc.title}\n")
     text_parts.append(doc.content)
 
-    # Objectifs d'apprentissage (V2)
-    learning_objectives = getattr(doc, 'learning_objectives', None)
-    if learning_objectives and len(learning_objectives) > 0:
-        text_parts.append("\nObjectifs:")
-        for obj in learning_objectives[:3]:  # Top 3
-            text_parts.append(f"- {obj}")
+    # NOTE: learning_objectives volontairement absents du texte embeddé.
+    # Ils sont générés par template stéréotypé ("Comprendre la définition de X",
+    # "Identifier les caractéristiques de X", "Situer ce concept dans le domaine: Y")
+    # → bruit sémantique uniforme qui dilue la spécificité du vecteur sans
+    # apporter de signal distinctif. Ils restent dans le payload Qdrant pour l'UI.
 
     # Questions typiques (V2) - crucial pour le retrieval
     typical_questions = getattr(doc, 'typical_questions', None)
@@ -390,14 +372,14 @@ def run(
                 filter_conditions.append({"key": "matiere", "match": {"value": matiere}})
 
             if filter_conditions:
-                from qdrant_client.models import Filter, FieldCondition, MatchValue
+                from qdrant_client.models import FieldCondition, Filter, MatchValue
 
                 conditions = [
                     FieldCondition(key=f["key"], match=MatchValue(value=f["match"]["value"]))
                     for f in filter_conditions
                 ]
 
-                rprint(f"   [yellow]Suppression des points existants...[/yellow]")
+                rprint("   [yellow]Suppression des points existants...[/yellow]")
                 qdrant_client.delete(
                     collection_name=collection,
                     points_selector=Filter(must=conditions),
@@ -408,7 +390,7 @@ def run(
     # Réduit 201 appels à ~20 appels, évite les rate limits du free tier
     embedding_batch_size = 10  # Nombre de textes par appel Mistral (conservateur pour free tier)
 
-    rprint(f"\n[bold cyan]4. Generation des embeddings et insertion...[/bold cyan]")
+    rprint("\n[bold cyan]4. Generation des embeddings et insertion...[/bold cyan]")
     rprint(f"   [dim]Mode batch: {embedding_batch_size} documents par appel API Mistral[/dim]")
     rprint(f"   [dim]Nombre d'appels API estimé: {(len(documents) + embedding_batch_size - 1) // embedding_batch_size}[/dim]")
 
@@ -472,7 +454,7 @@ def run(
             rprint(f"   [dim]Inseré {len(points)} derniers points[/dim]")
 
     # Vérification finale
-    rprint(f"\n[bold cyan]5. Verification...[/bold cyan]")
+    rprint("\n[bold cyan]5. Verification...[/bold cyan]")
     info = qdrant_client.get_collection(collection_name=collection)
     rprint(f"   [green]Collection '{collection}': {info.points_count} points[/green]")
 
@@ -505,12 +487,13 @@ def status(
     rprint(f"  Status: {info.status}")
 
     # Compter par niveau/matière
-    from qdrant_client.models import Filter, FieldCondition, MatchValue
+    from qdrant_client.models import FieldCondition, Filter, MatchValue
 
-    niveaux = ["cinquieme", "quatrieme", "troisieme", "seconde", "premiere", "terminale"]
-    matieres = ["mathematiques", "francais", "physique_chimie", "svt", "anglais"]
+    # Listes dérivées des enums du schema (source de vérité unique).
+    niveaux = [n.value for n in NiveauCollege] + [n.value for n in NiveauLycee]
+    matieres = [m.value for m in Matiere]
 
-    rprint("\n[bold]Repartition:[/bold]")
+    rprint("\n[bold]Répartition par niveau:[/bold]")
     for niveau in niveaux:
         count = client.count(
             collection_name=collection,
@@ -518,6 +501,15 @@ def status(
         ).count
         if count > 0:
             rprint(f"  {niveau}: {count} points")
+
+    rprint("\n[bold]Répartition par matière:[/bold]")
+    for matiere in matieres:
+        count = client.count(
+            collection_name=collection,
+            count_filter=Filter(must=[FieldCondition(key="matiere", match=MatchValue(value=matiere))]),
+        ).count
+        if count > 0:
+            rprint(f"  {matiere}: {count} points")
 
 
 if __name__ == "__main__":
