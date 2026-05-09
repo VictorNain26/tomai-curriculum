@@ -18,26 +18,16 @@ Best Practices appliquées:
 4. Points par scroll optimisé pour batch operations
 """
 
-import os
-import sys
-from pathlib import Path
 
 import typer
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
-    Distance,
-    FieldCondition,
-    Filter,
     HnswConfigDiff,
-    MatchValue,
     OptimizersConfigDiff,
-    PayloadIndexParams,
     PayloadSchemaType,
-    QuantizationConfig,
     ScalarQuantization,
     ScalarQuantizationConfig,
     ScalarType,
-    VectorParams,
 )
 from rich import print as rprint
 from rich.console import Console

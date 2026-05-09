@@ -7,8 +7,8 @@ Generates a detailed report of coverage and missing chapters.
 import json
 import re
 import sys
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 # Force UTF-8 output
 sys.stdout.reconfigure(encoding='utf-8')
