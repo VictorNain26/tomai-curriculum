@@ -69,8 +69,7 @@ from scripts.ingest_lib import (  # noqa: E402
 )
 from scripts.utils import get_all_jsonl_files  # noqa: E402
 
-# Re-exports pour rétrocompat avec les tests qui importent depuis scripts.ingest.
-# Voir tests/test_ingest_pipeline.py.
+# Re-exports pour les tests qui importent depuis scripts.ingest.
 __all__ = [
     "app",
     "compute_content_hash",
@@ -85,10 +84,6 @@ __all__ = [
     "fetch_existing_hashes",
     "find_orphans",
 ]
-
-# Alias historique (avant Phase 4, ces fonctions étaient privées dans ingest.py).
-_fetch_existing_hashes = fetch_existing_hashes
-_find_orphans = find_orphans
 
 load_dotenv()
 

@@ -258,9 +258,9 @@ def test_embed_cache_roundtrip(tmp_path: Path, monkeypatch):
 # =============================================================================
 
 
-def test_find_orphans_keeps_only_curriculum_points():
+def testfind_orphans_keeps_only_curriculum_points():
     """Les points sans niveau/matiere/title (hors curriculum) ne sont jamais marqués orphelins."""
-    from scripts.ingest import _find_orphans
+    from scripts.ingest import find_orphans
 
     mock_client = MagicMock()
 
@@ -276,19 +276,19 @@ def test_find_orphans_keeps_only_curriculum_points():
 
     mock_client.scroll.return_value = ([mock_point_1, mock_point_2, mock_point_3], None)
 
-    orphans = _find_orphans(mock_client, "test_collection", {"point1"})
+    orphans = find_orphans(mock_client, "test_collection", {"point1"})
 
     assert orphans == ["point2"]
 
 
-def test_find_orphans_returns_empty_when_all_match():
-    from scripts.ingest import _find_orphans
+def testfind_orphans_returns_empty_when_all_match():
+    from scripts.ingest import find_orphans
 
     mock_client = MagicMock()
     mock_point = MagicMock(id="point1", payload={"niveau": "x", "matiere": "y", "title": "z"})
     mock_client.scroll.return_value = ([mock_point], None)
 
-    orphans = _find_orphans(mock_client, "test_collection", {"point1"})
+    orphans = find_orphans(mock_client, "test_collection", {"point1"})
     assert orphans == []
 
 
@@ -297,16 +297,16 @@ def test_find_orphans_returns_empty_when_all_match():
 # =============================================================================
 
 
-def test_fetch_existing_hashes_extracts_content_hash():
-    """_fetch_existing_hashes doit extraire le content_hash du payload Qdrant."""
-    from scripts.ingest import _fetch_existing_hashes
+def testfetch_existing_hashes_extracts_content_hash():
+    """fetch_existing_hashes doit extraire le content_hash du payload Qdrant."""
+    from scripts.ingest import fetch_existing_hashes
 
     mock_client = MagicMock()
     mock_point_1 = MagicMock(id="id_1", payload={"content_hash": "hash_1"})
     mock_point_2 = MagicMock(id="id_2", payload={})  # pas de content_hash → skip
     mock_client.retrieve.return_value = [mock_point_1, mock_point_2]
 
-    result = _fetch_existing_hashes(mock_client, "test", ["id_1", "id_2"])
+    result = fetch_existing_hashes(mock_client, "test", ["id_1", "id_2"])
 
     assert result == {"id_1": "hash_1"}
 

@@ -6,14 +6,11 @@ from .document import (
     DatasetMetadata,
     Difficulty,
     Document,
-    DocumentRelation,
-    EnrichedContent,
     Matiere,
     Niveau,
     NiveauCollege,
     NiveauLycee,
     QualityMetrics,
-    RelationType,
     ReviewStatus,
     cycle_from_niveau,
 )
@@ -30,11 +27,8 @@ __all__ = [
     "Niveau",
     "NiveauCollege",
     "NiveauLycee",
-    "RelationType",
     "ReviewStatus",
     # Auxiliary models
-    "DocumentRelation",
-    "EnrichedContent",
     "QualityMetrics",
     # Helpers
     "cycle_from_niveau",
