@@ -1,17 +1,32 @@
 #!/usr/bin/env python3
 """
-Audit script to compare dataset coverage vs reference programs.
-Generates a detailed report of coverage and missing chapters.
+Audit de couverture du curriculum : compare les chapitres attendus (extraits
+des PROGRAMME_*.md sous docs/programmes/, qui font office de référentiel cible
+Eduscol) avec les titres présents dans les JSONL.
+
+Sous-projet D du chantier RAG overhaul mai 2026.
+
+Pourquoi pas un YAML séparé `data/reference/curriculum_targets.yaml` ?
+Les PROGRAMME_*.md sont déjà la source de vérité curatée à la main, lisible,
+versionnée avec git, et utilisable directement. Pas de duplication.
+
+Usage :
+    uv run python scripts/audit_coverage.py                       # rapport stdout
+    uv run python scripts/audit_coverage.py --output rapport.md   # écrit aussi un MD
 """
 
+import argparse
 import json
 import re
 import sys
 from collections import defaultdict
+from datetime import UTC, datetime
+from io import StringIO
 from pathlib import Path
 
-# Force UTF-8 output
-sys.stdout.reconfigure(encoding='utf-8')
+# Force UTF-8 output (cp1252 sur Windows par défaut)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 
 def extract_titles_from_jsonl(jsonl_path: Path) -> list[str]:
@@ -45,7 +60,8 @@ def extract_chapters_from_programme(md_path: Path) -> dict[str, list[str]]:
             # Clean up subject name
             subject = re.sub(r"\s*\([^)]*\)", "", subject)  # Remove (Xh/semaine)
             subject = subject.strip()
-            if subject and not subject.startswith("Thème") and not subject.startswith("Récapitulatif"):
+            is_meta = subject.startswith("Thème") or subject.startswith("Récapitulatif")
+            if subject and not is_meta:
                 current_subject = subject
 
         # Detect checkbox items (chapters)
@@ -197,106 +213,193 @@ def audit_level(level_name: str, programme_path: Path, data_paths: dict[str, Pat
     return results
 
 
-def main():
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Si fourni, écrit aussi le rapport au format Markdown vers ce chemin",
+    )
+    args = parser.parse_args()
+
     base_path = Path(__file__).parent.parent
     data_path = base_path / "data" / "processed"
+    programmes_dir = base_path / "docs" / "programmes"
 
-    # Define levels and their paths
     levels = {
         "6ème": {
-            "programme": base_path / "PROGRAMME_6EME.md",
+            "programme": programmes_dir / "PROGRAMME_6EME.md",
             "data_dir": data_path / "college" / "sixieme",
         },
         "5ème": {
-            "programme": base_path / "PROGRAMME_5EME.md",
+            "programme": programmes_dir / "PROGRAMME_5EME.md",
             "data_dir": data_path / "college" / "cinquieme",
         },
         "4ème": {
-            "programme": base_path / "PROGRAMME_4EME.md",
+            "programme": programmes_dir / "PROGRAMME_4EME.md",
             "data_dir": data_path / "college" / "quatrieme",
         },
         "3ème": {
-            "programme": base_path / "PROGRAMME_3EME.md",
+            "programme": programmes_dir / "PROGRAMME_3EME.md",
             "data_dir": data_path / "college" / "troisieme",
         },
         "Seconde": {
-            "programme": base_path / "PROGRAMME_SECONDE.md",
+            "programme": programmes_dir / "PROGRAMME_SECONDE.md",
             "data_dir": data_path / "lycee" / "seconde",
         },
         "Première": {
-            "programme": base_path / "PROGRAMME_PREMIERE.md",
+            "programme": programmes_dir / "PROGRAMME_PREMIERE.md",
             "data_dir": data_path / "lycee" / "premiere",
         },
         "Terminale": {
-            "programme": base_path / "PROGRAMME_TERMINALE.md",
+            "programme": programmes_dir / "PROGRAMME_TERMINALE.md",
             "data_dir": data_path / "lycee" / "terminale",
         },
     }
 
     all_results = []
-
     for level_name, config in levels.items():
-        # Map subject to JSONL files
         data_dir = config["data_dir"]
-        data_paths = {}
+        data_paths: dict[str, Path] = {}
         if data_dir.exists():
             for jsonl in data_dir.glob("*.jsonl"):
-                key = jsonl.stem.lower()
-                data_paths[key] = jsonl
+                data_paths[jsonl.stem.lower()] = jsonl
 
         results = audit_level(level_name, config["programme"], data_paths)
         all_results.append(results)
 
-    # Print summary
-    print("=" * 80)
-    print("RAPPORT D'AUDIT - COUVERTURE DU CURRICULUM")
-    print("=" * 80)
-    print()
+    _emit_report(all_results, output=sys.stdout)
+
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        buf = StringIO()
+        _emit_report(all_results, output=buf, markdown=True)
+        args.output.write_text(buf.getvalue(), encoding="utf-8")
+        print(f"\nRapport Markdown écrit : {args.output}")
+
+
+def _emit_report(all_results: list[dict], output, markdown: bool = False) -> None:
+    """Écrit le rapport (texte ou markdown) vers output (stdout ou StringIO)."""
+
+    def line(s: str = "") -> None:
+        print(s, file=output)
+
+    if markdown:
+        line("# Rapport d'audit — couverture du curriculum")
+        line()
+        line(f"_Généré le {datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}_")
+        line()
+        line(
+            "Compare les chapitres attendus (extraits des PROGRAMME_*.md sous "
+            "`docs/programmes/`) avec les titres présents dans les JSONL "
+            "`data/processed/`. Match fuzzy (chevauchement de mots), peut produire "
+            "des faux positifs/négatifs sur les chapitres au titre court."
+        )
+        line()
+    else:
+        line("=" * 80)
+        line("RAPPORT D'AUDIT - COUVERTURE DU CURRICULUM")
+        line("=" * 80)
+        line()
 
     total_expected = 0
     total_covered = 0
 
     for result in all_results:
-        print(f"\n{'='*60}")
-        print(f"NIVEAU: {result['level']}")
-        print(f"{'='*60}")
-        print(f"Couverture globale: {result['coverage_percent']:.1f}% ({result['total_covered']}/{result['total_expected']} chapitres)")
-        print()
+        if markdown:
+            line(f"## Niveau : {result['level']}")
+            line()
+            line(
+                f"**Couverture globale : {result['coverage_percent']:.1f}%** "
+                f"({result['total_covered']}/{result['total_expected']} chapitres)"
+            )
+            line()
+            line("| Statut | Matière | Couverture | Docs JSONL |")
+            line("|--------|---------|------------|------------|")
+        else:
+            line(f"\n{'=' * 60}")
+            line(f"NIVEAU: {result['level']}")
+            line(f"{'=' * 60}")
+            line(
+                f"Couverture globale: {result['coverage_percent']:.1f}% "
+                f"({result['total_covered']}/{result['total_expected']} chapitres)"
+            )
+            line()
 
-        # Sort subjects by coverage (lowest first)
         subjects_sorted = sorted(
-            result["subjects"].items(),
-            key=lambda x: x[1]["coverage_percent"]
+            result["subjects"].items(), key=lambda x: x[1]["coverage_percent"]
         )
 
         for subject, data in subjects_sorted:
-            status = "[OK]" if data["coverage_percent"] >= 80 else "[!!]" if data["coverage_percent"] >= 50 else "[XX]"
-            print(f"  {status} {subject}: {data['coverage_percent']:.0f}% ({data['covered']}/{data['expected']}) - {data['jsonl_docs']} docs")
+            pct = data["coverage_percent"]
+            if markdown:
+                status = "✅" if pct >= 80 else "⚠️" if pct >= 50 else "❌"
+                line(
+                    f"| {status} | {subject} | {pct:.0f}% ({data['covered']}/{data['expected']}) "
+                    f"| {data['jsonl_docs']} |"
+                )
+            else:
+                status = "[OK]" if pct >= 80 else "[!!]" if pct >= 50 else "[XX]"
+                line(
+                    f"  {status} {subject}: {pct:.0f}% "
+                    f"({data['covered']}/{data['expected']}) - {data['jsonl_docs']} docs"
+                )
+                if data["missing"] and pct < 80:
+                    line(f"      Manquants ({len(data['missing'])}):")
+                    for chapter in data["missing"][:5]:
+                        line(f"        - {chapter}")
+                    if len(data["missing"]) > 5:
+                        line(f"        ... et {len(data['missing']) - 5} autres")
 
-            if data["missing"] and data["coverage_percent"] < 80:
-                print(f"      Manquants ({len(data['missing'])}):")
-                for chapter in data["missing"][:5]:
-                    print(f"        - {chapter}")
-                if len(data["missing"]) > 5:
-                    print(f"        ... et {len(data['missing']) - 5} autres")
+        if markdown:
+            line()
+            # Détail des manques par matière, après la table
+            for subject, data in subjects_sorted:
+                if data["missing"] and data["coverage_percent"] < 80:
+                    line(f"### Manques en {subject} ({len(data['missing'])})")
+                    line()
+                    for chapter in data["missing"]:
+                        line(f"- [ ] {chapter}")
+                    line()
 
         total_expected += result["total_expected"]
         total_covered += result["total_covered"]
 
-    print()
-    print("=" * 80)
-    print("RÉSUMÉ GLOBAL")
-    print("=" * 80)
-    global_coverage = (total_covered / total_expected * 100) if total_expected > 0 else 0
-    print(f"Couverture totale: {global_coverage:.1f}% ({total_covered}/{total_expected} chapitres)")
-    print()
+    global_pct = (total_covered / total_expected * 100) if total_expected > 0 else 0
+    if markdown:
+        line("---")
+        line()
+        line("## Résumé global")
+        line()
+        line(
+            f"**Couverture totale : {global_pct:.1f}%** "
+            f"({total_covered}/{total_expected} chapitres)"
+        )
+        line()
+        line("### Lacunes critiques (< 50% couverture, > 3 chapitres attendus)")
+        line()
+        line("| Niveau | Matière | Couverture |")
+        line("|--------|---------|------------|")
+    else:
+        line()
+        line("=" * 80)
+        line("RÉSUMÉ GLOBAL")
+        line("=" * 80)
+        line(
+            f"Couverture totale: {global_pct:.1f}% "
+            f"({total_covered}/{total_expected} chapitres)"
+        )
+        line()
+        line("LACUNES CRITIQUES (< 50% couverture):")
 
-    # Critical gaps
-    print("LACUNES CRITIQUES (< 50% couverture):")
     for result in all_results:
         for subject, data in result["subjects"].items():
             if data["coverage_percent"] < 50 and data["expected"] > 3:
-                print(f"  - {result['level']} / {subject}: {data['coverage_percent']:.0f}%")
+                if markdown:
+                    line(f"| {result['level']} | {subject} | {data['coverage_percent']:.0f}% |")
+                else:
+                    line(f"  - {result['level']} / {subject}: {data['coverage_percent']:.0f}%")
 
 
 if __name__ == "__main__":
