@@ -28,8 +28,14 @@ DOCUMENT_EXAMPLES: list[dict] = [
             "droit avant d'appliquer le théorème."
         ),
         "keywords": [
-            "pythagore", "triangle rectangle", "hypoténuse", "carré",
-            "théorème", "géométrie", "côtés", "angle droit",
+            "pythagore",
+            "triangle rectangle",
+            "hypoténuse",
+            "carré",
+            "théorème",
+            "géométrie",
+            "côtés",
+            "angle droit",
         ],
         "prerequis": ["math_5eme_triangle_rectangle_001", "math_5eme_carre_nombre_001"],
         "typical_questions": [

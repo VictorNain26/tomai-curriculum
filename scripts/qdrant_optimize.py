@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
 """
-Optimisation Qdrant - Best Practices 2025.
+Optimisation Qdrant : indexes, quantization, HNSW.
 
-Configure la collection Qdrant avec les optimisations recommandées
-par la documentation officielle pour maximiser les performances RAG.
+Applique les décisions D5 (scalar int8 quantization), D7 (payload indexes
+KEYWORD niveau/matiere/cycle/difficulty/content_type) et la config HNSW
+(m=16, ef_construct=100) de la spec RAG overhaul.
 
-Sources:
-- https://qdrant.tech/documentation/concepts/payload/
-- https://qdrant.tech/documentation/concepts/filtering/
-- https://qdrant.tech/articles/vector-search-filtering/
-- https://qdrant.tech/rag/rag-evaluation-guide/
+Voir `docs/specs/2026-05-09-rag-overhaul-design.md` et
+`docs/adr/0001-rag-overhaul.md` pour les sources et justifications.
 
-Best Practices appliquées:
-1. Payload indexes sur champs fréquemment filtrés
-2. Scalar quantization pour réduire mémoire (30x)
-3. HNSW optimisé pour 1024D embeddings
-4. Points par scroll optimisé pour batch operations
+Optimisations appliquées :
+1. Payload indexes KEYWORD sur champs fréquemment filtrés
+2. Scalar quantization int8 always_ram (-75% RAM, ≥99% accuracy)
+3. HNSW optimisé pour 1024D (m=16, ef_construct=100)
+4. Optimizers : indexing_threshold pour batch operations
 """
-
 
 import typer
 from qdrant_client import QdrantClient
@@ -52,14 +49,14 @@ def create_payload_indexes(client: QdrantClient, collection: str):
 
     # Index pour les champs de segmentation (filtrage fréquent)
     indexes_to_create = [
-        ("niveau", PayloadSchemaType.KEYWORD),      # Filtre très fréquent
-        ("matiere", PayloadSchemaType.KEYWORD),     # Filtre très fréquent
-        ("cycle", PayloadSchemaType.KEYWORD),       # Filtre fréquent
-        ("domaine", PayloadSchemaType.TEXT),        # Search textuel
-        ("content_type", PayloadSchemaType.KEYWORD),# Filtre sur type
+        ("niveau", PayloadSchemaType.KEYWORD),  # Filtre très fréquent
+        ("matiere", PayloadSchemaType.KEYWORD),  # Filtre très fréquent
+        ("cycle", PayloadSchemaType.KEYWORD),  # Filtre fréquent
+        ("domaine", PayloadSchemaType.TEXT),  # Search textuel
+        ("content_type", PayloadSchemaType.KEYWORD),  # Filtre sur type
         ("difficulty", PayloadSchemaType.KEYWORD),  # Filtre sur niveau
-        ("review_status", PayloadSchemaType.KEYWORD),# Filtre qualité
-        ("quality_score", PayloadSchemaType.FLOAT), # Range queries
+        ("review_status", PayloadSchemaType.KEYWORD),  # Filtre qualité
+        ("quality_score", PayloadSchemaType.FLOAT),  # Range queries
     ]
 
     for field_name, schema_type in indexes_to_create:
@@ -140,8 +137,8 @@ def optimize_hnsw_config(client: QdrantClient, collection: str):
 
     try:
         hnsw_config = HnswConfigDiff(
-            m=16,                # Connections par node (défaut: 16)
-            ef_construct=100,    # Qualité construction (défaut: 100)
+            m=16,  # Connections par node (défaut: 16)
+            ef_construct=100,  # Qualité construction (défaut: 100)
             full_scan_threshold=10000,  # Seuil full scan si < N points
         )
 
@@ -168,8 +165,8 @@ def optimize_collection_params(client: QdrantClient, collection: str):
 
     try:
         optimizers_config = OptimizersConfigDiff(
-            indexing_threshold=20000,    # Rebuild index tous les 20k points
-            flush_interval_sec=5,        # Flush vers disque toutes les 5s
+            indexing_threshold=20000,  # Rebuild index tous les 20k points
+            flush_interval_sec=5,  # Flush vers disque toutes les 5s
         )
 
         client.update_collection(
@@ -223,21 +220,20 @@ def optimize(
     skip_hnsw: bool = typer.Option(False, help="Skip HNSW optimization"),
 ):
     """
-    Applique toutes les optimisations Qdrant best practices 2025.
+    Applique les optimisations Qdrant définies par la spec RAG overhaul.
 
-    Cette commande configure:
-    1. Payload indexes sur champs filtrés (niveau, matiere, etc.)
-    2. Scalar quantization (int8) pour réduire mémoire
-    3. HNSW optimisé pour 1024D embeddings
-    4. Optimizers pour batch operations
+    Configure :
+    1. Payload indexes KEYWORD sur niveau/matiere/cycle/difficulty/content_type
+    2. Scalar quantization int8 always_ram
+    3. HNSW : m=16, ef_construct=100 (optimisé 1024D)
+    4. Optimizers : indexing_threshold pour batch
 
-    Usage:
+    Usage :
         QDRANT_URL=... QDRANT_API_KEY=... uv run python scripts/qdrant_optimize.py optimize
 
-    Note: Ces optimisations sont NON-DESTRUCTIVES et peuvent être appliquées
-    sur une collection existante avec des données.
+    Non-destructif : applicable sur une collection existante avec des données.
     """
-    rprint("\n[bold cyan]🚀 Optimisation Qdrant - Best Practices 2025[/bold cyan]")
+    rprint("\n[bold cyan]Optimisation Qdrant[/bold cyan]")
 
     # Validation credentials
     if not qdrant_url or not qdrant_api_key:

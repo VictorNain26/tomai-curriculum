@@ -55,8 +55,7 @@ def _load_source_json(source: Path) -> list[dict]:
         data = json.load(f)
     if not isinstance(data, list):
         raise typer.BadParameter(
-            f"{source}: le JSON doit être une liste de documents "
-            f"(trouvé: {type(data).__name__})"
+            f"{source}: le JSON doit être une liste de documents (trouvé: {type(data).__name__})"
         )
     return data
 
@@ -141,9 +140,7 @@ def _enrich(
         except ValidationError as e:
             first_error = e.errors()[0]
             loc = ".".join(str(p) for p in first_error["loc"])
-            rprint(
-                f"  [red]✗ doc {idx} {title[:50]!r}: {loc} — {first_error['msg']}[/red]"
-            )
+            rprint(f"  [red]✗ doc {idx} {title[:50]!r}: {loc} — {first_error['msg']}[/red]")
             counts["invalid"] += 1
             continue
 
@@ -153,9 +150,7 @@ def _enrich(
             continue
 
         if any(d.get("title", "").strip() == title for d in accepted):
-            rprint(
-                f"  [yellow]⊖ doc {idx} {title[:50]!r}: doublon dans la source (skip)[/yellow]"
-            )
+            rprint(f"  [yellow]⊖ doc {idx} {title[:50]!r}: doublon dans la source (skip)[/yellow]")
             counts["duplicate"] += 1
             continue
 

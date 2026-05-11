@@ -7,7 +7,7 @@ Vérifie:
 - Distribution des documents
 - Structure des payloads
 - Doublons potentiels
-- Conformité aux best practices RAG 2025
+- Conformité aux décisions de la spec RAG overhaul (docs/specs/, docs/adr/)
 """
 
 import json
@@ -27,7 +27,9 @@ console = Console()
 @app.command()
 def run(
     qdrant_url: Annotated[str | None, typer.Option("--qdrant-url", envvar="QDRANT_URL")] = None,
-    qdrant_api_key: Annotated[str | None, typer.Option("--qdrant-api-key", envvar="QDRANT_API_KEY")] = None,
+    qdrant_api_key: Annotated[
+        str | None, typer.Option("--qdrant-api-key", envvar="QDRANT_API_KEY")
+    ] = None,
     collection: Annotated[str, typer.Option(envvar="QDRANT_COLLECTION")] = "tomai_educational",
     show_samples: Annotated[int, typer.Option(help="Nombre d'exemples a afficher")] = 3,
     export_json: Annotated[str | None, typer.Option(help="Exporter l'audit en JSON")] = None,
@@ -70,7 +72,7 @@ def run(
     # Vérifier la configuration des vecteurs
     rprint("\n[bold]Configuration des vecteurs:[/bold]")
     vectors_config = info.config.params.vectors
-    if hasattr(vectors_config, 'size'):
+    if hasattr(vectors_config, "size"):
         rprint(f"  Dimension: {vectors_config.size}")
         rprint(f"  Distance: {vectors_config.distance}")
         audit_results["vector_dimension"] = vectors_config.size
@@ -80,7 +82,10 @@ def run(
             rprint("  [green]OK: Dimension 1024 (Mistral embeddings)[/green]")
             audit_results["best_practices"].append("Dimension 1024D correcte pour Mistral")
         else:
-            rprint(f"  [yellow]WARN: Dimension {vectors_config.size} (attendu 1024 pour Mistral)[/yellow]")
+            rprint(
+                f"  [yellow]WARN: Dimension {vectors_config.size} "
+                "(attendu 1024 pour Mistral)[/yellow]"
+            )
             audit_results["warnings"].append(f"Dimension {vectors_config.size} au lieu de 1024")
 
     # Vérifier HNSW config
@@ -96,7 +101,10 @@ def run(
         rprint("  [green]OK: HNSW optimise pour 1024D[/green]")
         audit_results["best_practices"].append("HNSW optimisé (m>=16, ef_construct>=100)")
     else:
-        rprint("  [yellow]WARN: HNSW pourrait etre optimise (m=16, ef_construct=100 recommandé)[/yellow]")
+        rprint(
+            "  [yellow]WARN: HNSW pourrait etre optimise "
+            "(m=16, ef_construct=100 recommandé)[/yellow]"
+        )
         audit_results["warnings"].append("HNSW non optimisé")
 
     # Vérifier Quantization
@@ -242,9 +250,9 @@ def run(
         max_len = max(content_lengths)
 
         rprint("\n[bold]Longueur du contenu (caracteres):[/bold]")
-        rprint(f"  Moyenne: {avg_len:.0f} chars (~{avg_len/4:.0f} tokens)")
-        rprint(f"  Min: {min_len} chars (~{min_len/4:.0f} tokens)")
-        rprint(f"  Max: {max_len} chars (~{max_len/4:.0f} tokens)")
+        rprint(f"  Moyenne: {avg_len:.0f} chars (~{avg_len / 4:.0f} tokens)")
+        rprint(f"  Min: {min_len} chars (~{min_len / 4:.0f} tokens)")
+        rprint(f"  Max: {max_len} chars (~{max_len / 4:.0f} tokens)")
 
         audit_results["content_stats"] = {
             "avg_chars": round(avg_len),
@@ -253,7 +261,7 @@ def run(
             "avg_tokens": round(avg_len / 4),
         }
 
-        # Vérifier les best practices RAG 2025
+        # Vérifier les bornes de chunking (cf. schema/document.py)
         optimal_min = 200
         optimal_max = 2400
 
@@ -262,12 +270,17 @@ def run(
         optimal = sum(1 for length in content_lengths if optimal_min <= length <= optimal_max)
 
         rprint("\n[bold]Distribution par taille:[/bold]")
-        rprint(f"  Optimal ({optimal_min}-{optimal_max} chars): {optimal} ({100*optimal/len(content_lengths):.1f}%)")
+        rprint(
+            f"  Optimal ({optimal_min}-{optimal_max} chars): {optimal} "
+            f"({100 * optimal / len(content_lengths):.1f}%)"
+        )
         rprint(f"  Trop court (<{optimal_min}): {too_short}")
         rprint(f"  Trop long (>{optimal_max}): {too_long}")
 
         if too_short > 0 or too_long > 0:
-            audit_results["warnings"].append(f"{too_short} docs trop courts, {too_long} docs trop longs")
+            audit_results["warnings"].append(
+                f"{too_short} docs trop courts, {too_long} docs trop longs"
+            )
 
     # Vérifier les doublons de titres (par matière)
     rprint("\n[bold]Verification des doublons:[/bold]")
@@ -293,7 +306,10 @@ def run(
         audit_results["duplicates"] = real_duplicates
     elif shared_titles:
         rprint("  [green]OK: Aucun doublon reel[/green]")
-        rprint(f"  [dim]Note: {len(shared_titles)} titres partages entre matieres (normal pour langues)[/dim]")
+        rprint(
+            f"  [dim]Note: {len(shared_titles)} titres partages entre matieres "
+            "(normal pour langues)[/dim]"
+        )
         audit_results["best_practices"].append("Aucun doublon réel")
         audit_results["shared_titles"] = len(shared_titles)
     else:
@@ -350,6 +366,7 @@ def run(
         rprint("[bold cyan]=" * 60)
 
         import random
+
         samples = random.sample(all_points, min(show_samples, len(all_points)))
 
         for i, point in enumerate(samples, 1):
@@ -362,8 +379,10 @@ def run(
             rprint(f"  Domaine: {payload.get('domaine', 'N/A')}")
             rprint(f"  Type: {payload.get('content_type', 'N/A')}")
             rprint(f"  Difficulty: {payload.get('difficulty', 'N/A')}")
-            content = payload.get('content', '')
-            rprint(f"  Contenu: {content[:200]}..." if len(content) > 200 else f"  Contenu: {content}")
+            content = payload.get("content", "")
+            rprint(
+                f"  Contenu: {content[:200]}..." if len(content) > 200 else f"  Contenu: {content}"
+            )
 
     # ============================================================
     # 6. RESUME ET RECOMMANDATIONS
@@ -387,13 +406,17 @@ def run(
             rprint(f"  [red]ERREUR[/red] {issue}")
 
     # Score global
-    score = len(audit_results["best_practices"]) * 10 - len(audit_results["warnings"]) * 5 - len(audit_results["issues"]) * 20
+    score = (
+        len(audit_results["best_practices"]) * 10
+        - len(audit_results["warnings"]) * 5
+        - len(audit_results["issues"]) * 20
+    )
     score = max(0, min(100, score + 50))  # Normalize to 0-100
 
     rprint(f"\n[bold]Score global: {score}/100[/bold]")
 
     if score >= 80:
-        rprint("[green]Excellent! La collection respecte les best practices RAG 2025.[/green]")
+        rprint("[green]Excellent! La collection respecte la spec RAG.[/green]")
     elif score >= 60:
         rprint("[yellow]Correct, mais quelques ameliorations recommandees.[/yellow]")
     else:

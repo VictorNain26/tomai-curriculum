@@ -212,10 +212,12 @@ def test_embed_cache_skips_already_cached(tmp_path: Path, monkeypatch):
     Le pipeline embed ne doit pas redemander à Mistral pour les content_hash
     déjà en cache. On vérifie en mockant la classe Mistral.
     """
-    from scripts import ingest
+    from scripts import ingest, ingest_lib
 
     cache_dir = tmp_path / "cache"
-    monkeypatch.setattr(ingest, "CACHE_ROOT", cache_dir)
+    # CACHE_ROOT vit dans ingest_lib depuis Phase 4. C'est le module qui possède
+    # l'attribut qu'il faut patcher (le re-export depuis ingest ne suffit pas).
+    monkeypatch.setattr(ingest_lib, "CACHE_ROOT", cache_dir)
 
     # Pré-remplit le cache avec un hash connu
     sample = _sample_doc("Théorème de Pythagore")
@@ -235,9 +237,9 @@ def test_embed_cache_skips_already_cached(tmp_path: Path, monkeypatch):
 
 def test_embed_cache_roundtrip(tmp_path: Path, monkeypatch):
     """Le append_to_cache + load_embedding_cache restitue exactement ce qui a été écrit."""
-    from scripts import ingest
+    from scripts import ingest, ingest_lib
 
-    monkeypatch.setattr(ingest, "CACHE_ROOT", tmp_path)
+    monkeypatch.setattr(ingest_lib, "CACHE_ROOT", tmp_path)
 
     items = [
         ("hash_a" + "0" * 58, [0.5] * 1024),
@@ -315,10 +317,10 @@ def test_upsert_uses_set_payload_when_hash_unchanged(MockQdrant, tmp_path: Path,
     Quand le content_hash en Qdrant matche celui calculé localement, upsert
     doit faire `set_payload` (pas de recompute vector) au lieu de `upsert`.
     """
-    from scripts import ingest
+    from scripts import ingest, ingest_lib
 
     # Setup cache + JSONL minimal
-    monkeypatch.setattr(ingest, "CACHE_ROOT", tmp_path / "cache")
+    monkeypatch.setattr(ingest_lib, "CACHE_ROOT", tmp_path / "cache")
     jsonl_path = tmp_path / "cycle4" / "cinquieme" / "mathematiques.jsonl"
     sample = _sample_doc()
     _write_jsonl(jsonl_path, [sample])
