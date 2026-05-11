@@ -42,9 +42,22 @@ def extract_titles_from_jsonl(jsonl_path: Path) -> list[str]:
 
 
 def extract_chapters_from_programme(md_path: Path) -> dict[str, list[str]]:
-    """Extract chapters from a PROGRAMME_*.md file, grouped by subject."""
-    chapters = defaultdict(list)
-    current_subject = None
+    """
+    Extract chapters from a PROGRAMME_*.md file, grouped by MATIÈRE.
+
+    Hiérarchie attendue :
+        ## Mathématiques (4h30/semaine)    <- matière (groupé ici)
+        ### Nombres et Calculs              <- sous-domaine (ignoré comme clé)
+        - [ ] Multiples et diviseurs        <- chapitre
+
+    Précédemment, chaque `### sous-domaine` écrasait current_subject, ce qui
+    faisait que les chapitres étaient regroupés par sous-domaine et que les
+    matières du SUBJECT_MAPPING (mathematiques, francais, etc.) ne matchaient
+    jamais. Maintenant on garde la matière `##` comme clé stable jusqu'au
+    prochain `##`.
+    """
+    chapters: dict[str, list[str]] = defaultdict(list)
+    current_matiere: str | None = None
 
     if not md_path.exists():
         return chapters
@@ -52,23 +65,22 @@ def extract_chapters_from_programme(md_path: Path) -> dict[str, list[str]]:
     with open(md_path, encoding="utf-8") as f:
         content = f.read()
 
-    lines = content.split("\n")
-    for line in lines:
-        # Detect main subject headers (## or ###)
-        if line.startswith("## ") or line.startswith("### "):
+    for line in content.split("\n"):
+        if line.startswith("## ") and not line.startswith("### "):
             subject = line.lstrip("#").strip()
-            # Clean up subject name
-            subject = re.sub(r"\s*\([^)]*\)", "", subject)  # Remove (Xh/semaine)
-            subject = subject.strip()
+            subject = re.sub(r"\s*\([^)]*\)", "", subject).strip()  # Remove (Xh/semaine)
             is_meta = subject.startswith("Thème") or subject.startswith("Récapitulatif")
-            if subject and not is_meta:
-                current_subject = subject
+            current_matiere = subject if subject and not is_meta else None
+            continue
+
+        # Les `###` sous-domaines sont ignorés comme groupes — leurs `- [ ]`
+        # s'attachent à la matière `##` parente.
 
         # Detect checkbox items (chapters)
-        if line.strip().startswith("- [ ]") and current_subject:
+        if line.strip().startswith("- [ ]") and current_matiere:
             chapter = line.strip()[5:].strip()
             if chapter:
-                chapters[current_subject].append(chapter)
+                chapters[current_matiere].append(chapter)
 
     return chapters
 
@@ -81,21 +93,38 @@ def normalize_for_comparison(text: str) -> str:
     return text
 
 
+# Minimum significatif de mots dans un chapitre pour autoriser le fuzzy overlap.
+# En dessous (titres courts type "Fractions décimales", 2 mots), on n'utilise
+# que le containment strict pour éviter les faux positifs symétriques.
+# Exemple bloqué : "Fractions" et "Fractions décimales" matchent en 60% overlap
+# alors que ce sont deux chapitres distincts.
+_FUZZY_OVERLAP_MIN_WORDS = 3
+_FUZZY_OVERLAP_THRESHOLD = 0.6
+
+
 def check_coverage(chapter: str, titles: list[str]) -> bool:
-    """Check if a chapter is covered in the titles (fuzzy match)."""
+    """
+    Check if a chapter is covered in the titles (fuzzy match).
+
+    Stratégie : containment direct toujours autorisé. Overlap de mots autorisé
+    UNIQUEMENT si le chapitre a >= 3 mots distincts (sinon trop de faux positifs
+    sur les titres courts à vocabulaire commun).
+    """
     chapter_norm = normalize_for_comparison(chapter)
     chapter_words = set(chapter_norm.split())
 
-    # Direct match
     for title in titles:
         title_norm = normalize_for_comparison(title)
+        # Containment strict : toujours autorisé
         if chapter_norm in title_norm or title_norm in chapter_norm:
             return True
 
-        # Word overlap match (at least 60% of words)
+        # Overlap de mots : uniquement si chapitre suffisamment spécifique
+        if len(chapter_words) < _FUZZY_OVERLAP_MIN_WORDS:
+            continue
         title_words = set(title_norm.split())
         overlap = len(chapter_words & title_words)
-        if chapter_words and overlap >= len(chapter_words) * 0.6:
+        if overlap >= len(chapter_words) * _FUZZY_OVERLAP_THRESHOLD:
             return True
 
     return False
@@ -183,17 +212,28 @@ def audit_level(level_name: str, programme_path: Path, data_paths: dict[str, Pat
         for path in jsonl_paths:
             titles.extend(extract_titles_from_jsonl(path))
 
-        # If no specific match, use all titles as fallback for checking
-        check_titles = titles if titles else all_titles
+        # Fallback : si aucun JSONL ne matche, on N'utilise PAS le pool global.
+        # Précédemment on basculait sur all_titles, ce qui produisait des chiffres
+        # de couverture trompeurs (un chapitre de "SES" pouvait matcher contre un
+        # doc de "mathematiques" du même niveau). Maintenant on marque
+        # explicitement N/A pour signaler la matière non-mappée.
+        unmapped = not jsonl_paths
+        if unmapped:
+            print(
+                f"  [WARN] Subject {subject!r} ({level_name}) non mappé dans "
+                f"SUBJECT_MAPPING — couverture marquée N/A",
+                flush=True,
+            )
 
         covered = []
-        missing = []
+        missing = list(chapters) if unmapped else []
 
-        for chapter in chapters:
-            if check_coverage(chapter, check_titles):
-                covered.append(chapter)
-            else:
-                missing.append(chapter)
+        if not unmapped:
+            for chapter in chapters:
+                if check_coverage(chapter, titles):
+                    covered.append(chapter)
+                else:
+                    missing.append(chapter)
 
         results["subjects"][subject] = {
             "expected": len(chapters),
@@ -202,10 +242,14 @@ def audit_level(level_name: str, programme_path: Path, data_paths: dict[str, Pat
             "coverage_percent": (len(covered) / len(chapters) * 100) if chapters else 0,
             "jsonl_docs": len(titles),
             "matched_files": [p.name for p in jsonl_paths],
+            "unmapped": unmapped,
         }
 
-        results["total_expected"] += len(chapters)
-        results["total_covered"] += len(covered)
+        # Les matières non-mappées ne sont PAS comptées dans le total global :
+        # elles biaiseraient la moyenne vers 0% alors qu'on n'a juste pas vérifié.
+        if not unmapped:
+            results["total_expected"] += len(chapters)
+            results["total_covered"] += len(covered)
 
     if results["total_expected"] > 0:
         results["coverage_percent"] = results["total_covered"] / results["total_expected"] * 100
