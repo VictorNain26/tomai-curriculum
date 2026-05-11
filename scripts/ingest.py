@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import typer
 from dotenv import load_dotenv
 from mistralai import Mistral
+from mistralai.models import SDKError
 from pydantic import ValidationError
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
@@ -244,18 +245,19 @@ def generate_embeddings_batch(
         try:
             result = client.embeddings.create(model=EMBEDDING_MODEL, inputs=texts)
             return [normalize_vector(data.embedding) for data in result.data]
-        except Exception as e:
-            error_str = str(e).lower()
-            is_rate_limit = "429" in str(e) or "rate" in error_str or "too many" in error_str
-            if is_rate_limit and attempt < max_retries - 1:
-                wait_time = base_delay * (3**attempt) + 5
-                rprint(
-                    f"[yellow]Rate limit (tentative {attempt + 1}/{max_retries}), "
-                    f"attente {wait_time:.0f}s...[/yellow]"
-                )
-                time.sleep(wait_time)
-                continue
-            raise
+        except SDKError as e:
+            # Détection 429 par status code typé (vs string match sur str(e) qui
+            # casserait au moindre changement de wording côté Mistral). Tous les
+            # autres status codes (400, 401, 500…) propagent immédiatement, pas
+            # de retry silencieux qui masque un vrai bug.
+            if e.raw_response.status_code != 429 or attempt >= max_retries - 1:
+                raise
+            wait_time = base_delay * (3**attempt) + 5
+            rprint(
+                f"[yellow]Rate limit 429 (tentative {attempt + 1}/{max_retries}), "
+                f"attente {wait_time:.0f}s...[/yellow]"
+            )
+            time.sleep(wait_time)
 
     raise RuntimeError(f"Échec après {max_retries} tentatives — rate limits trop restrictifs")
 

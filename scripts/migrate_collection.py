@@ -120,21 +120,20 @@ def create_v2(
         rprint("   [green]OK collection créée[/green]")
 
     rprint("\n[bold cyan]Création des payload indexes[/bold cyan]")
+    # Look-before-leap : on lit l'état actuel pour ne créer que les index manquants.
+    # Évite le try/except sur "already exists" qui dépend du wording d'erreur Qdrant.
+    collection_info = client.get_collection(new_collection)
+    existing_payload_schema = collection_info.payload_schema or {}
     for field in PAYLOAD_INDEX_FIELDS:
-        try:
-            client.create_payload_index(
-                collection_name=new_collection,
-                field_name=field,
-                field_schema=PayloadSchemaType.KEYWORD,
-            )
-            rprint(f"   [green]OK index KEYWORD sur {field}[/green]")
-        except Exception as e:
-            # L'API renvoie "already exists" si l'index est déjà créé : OK
-            if "already exists" in str(e).lower() or "exists" in str(e).lower():
-                rprint(f"   [dim]index {field} déjà présent[/dim]")
-            else:
-                rprint(f"   [red]erreur sur {field}: {e}[/red]")
-                raise
+        if field in existing_payload_schema:
+            rprint(f"   [dim]index {field} déjà présent (skip)[/dim]")
+            continue
+        client.create_payload_index(
+            collection_name=new_collection,
+            field_name=field,
+            field_schema=PayloadSchemaType.KEYWORD,
+        )
+        rprint(f"   [green]OK index KEYWORD sur {field}[/green]")
 
 
 # =============================================================================
