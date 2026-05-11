@@ -102,6 +102,12 @@ def embed_query(client: Mistral, query: str, cache: dict[str, list[float]]) -> l
     result = client.embeddings.create(model=EMBEDDING_MODEL, inputs=[query])
     embedding = result.data[0].embedding
     magnitude = math.sqrt(sum(v * v for v in embedding))
+    if magnitude == 0:
+        # Mistral peut exceptionnellement renvoyer un vecteur nul. ZeroDivisionError
+        # n'est pas catché par le `except Exception` du caller (qui ne couvre que
+        # l'appel réseau), donc on lève une ValueError explicite que le caller
+        # peut classifier comme "skip query" sans interrompre le run entier.
+        raise ValueError(f"Zero-magnitude embedding returned by Mistral for query {query[:50]!r}")
     normalized = [v / magnitude for v in embedding]
     cache[h] = normalized
     append_query_cache([(h, normalized)])
@@ -349,6 +355,23 @@ def _render_summary_table(averages: dict[str, float], targets: dict[str, float])
     console.print(table)
 
 
+def _compute_test_set_hash(test_data: dict) -> str:
+    """
+    SHA-256 du contenu du golden set (queries triées par id).
+
+    Versionné par contenu plutôt que par `version` du test_data, qui peut
+    rester identique alors que le contenu change (bug fréquent de bump de
+    version oublié). Indispensable pour que `compare` puisse refuser de
+    comparer deux runs sur des golden sets différents.
+    """
+    canonical = json.dumps(
+        sorted(test_data.get("queries", []), key=lambda q: q.get("id", "")),
+        sort_keys=True,
+        ensure_ascii=False,
+    )
+    return hashlib.sha256(canonical.encode()).hexdigest()[:16]
+
+
 def _persist_run(
     test_data: dict,
     collection: str,
@@ -359,12 +382,14 @@ def _persist_run(
 ) -> Path:
     """Écrit le run dans eval_runs/<YYYYMMDD-HHMMSS>-<collection>.json."""
     EVAL_RUNS_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    now = datetime.now(UTC)
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
     path = EVAL_RUNS_DIR / f"{timestamp}-{collection}.json"
     payload = {
-        "run_timestamp_utc": datetime.now(UTC).isoformat(),
+        "run_timestamp_utc": now.isoformat(),
         "collection": collection,
         "test_set_version": test_data.get("version"),
+        "test_set_hash": _compute_test_set_hash(test_data),
         "num_queries": len(results),
         "top_k": top_k,
         "embedding_model": EMBEDDING_MODEL,
@@ -387,8 +412,20 @@ def compare(
     run_a: Annotated[Path, typer.Argument(help="Run baseline")],
     run_b: Annotated[Path, typer.Argument(help="Run à comparer")],
     regression_threshold: Annotated[
-        float, typer.Option(help="Seuil de régression (delta négatif)")
-    ] = 0.02,
+        float,
+        typer.Option(
+            help=(
+                "Seuil de régression (delta négatif). Défaut 0.05 (5%) : "
+                "absorbe la variance naturelle d'embedding entre runs sur "
+                "petit golden set (~30 queries), tout en restant sensible "
+                "aux vraies régressions. Baisser à 0.02 quand golden set ≥ 200."
+            )
+        ),
+    ] = 0.05,
+    force: Annotated[
+        bool,
+        typer.Option("--force", help="Compare même si les golden sets diffèrent"),
+    ] = False,
 ) -> None:
     """Compare deux runs JSON et flag les régressions > regression_threshold."""
     if not run_a.exists() or not run_b.exists():
@@ -399,6 +436,19 @@ def compare(
         a = json.load(f)
     with open(run_b, encoding="utf-8") as f:
         b = json.load(f)
+
+    # Refuser de comparer deux runs sur des golden sets différents (sauf --force).
+    # Sans ce garde-fou, on peut comparer "Recall@5 sur golden v1.0" vs "Recall@5
+    # sur golden v2.0 enrichi" et croire à tort qu'il y a une régression de retrieval.
+    hash_a = a.get("test_set_hash")
+    hash_b = b.get("test_set_hash")
+    if hash_a and hash_b and hash_a != hash_b and not force:
+        rprint(
+            f"[red]✗ Golden sets différents (A={hash_a}, B={hash_b}). "
+            f"Utiliser --force pour comparer quand même (mais le delta sera "
+            f"non interprétable).[/red]"
+        )
+        raise typer.Exit(1)
 
     rprint(f"\n[bold cyan]Comparaison[/bold cyan] {run_a.name} → {run_b.name}\n")
 
@@ -444,14 +494,31 @@ def migrate_titles(
     output: Annotated[Path, typer.Option(help="Fichier de sortie")] = Path(
         "data/golden/test_queries.json"
     ),
+    allow_partial: Annotated[
+        bool,
+        typer.Option(
+            "--allow-partial",
+            help=(
+                "Inclure les queries où certains titres attendus ne sont pas "
+                "trouvés dans le dataset. Risque : Recall@K gonflé car le "
+                "titre manquant pourrait être le plus pertinent. Défaut : reject."
+            ),
+        ),
+    ] = False,
 ) -> None:
     """
     Migre un test_queries.json (legacy `expected_titles`) vers le nouveau schema
     `expected_ids` en utilisant le mapping title -> uuid5(content_hash) des JSONL
     locaux.
 
-    Les queries dont aucun expected_title ne matche un titre du dataset sont
-    loggées et ignorées (output ne contient que les queries résolues).
+    Comportement par défaut (strict) :
+    - Query avec TOUS les titres résolus → migrée
+    - Query avec AU MOINS UN titre manquant → rejetée (partial resolution)
+    - Query avec ZERO titre résolu → rejetée
+
+    Avec --allow-partial : on accepte les queries partielles et on marque
+    `_unresolved_titles` pour audit. À utiliser uniquement si on accepte que
+    Recall@K soit potentiellement gonflé.
     """
     if not test_file.exists():
         rprint(f"[red]Fichier introuvable : {test_file}[/red]")
@@ -470,6 +537,7 @@ def migrate_titles(
 
     new_queries: list[dict] = []
     unresolved: list[tuple[str, list[str]]] = []
+    partial: list[tuple[str, list[str]]] = []
 
     for q in old.get("queries", []):
         expected_titles = q.get("expected_titles", [])
@@ -479,6 +547,13 @@ def migrate_titles(
         if not expected_ids:
             unresolved.append((q["id"], expected_titles))
             continue
+
+        if missing:
+            # Résolution partielle : on a au moins un titre résolu mais d'autres manquent.
+            # Sans --allow-partial, on rejette pour éviter Recall@K artificiellement gonflé.
+            partial.append((q["id"], missing))
+            if not allow_partial:
+                continue
 
         new_q = {**q}
         new_q["expected_ids"] = expected_ids
@@ -499,9 +574,20 @@ def migrate_titles(
 
     rprint(f"\n[green]✓ Migré : {len(new_queries)} queries[/green] → {output}")
     if unresolved:
-        rprint(f"[yellow]⊘ {len(unresolved)} queries non résolues (aucun titre trouvé)[/yellow]")
+        rprint(
+            f"[yellow]⊘ {len(unresolved)} queries totalement non résolues "
+            f"(aucun titre trouvé) — rejetées[/yellow]"
+        )
         for qid, titles in unresolved[:5]:
             rprint(f"  - {qid} : {titles}")
+    if partial:
+        action = "incluses (--allow-partial)" if allow_partial else "rejetées"
+        rprint(
+            f"[yellow]⊘ {len(partial)} queries partiellement résolues "
+            f"({action})[/yellow]"
+        )
+        for qid, missing_titles in partial[:5]:
+            rprint(f"  - {qid} : titres manquants {missing_titles}")
 
     # Helper pour vérifier que le mapping est stable
     _ = compute_content_hash
