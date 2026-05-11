@@ -257,7 +257,7 @@ def _create_merged_document(docs_data: list[dict]) -> dict:
 
 def _enrich_single_document(doc, doc_data: dict) -> dict:
     """Enrichit un document unique avec metadata manquantes."""
-    # Convertir OldDocument en dict
+    # Convertir UnvalidatedDocument en dict (ou Pydantic Document via model_dump)
     if hasattr(doc, 'model_dump'):
         doc_dict = doc.model_dump(exclude_none=True)
     else:

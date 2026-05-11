@@ -25,15 +25,39 @@ from rich.table import Table
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from schema import Document
+from schema.document import Matiere, NiveauCollege, NiveauLycee
 from scripts.utils import DATA_DIR, get_all_jsonl_files
 
 app = typer.Typer(name="curriculum", help="Gestion du dataset curriculum TomAI")
 console = Console()
 
+_VALID_MATIERES = {m.value for m in Matiere}
+_VALID_NIVEAUX = {n.value for n in NiveauCollege} | {n.value for n in NiveauLycee}
+
+
+def _validate_path_segments(file_path: Path) -> str | None:
+    """
+    Vérifie que niveau (= parent.name) et matiere (= file.stem) sont des valeurs
+    valides du schema. Retourne un message d'erreur ou None si OK.
+    """
+    matiere = file_path.stem
+    niveau = file_path.parent.name
+    if matiere not in _VALID_MATIERES:
+        return (
+            f"Filename stem {matiere!r} n'est pas une valeur valide de schema.Matiere. "
+            f"Valides : {sorted(_VALID_MATIERES)}"
+        )
+    if niveau not in _VALID_NIVEAUX:
+        return (
+            f"Directory {niveau!r} n'est pas une valeur valide de schema.NiveauCollege/Lycee. "
+            f"Valides : {sorted(_VALID_NIVEAUX)}"
+        )
+    return None
+
 
 def validate_jsonl_file(file_path: Path) -> tuple[int, int, list[str]]:
     """
-    Valide un fichier JSONL.
+    Valide un fichier JSONL (Pydantic) + cohérence du nom de fichier avec les enums.
 
     Returns:
         (valid_count, error_count, error_messages)
@@ -41,6 +65,11 @@ def validate_jsonl_file(file_path: Path) -> tuple[int, int, list[str]]:
     valid = 0
     errors = 0
     messages = []
+
+    path_error = _validate_path_segments(file_path)
+    if path_error:
+        # Erreur structurelle : un seul message pour tout le fichier
+        return 0, 1, [path_error]
 
     with open(file_path, encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
