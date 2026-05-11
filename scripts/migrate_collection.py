@@ -32,6 +32,12 @@ import sys
 from pathlib import Path
 from typing import Annotated
 
+# Forcer stdout/stderr en UTF-8 sur Windows (cp1252 par défaut ne supporte pas ✓ → etc.)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import typer
