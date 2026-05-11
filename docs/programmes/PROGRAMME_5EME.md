@@ -1,60 +1,185 @@
 # Programme Officiel 5ème - Référence Éduscol
 
-**Source** : Programmes officiels Éduscol (BO 30/07/2020, BO 13/06/2024 pour EMC, BO 29/02/2024 pour Technologie)
-**Cycle** : Cycle 4 (début)
+> **Statut sources** : section **Mathématiques** réécrite le 2026-05-11 à partir du BO 5 mars 2026 (officiel, applicable rentrée 2026-2027). **Les 10 autres matières** restent issues d'une rédaction Claude antérieure non vérifiée contre sources canoniques — audit + réécriture nécessaires (voir `docs/audits/`).
+
+**Cycle** : Cycle 4 (début, classe de 5ème)
+
+| Matière | Source officielle (BO) | Audit fait | Réécrit |
+|---|---|---|---|
+| Mathématiques | Arrêté 18/02/2026 — BO n°10 du 5 mars 2026 ([Légifrance](https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053613385)) | ✅ 2026-05-11 ([rapport](../audits/2026-05-11-audit-maths-5e-vs-BO2026.md)) | ✅ 2026-05-11 |
+| Français | Arrêté 18/02/2026 — BO n°10 du 5 mars 2026 | ⏳ à faire | ⏳ |
+| Histoire-Géographie | BO 30/07/2020 (cycle 4) | ⏳ | ⏳ |
+| EMC | BO 13/06/2024 | ⏳ | ⏳ |
+| Physique-Chimie | BO 30/07/2020 (cycle 4) | ⏳ | ⏳ |
+| SVT | BO 30/07/2020 (cycle 4) | ⏳ | ⏳ |
+| Technologie | BO 29/02/2024 (programme 2024) | ⏳ | ⏳ |
+| Anglais / Allemand / Espagnol / Italien | BO 30/07/2020 + CECRL (niveau A2 visé) | ⏳ | ⏳ |
 
 ---
 
-## Mathématiques (3h30/semaine)
+## Mathématiques (4h30/semaine — BO 5 mars 2026)
 
-### Nombres et Calculs
-- [ ] Nombres entiers et décimaux positifs
-- [ ] Nombres relatifs (introduction, comparaison, repérage)
-- [ ] Addition de nombres relatifs
-- [ ] Soustraction de nombres relatifs
-- [ ] Fractions (écriture fractionnaire)
-- [ ] Comparaison de fractions (même dénominateur)
-- [ ] Addition et soustraction de fractions
+<!-- source_bo: "BO n°10 du 5 mars 2026, Arrêté du 18 février 2026" -->
+<!-- source_url: "https://www.education.gouv.fr/bo/2026/Hebdo10/MENE2602912A" -->
+<!-- source_legifrance: "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053613385" -->
+<!-- source_pdf_local: "data/raw/programme_maths_cycle4_BO2026.txt" -->
+<!-- last_verified: "2026-05-11" -->
+<!-- last_verified_by: "humain+claude (commit feat/mvp-rebuild)" -->
+<!-- applicable_rentree: "2026-2027" -->
+
+### Nombres et calculs
+
+#### Opérations
+- [ ] Critères de divisibilité par 2, 5 et 10 (entretien cycle 3)
+- [ ] Critères de divisibilité par 3 et 9
+- [ ] Division euclidienne (quotient et reste)
 - [ ] Multiples et diviseurs
-- [ ] Division euclidienne
-- [ ] Nombres premiers (introduction)
-- [ ] Priorités opératoires
-- [ ] Calcul littéral (expressions algébriques)
-- [ ] Distributivité simple
+- [ ] Factorisation simple d'entiers décomposables en produits
+- [ ] Multiplier et diviser par 10, 100, 1 000
+- [ ] Addition et soustraction de décimaux
+- [ ] **Diviser par un nombre décimal**
+- [ ] Enchainer des opérations
+- [ ] Priorités opératoires (avec et sans parenthèses)
+- [ ] Distributivité simple sur exemples numériques
+- [ ] Sommes/produits, termes/facteurs (vocabulaire)
+- [ ] Prolongement : nombres premiers (crible d'Ératosthène, infinité)
 
-### Organisation et Gestion de Données
-- [ ] Proportionnalité (reconnaissance, coefficient)
-- [ ] Règle de trois (produit en croix)
-- [ ] **Échelles** (plans, cartes)
-- [ ] **Vitesse** (distance, temps, vitesse constante)
-- [ ] Pourcentages (calcul et applications)
-- [ ] Représentations graphiques
-- [ ] Statistiques (moyenne, médiane)
-- [ ] Probabilités (introduction, vocabulaire)
+#### Nombres relatifs
+- [ ] Définition des nombres relatifs
+- [ ] Opposé d'un nombre, valeur absolue
+- [ ] Positif, strictement positif, négatif, strictement négatif
+- [ ] Représentation de grandeurs (température, altitude, temps)
+- [ ] Lire l'abscisse, placer un nombre relatif sur une droite graduée
+- [ ] Comparer et ranger (ordre croissant/décroissant) des décimaux relatifs
+- [ ] Additionner deux nombres décimaux relatifs
+- [ ] Additionner plusieurs nombres décimaux relatifs
+- [ ] Soustraire deux nombres décimaux relatifs
+- [ ] Gestion des parenthèses dans les écritures de sommes
+- [ ] Enchainer additions et soustractions de décimaux relatifs
 
-### Géométrie
-- [ ] Symétrie axiale (rappels)
-- [ ] Symétrie centrale (définition, propriétés)
-- [ ] Triangles (construction, inégalité triangulaire)
-- [ ] Somme des angles d'un triangle
-- [ ] Médiatrice d'un segment
-- [ ] Cercle circonscrit d'un triangle
-- [ ] Parallélogramme (définition, propriétés)
-- [ ] Angles et parallélisme
-- [ ] Quadrilatères particuliers
+#### Nombres rationnels
+- [ ] Comparer des fractions (dénominateurs quelconques)
+- [ ] Additionner et soustraire des fractions de dénominateurs quelconques
+- [ ] Résoudre des problèmes avec additions et soustractions de fractions
 
-### Grandeurs et Mesures
-- [ ] Périmètres (figures usuelles)
-- [ ] Aires (rectangle, triangle, disque)
-- [ ] Unités de mesure (conversions)
-- [ ] Volumes (pavé droit, prisme)
-- [ ] Unités de volume et contenance
-- [ ] Durées (calculs)
+#### Puissances
+- [ ] Notion de puissance d'un nombre, notation (carré et cube)
+- [ ] Carrés des entiers de 0 à 12
+- [ ] Cube de 10
+- [ ] Écriture d'un nombre sous forme de puissance 2 ou 3
+- [ ] Calcul de la valeur numérique d'expressions avec puissances simples (additions, soustractions, produits)
+- [ ] Valeur d'une expression littérale contenant une puissance simple
 
-### Algorithmique et Programmation
-- [ ] Scratch (bases)
-- [ ] Variables et boucles
-- [ ] Instructions conditionnelles
+#### Calcul littéral et algébrique
+- [ ] Produire des formules (double, triple, carré, successeur, prédécesseur, aire, périmètre)
+- [ ] Calculer la valeur d'une expression littérale par substitution
+- [ ] Tester si une égalité entre expressions algébriques est vraie ou fausse
+- [ ] Identifier somme/produit
+- [ ] Factoriser et développer (relation k(a+b)=ka+kb)
+- [ ] Réduire une expression de la forme ax + b
+- [ ] Démontrer une propriété générale par le calcul littéral
+- [ ] Utiliser un contre-exemple pour démontrer qu'une assertion est fausse
+- [ ] Formuler des conjectures (langage algorithmique ou tableur)
+- [ ] Statut de la lettre comme inconnue
+- [ ] Modéliser des problèmes par équations de type a·x = c ou x + b = c
+- [ ] Résoudre ces équations par méthodes arithmétiques (opérations inverses)
+
+### Espace et géométrie
+
+#### Repérage sur une droite et dans le plan
+- [ ] Sur une droite graduée : lire l'abscisse d'un point donné
+- [ ] Sur une droite graduée : placer un point d'abscisse donnée
+- [ ] Dans le plan muni d'un repère orthogonal : lire les coordonnées d'un point
+- [ ] Dans le plan muni d'un repère orthogonal : placer un point de coordonnées données
+
+#### Représentation de l'espace
+- [ ] Construire des perspectives cavalières (pavé droit, cube, cylindre de révolution, prisme droit)
+- [ ] Mettre en relation perspective cavalière et patron
+- [ ] Calculer le volume d'un cube, d'un pavé droit, d'un prisme droit
+- [ ] Connaitre et convertir les unités usuelles (volume et capacité)
+- [ ] Calculer l'aire d'un disque
+- [ ] Calculer le volume d'un cylindre de révolution
+- [ ] Prolongement : solides de Platon, formule d'Euler
+
+#### Transformations
+- [ ] Définir le demi-tour (symétrie centrale)
+- [ ] Connaitre les propriétés du demi-tour
+- [ ] Prolongement : rosaces, pavages
+
+#### Angles
+- [ ] Caractériser le parallélisme par les angles : alternes internes, correspondants
+- [ ] Reconnaitre : angles pleins, plats, nuls, droits, opposés par le sommet, adjacents, supplémentaires, aigus, obtus, bissectrice
+
+#### Triangles
+- [ ] Somme des angles d'un triangle, savoir la démontrer
+- [ ] Construire des triangles à partir de données partielles
+- [ ] Propriétés des médiatrices et du cercle circonscrit (triangles particuliers)
+- [ ] Calculer l'aire d'un triangle
+- [ ] Définir et tracer les hauteurs d'un triangle
+- [ ] Savoir que les hauteurs d'un triangle sont concourantes
+- [ ] Définir et tracer les médianes d'un triangle
+- [ ] Démontrer qu'une médiane partage un triangle en deux triangles d'aires égales
+
+#### Parallélogrammes
+- [ ] Définir le parallélogramme
+- [ ] Construire des parallélogrammes
+- [ ] Propriétés caractéristiques (côtés opposés, diagonales)
+- [ ] Parallélogrammes particuliers : rectangle, losange, carré (définitions + propriétés)
+- [ ] Calculer l'aire d'un parallélogramme et de figures complexes
+- [ ] Résoudre des problèmes faisant intervenir conversions d'unités de longueur et d'aires
+
+### Organisation et gestion de données et probabilités
+
+#### Statistiques
+- [ ] Recueillir et organiser des données
+- [ ] Calculer des effectifs et des fréquences (forme décimale, fractionnaire, pourcentage)
+- [ ] Lire et interpréter tableaux, diagrammes, graphiques
+- [ ] Représenter des données (tableau, diagramme en barres, diagramme circulaire, graphique cartésien) sur papier ou tableur
+- [ ] Choisir une représentation adaptée
+- [ ] Calculer et interpréter la **moyenne simple** d'une série de données
+- [ ] Prolongement : diagrammes de Florence Nightingale
+
+#### Probabilités
+- [ ] Vocabulaire : expérience aléatoire, issue, évènement
+- [ ] Aborder le hasard à partir de problèmes simples
+- [ ] Attribuer des probabilités dans des cas simples (équiprobabilité)
+- [ ] Répéter matériellement une expérience aléatoire simple
+- [ ] Enregistrer résultats dans un tableau d'effectifs et de fréquences
+- [ ] Positionner sur une échelle de probabilité (évènement impossible, certain, etc.)
+- [ ] Probabilité sous diverses formes (fraction, décimale, pourcentage)
+
+### Proportionnalité, fonctions
+
+#### Proportionnalité
+- [ ] Utiliser des proportions et des pourcentages
+- [ ] Calculer, appliquer des proportions et des pourcentages
+- [ ] Identifier des situations de proportionnalité (prix, recettes, distances, échelles)
+- [ ] Utiliser un coefficient de proportionnalité (prix unitaire, vitesse moyenne, échelle)
+- [ ] Représenter une situation de proportionnalité par un tableau ou un graphique
+- [ ] Reconnaitre une situation de proportionnalité à partir d'un tableau ou d'un graphique
+- [ ] Reconnaitre graphiquement qu'un nuage de points est associé ou non à de la proportionnalité
+
+#### Fonctions
+- [ ] Introduire l'expression « en fonction de » (contextes concrets ou mathématiques)
+- [ ] Produire un tableau de valeurs
+- [ ] Lire et interpréter un tableau de valeurs
+- [ ] Placer dans un repère orthogonal des points correspondant à un tableau de valeurs
+- [ ] Lire et interpréter un graphique cartésien (courbe ou nuage de points)
+- [ ] Traduire la relation de dépendance entre deux grandeurs par un tableau de valeurs à partir d'une formule
+- [ ] Produire une formule simple représentant la dépendance entre deux grandeurs
+- [ ] Caractériser graphiquement la proportionnalité
+
+### La pensée informatique
+
+> En 5ème, la notion de variable est manipulée **uniquement en lecture** d'une donnée saisie. L'écriture de variables et les instructions conditionnelles sont au programme de 4ème.
+
+- [ ] Manipuler des instructions simples et les séquencer
+- [ ] Identifier les entrées et sorties d'un programme
+- [ ] Représenter des formules sous forme d'expression informatique dans un langage de programmation par blocs
+- [ ] Calculer la valeur de formules via une suite d'instructions par blocs
+- [ ] Prévoir la valeur d'une expression informatique avant son exécution
+- [ ] Analyser un programme simple donné et modifier ses paramètres
+- [ ] Effectuer une **boucle inconditionnelle simple** (répéter une séquence linéaire d'instructions N fois)
 
 ---
 
