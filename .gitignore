@@ -58,3 +58,15 @@ htmlcov/
 # Generated reports
 evaluation_results.json
 audit_report*.json
+
+# Golden set auto-généré (smoke test) — régénérable via
+# `uv run python scripts/generate_golden.py`. Le golden manuel curé
+# data/golden/test_queries.json est tracké, pas celui-ci.
+data/golden/test_queries_from_typical.json
+data/golden/*_smoke_test.json
+
+# Cache embeddings (régénérable)
+data/embeddings_cache/
+
+# Eval runs historiques (résultats horodatés)
+eval_runs/
