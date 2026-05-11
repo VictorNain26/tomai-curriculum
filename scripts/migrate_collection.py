@@ -27,6 +27,7 @@ Sources :
 - https://qdrant.tech/documentation/concepts/collections/ (aliases)
 """
 
+import re
 import sys
 from pathlib import Path
 from typing import Annotated
@@ -225,18 +226,43 @@ def migrate(
         rprint(f"   [green]OK {total} points migrés[/green]")
 
 
+_FRENCH_TOKEN_RE = re.compile(r"[a-zàâäéèêëïîôùûüÿœæç0-9]+")
+
+
+def _fnv1a_32(token: str) -> int:
+    """
+    Hash FNV-1a 32-bit DÉTERMINISTE et CROSS-LANGAGE.
+
+    `hash()` de Python est non-déterministe (PYTHONHASHSEED aléatoire par défaut
+    depuis Python 3.3) et incompatible avec d'autres langages. Pour que les
+    indices sparse calculés ici matchent ceux du server TypeScript
+    (apps/server/src/services/rag.service.ts:hashToken), il faut une fonction
+    de hash stable et identique des deux côtés. FNV-1a 32-bit est trivial à
+    implémenter à l'identique en Python/TS/Go/Rust et a une distribution
+    suffisamment uniforme pour notre cas (~10k tokens uniques).
+    """
+    h = 2166136261
+    for c in token:
+        h ^= ord(c) & 0xFF
+        h = (h * 16777619) & 0xFFFFFFFF
+    return h & 0x7FFFFFFF  # 31-bit positif (cohérent avec rag.service.ts)
+
+
 def _build_sparse_from_text(text: str) -> SparseVector:
     """
-    Construit un SparseVector simple : indices = hash(token) % BIG, values = 1.0.
+    Construit un SparseVector pour Qdrant Modifier.IDF.
 
-    Qdrant calcule l'IDF côté server (Modifier.IDF), donc on n'a qu'à fournir
-    la matrice token-frequency. Tokenisation lowercase + split sur whitespace.
+    Tokenisation : regex sur caractères alpha/numériques français (cohérent
+    avec rag.service.ts:toSparseVector). NE PAS utiliser split() qui ne casse
+    pas sur les apostrophes (`l'aire` resterait un seul token côté Python alors
+    que le server produit ['l', 'aire'] → indices divergents → recall sparse=0).
+
+    Qdrant calcule l'IDF côté server à partir de (indices, values) qu'on fournit.
     """
-    tokens = [t for t in text.lower().split() if t]
+    tokens = _FRENCH_TOKEN_RE.findall(text.lower())
     counts: dict[int, float] = {}
     for token in tokens:
-        # Hash stable -> index sparse. 32-bit positif suffit.
-        token_id = abs(hash(token)) % (2**31)
+        token_id = _fnv1a_32(token)
         counts[token_id] = counts.get(token_id, 0.0) + 1.0
     indices = list(counts.keys())
     values = [counts[i] for i in indices]

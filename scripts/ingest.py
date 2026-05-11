@@ -122,6 +122,12 @@ def load_documents(files: list[Path]) -> list[dict]:
                     rprint(f"[red]Erreur {file_path}:{line_num}: {e}[/red]")
                     raise typer.Exit(1)
 
+                # Calcule les métriques de qualité explicitement à l'ingestion.
+                # Le schema (PR A) a sorti ce calcul du model_validator pour
+                # éviter les side-effects à la simple validation ; il faut donc
+                # l'appeler ici pour que le payload Qdrant ait le quality_score.
+                doc.compute_quality()
+
                 content_hash = compute_content_hash(niveau, matiere, doc.title, doc.content)
                 documents.append(
                     {
