@@ -79,7 +79,6 @@ scripts/
 ├── audit_coverage.py               # Gap analysis dataset vs programmes Éduscol
 ├── qdrant_optimize.py              # Optimisation : indexes KEYWORD + scalar int8 + HNSW
 ├── migrate_collection.py           # Alias swap atomique (sparse vectors + indexes)
-├── migrate_add_niveau_matiere.py   # Migration one-shot : ajoute niveau/matiere aux JSONL
 └── utils.py                        # Helpers communs (load JSONL, validate, etc.)
 
 data/
@@ -138,8 +137,6 @@ Chaque document JSONL suit le modèle Pydantic `Document` :
 | typical_questions | list[str]? | Questions types (jusqu'à 10) — source pour golden auto-gen |
 | learning_objectives | list[str]? | Objectifs pédagogiques (jusqu'à 5) |
 | common_errors | list[str]? | Erreurs courantes (jusqu'à 5) |
-| relations | list[DocumentRelation]? | Knowledge graph (prerequisite, related, extends...) |
-| enriched | EnrichedContent? | LaTeX, diagrammes, code, interactifs |
 | version | str | Semver (défaut: "2.0.0") |
 | review_status | ReviewStatus | draft, reviewed, validated, published, deprecated |
 | confidence_level | float | 0-1 (défaut: 0.8) |

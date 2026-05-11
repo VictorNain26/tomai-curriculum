@@ -3,10 +3,9 @@ Schema Pydantic pour les documents éducatifs TomAI.
 
 Principes (alignés sur la spec RAG overhaul mai 2026) :
 - Chunking : 200-2400 chars (~50-600 tokens), cible 1200-1600 chars (~300-400 tokens)
-- Metadata enrichie : versioning, qualité, relations, contexte d'usage
+- Metadata pédagogique : niveau, matière, domaine, content_type, difficulty
+- Qualité : versioning, review_status, QualityMetrics calculées à l'ingestion
 - Traçabilité : timestamps, auteurs, révisions
-- Knowledge graph : relations explicites entre concepts (DocumentRelation)
-- Support contenu enrichi : LaTeX, diagrammes, exemples interactifs
 
 Voir `docs/specs/2026-05-09-rag-overhaul-design.md` et `docs/adr/0001-rag-overhaul.md`
 pour le détail des décisions architecturales et leurs sources.
@@ -155,62 +154,9 @@ class ReviewStatus(str, Enum):
     DEPRECATED = "deprecated"  # Obsolète, à remplacer
 
 
-class RelationType(str, Enum):
-    """
-    Types de relations entre documents.
-
-    Permet de construire un knowledge graph éducatif.
-    """
-
-    PREREQUISITE = "prerequisite"  # Concept prérequis strict
-    RELATED = "related"  # Concept lié/similaire
-    EXTENDS = "extends"  # Approfondit un concept
-    APPLIES_TO = "applies_to"  # Application pratique
-    CONTRASTS = "contrasts"  # Concept opposé/comparaison
-    EXAMPLE_OF = "example_of"  # Exemple d'un concept
-
-
 # =============================================================================
-# MODÈLES AUXILIAIRES - Relations et contenu enrichi
+# MODÈLES AUXILIAIRES - Qualité
 # =============================================================================
-
-
-class DocumentRelation(BaseModel):
-    """
-    Relation entre deux documents (knowledge graph).
-
-    Permet de construire un graphe de connaissances navigable.
-    """
-
-    target_id: str = Field(..., description="UUID du document cible")
-    relation_type: RelationType = Field(..., description="Type de relation")
-    strength: float = Field(default=1.0, ge=0.0, le=1.0, description="Force de la relation (0-1)")
-    description: str | None = Field(
-        None, max_length=200, description="Description optionnelle de la relation"
-    )
-
-
-class EnrichedContent(BaseModel):
-    """
-    Contenu enrichi pour support multimodal.
-
-    Permet d'ajouter formules LaTeX, diagrammes, exemples interactifs.
-    """
-
-    latex_formulas: list[str] | None = Field(
-        None, max_length=20, description="Formules mathématiques en LaTeX"
-    )
-    diagrams: list[dict] | None = Field(
-        None,
-        max_length=10,
-        description="Références à des diagrammes (format: {type, url, caption})",
-    )
-    code_examples: list[dict] | None = Field(
-        None, max_length=5, description="Exemples de code (format: {language, code, description})"
-    )
-    interactive_elements: list[dict] | None = Field(
-        None, max_length=5, description="Éléments interactifs (format: {type, config, description})"
-    )
 
 
 class QualityMetrics(BaseModel):
@@ -313,12 +259,9 @@ class Document(BaseModel):
         None, max_length=15, description="Mots-clés pour améliorer le retrieval (15 max)"
     )
 
-    # === Relations et knowledge graph ===
+    # === Prérequis pédagogiques ===
     prerequis: list[str] | None = Field(
         None, max_length=10, description="IDs des concepts prérequis (pour parcours pédagogique)"
-    )
-    relations: list[DocumentRelation] | None = Field(
-        None, max_length=20, description="Relations explicites avec d'autres documents"
     )
 
     # === Contexte d'utilisation RAG ===
@@ -330,11 +273,6 @@ class Document(BaseModel):
     )
     common_errors: list[str] | None = Field(
         None, max_length=5, description="Erreurs courantes liées à ce concept"
-    )
-
-    # === Contenu enrichi (multimodal) ===
-    enriched: EnrichedContent | None = Field(
-        None, description="Contenu enrichi: LaTeX, diagrammes, code, interactifs"
     )
 
     # === Versioning et traçabilité ===
@@ -415,16 +353,12 @@ class Document(BaseModel):
         # Complétude (presence de metadata optionnelles)
         completeness = 0.0
         if self.keywords and len(self.keywords) >= 5:
-            completeness += 0.2
+            completeness += 0.3
         if self.prerequis and len(self.prerequis) >= 2:
-            completeness += 0.15
+            completeness += 0.25
         if self.typical_questions and len(self.typical_questions) >= 3:
-            completeness += 0.15
+            completeness += 0.25
         if self.learning_objectives:
-            completeness += 0.15
-        if self.enriched:
-            completeness += 0.15
-        if self.relations:
             completeness += 0.2
 
         # Lisibilité (longueur moyenne des phrases)
