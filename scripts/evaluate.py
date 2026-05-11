@@ -36,6 +36,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import typer
 from dotenv import load_dotenv
 from mistralai import Mistral
+from mistralai.models import SDKError
 from qdrant_client import QdrantClient
 from qdrant_client.models import FieldCondition, Filter, MatchValue
 from rich import print as rprint
@@ -265,7 +266,11 @@ def run(
 
         try:
             query_vector = embed_query(mistral_client, query_text, query_cache)
-        except Exception as e:
+        except (SDKError, ValueError) as e:
+            # SDKError = erreur Mistral typée (réseau, auth, rate limit) ;
+            # ValueError = zero-magnitude embedding (cf. embed_query). Toute
+            # autre exception (bug programmeur, panique réseau) propage et
+            # interrompt le run plutôt que d'être silencieusement masquée.
             rprint(f"  [red]✗ {query_id} : erreur embedding — {e}[/red]")
             continue
 
