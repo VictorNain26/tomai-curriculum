@@ -6,12 +6,11 @@ Usage:
     uv run curriculum validate                    # Valide tous les fichiers JSONL
     uv run curriculum validate --niveau=cinquieme # Valide un niveau spécifique
     uv run curriculum stats                       # Affiche les statistiques
-    uv run curriculum ingest                      # Ingère dans Qdrant
-    uv run curriculum ingest --dry-run            # Simulation
+
+Pour l'ingestion Qdrant : `uv run python scripts/ingest.py run [...]` (pipeline dédié).
 """
 
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Annotated
@@ -25,35 +24,40 @@ from rich.table import Table
 # Add parent to path for schema import
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from schema import Document, Matiere, NiveauCollege, NiveauLycee
+from schema import Document
+from schema.document import Matiere, NiveauCollege, NiveauLycee
+from scripts.utils import DATA_DIR, get_all_jsonl_files
 
 app = typer.Typer(name="curriculum", help="Gestion du dataset curriculum TomAI")
 console = Console()
 
-DATA_DIR = Path(__file__).parent.parent / "data" / "processed"
+_VALID_MATIERES = {m.value for m in Matiere}
+_VALID_NIVEAUX = {n.value for n in NiveauCollege} | {n.value for n in NiveauLycee}
 
 
-def get_all_jsonl_files(niveau: str | None = None, matiere: str | None = None) -> list[Path]:
-    """Récupère tous les fichiers JSONL du dataset."""
-    files = []
-    for cycle_dir in DATA_DIR.iterdir():
-        if not cycle_dir.is_dir():
-            continue
-        for niveau_dir in cycle_dir.iterdir():
-            if not niveau_dir.is_dir():
-                continue
-            if niveau and niveau_dir.name != niveau:
-                continue
-            for jsonl_file in niveau_dir.glob("*.jsonl"):
-                if matiere and jsonl_file.stem != matiere:
-                    continue
-                files.append(jsonl_file)
-    return sorted(files)
+def _validate_path_segments(file_path: Path) -> str | None:
+    """
+    Vérifie que niveau (= parent.name) et matiere (= file.stem) sont des valeurs
+    valides du schema. Retourne un message d'erreur ou None si OK.
+    """
+    matiere = file_path.stem
+    niveau = file_path.parent.name
+    if matiere not in _VALID_MATIERES:
+        return (
+            f"Filename stem {matiere!r} n'est pas une valeur valide de schema.Matiere. "
+            f"Valides : {sorted(_VALID_MATIERES)}"
+        )
+    if niveau not in _VALID_NIVEAUX:
+        return (
+            f"Directory {niveau!r} n'est pas une valeur valide de schema.NiveauCollege/Lycee. "
+            f"Valides : {sorted(_VALID_NIVEAUX)}"
+        )
+    return None
 
 
 def validate_jsonl_file(file_path: Path) -> tuple[int, int, list[str]]:
     """
-    Valide un fichier JSONL.
+    Valide un fichier JSONL (Pydantic) + cohérence du nom de fichier avec les enums.
 
     Returns:
         (valid_count, error_count, error_messages)
@@ -62,7 +66,12 @@ def validate_jsonl_file(file_path: Path) -> tuple[int, int, list[str]]:
     errors = 0
     messages = []
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    path_error = _validate_path_segments(file_path)
+    if path_error:
+        # Erreur structurelle : un seul message pour tout le fichier
+        return 0, 1, [path_error]
+
+    with open(file_path, encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
@@ -147,7 +156,7 @@ def stats():
         doc_count = 0
         token_count = 0
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -166,66 +175,6 @@ def stats():
 
     console.print(table)
     rprint(f"\n[bold]Total: {total_docs} documents, ~{total_tokens:,} tokens[/bold]")
-
-
-@app.command()
-def ingest(
-    niveau: Annotated[str | None, typer.Option(help="Filtrer par niveau")] = None,
-    matiere: Annotated[str | None, typer.Option(help="Filtrer par matière")] = None,
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="Simulation sans écriture")] = False,
-    qdrant_url: Annotated[str | None, typer.Option(envvar="QDRANT_URL")] = None,
-    qdrant_api_key: Annotated[str | None, typer.Option(envvar="QDRANT_API_KEY")] = None,
-    collection: Annotated[str, typer.Option(envvar="QDRANT_COLLECTION")] = "tomai_educational",
-):
-    """Ingère les documents dans Qdrant."""
-    if not dry_run and (not qdrant_url or not qdrant_api_key):
-        rprint("[red]QDRANT_URL et QDRANT_API_KEY requis pour l'ingestion[/red]")
-        raise typer.Exit(1)
-
-    files = get_all_jsonl_files(niveau, matiere)
-
-    if not files:
-        rprint("[yellow]Aucun fichier JSONL trouvé.[/yellow]")
-        raise typer.Exit(0)
-
-    # Validate first
-    rprint("[bold]1. Validation...[/bold]")
-    total_docs = 0
-    documents = []
-
-    for file_path in files:
-        niveau_name = file_path.parent.name
-        matiere_name = file_path.stem
-        cycle = file_path.parent.parent.name
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    data = json.loads(line)
-                    doc = Document.model_validate(data)
-                    documents.append({
-                        "niveau": niveau_name,
-                        "matiere": matiere_name,
-                        "cycle": cycle,
-                        "doc": doc,
-                    })
-                    total_docs += 1
-                except (json.JSONDecodeError, ValidationError) as e:
-                    rprint(f"[red]Erreur validation: {e}[/red]")
-                    raise typer.Exit(1)
-
-    rprint(f"   [green]OK[/green] {total_docs} documents valides")
-
-    if dry_run:
-        rprint("\n[yellow]Mode dry-run: ingestion ignorée[/yellow]")
-        raise typer.Exit(0)
-
-    # Actual ingestion would go here
-    rprint(f"\n[bold]2. Ingestion vers Qdrant ({collection})...[/bold]")
-    rprint("[yellow]TODO: Implémenter ingestion Qdrant[/yellow]")
 
 
 if __name__ == "__main__":

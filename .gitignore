@@ -54,3 +54,7 @@ htmlcov/
 
 # Claude
 .claude/
+
+# Generated reports
+evaluation_results.json
+audit_report*.json

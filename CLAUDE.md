@@ -1,27 +1,47 @@
-# CLAUDE.md - TomAI Curriculum
+# CLAUDE.md
 
-Dataset éducatif français pour le tutorat IA, basé sur les programmes officiels Éduscol. Documents JSONL optimisés pour RAG avec Qdrant et Mistral embeddings.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol 2024** (BO 13/06/2024 pour EMC, BO 29/02/2024 pour Technologie, BO 30/07/2020 pour autres matières). Documents JSONL optimisés pour RAG avec Qdrant et Mistral embeddings 1024D.
+
+## Setup
+
+```bash
+# Installation des dépendances (uv gère automatiquement l'environnement)
+uv sync
+
+# Configuration environnement (créer .env à la racine)
+QDRANT_URL=https://your-cluster.qdrant.io
+QDRANT_API_KEY=your-api-key
+MISTRAL_API_KEY=your-mistral-key
+QDRANT_COLLECTION=tomai_educational  # Optionnel, défaut: tomai_educational
+```
 
 ## Commandes
 
 ```bash
-# Validation
+# === Validation et statistiques ===
 uv run python scripts/cli.py validate              # Valider tous les JSONL
 uv run python scripts/cli.py validate --niveau=cinquieme  # Valider un niveau
+uv run python scripts/cli.py stats                 # Statistiques du dataset
 
-# Statistiques
-uv run python scripts/cli.py stats
+# === Ingestion Qdrant ===
+uv run python scripts/ingest.py run --dry-run      # Test ingestion (n'envoie rien)
+uv run python scripts/ingest.py run                # Ingestion réelle (avec .env)
+uv run python scripts/ingest.py status             # Status collection Qdrant
 
-# Ingestion (dry-run)
-uv run python scripts/ingest.py run --dry-run
+# === Optimisation Qdrant ===
+uv run python scripts/qdrant_optimize.py optimize  # Appliquer indexes + quantization
+uv run python scripts/qdrant_optimize.py status    # Voir config HNSW + indexes
 
-# Ingestion réelle
-QDRANT_URL=... QDRANT_API_KEY=... MISTRAL_API_KEY=... uv run python scripts/ingest.py run
+# === Évaluation RAG (expert - 2025 best practices) ===
+uv run python scripts/evaluate.py --verbose                    # Évaluation avec détails
+uv run python scripts/evaluate.py --output evaluation_results.json  # Export JSON
 
-# Status collection Qdrant
-QDRANT_URL=... QDRANT_API_KEY=... uv run python scripts/ingest.py status
+# === Recherche et testing ===
+uv run python scripts/search.py                    # Test recherche interactive
 
-# Linting
+# === Linting et formatage ===
 uv run ruff check .
 uv run ruff format .
 ```
@@ -29,47 +49,86 @@ uv run ruff format .
 ## Architecture
 
 ```
-schema/                 # Modèles Pydantic
-├── document.py         # Document, ContentType, Difficulty, Cycle, Niveau
+schema/                 # Modèles Pydantic (validation stricte)
+├── document.py         # Document, ContentType, Difficulty, QualityMetrics, Relations
 └── __init__.py
 
 scripts/
 ├── cli.py              # CLI: validate, stats
-└── ingest.py           # Ingestion Qdrant + Mistral embeddings 1024D
+├── ingest.py           # Ingestion Qdrant + Mistral embeddings 1024D
+├── qdrant_optimize.py  # Optimisation Qdrant: indexes + quantization + HNSW
+├── chunking.py         # Chunking optimal: merge + overlap + enrichment
+├── evaluate.py         # Évaluation RAG expert: Recall@K, Precision@K, MRR, NDCG@K
+├── audit_qdrant.py     # Audit collection Qdrant: config, indexes, duplicates
+└── search.py           # CLI de recherche interactive (test)
 
-data/processed/         # Fichiers JSONL par cycle/niveau/matière
-└── college/cinquieme/
-    ├── metadata.json
-    ├── mathematiques.jsonl
-    ├── francais.jsonl
-    └── ...
+data/
+├── processed/          # JSONL optimisés RAG 2025 (50-600 tokens/doc)
+│   └── college/cinquieme/
+│       ├── mathematiques.jsonl    # 33 docs (~239 tok/doc)
+│       ├── francais.jsonl          # 35 docs (~313 tok/doc)
+│       ├── histoire_geo.jsonl      # 27 docs (~291 tok/doc)
+│       ├── physique_chimie.jsonl   # 20 docs (~325 tok/doc)
+│       ├── svt.jsonl               # 17 docs (~350 tok/doc)
+│       ├── emc.jsonl               # 18 docs - Éduscol 2024 (~320 tok/doc)
+│       ├── technologie.jsonl       # 20 docs - Éduscol 2024 (~350 tok/doc)
+│       ├── anglais.jsonl           # 18 docs (~115 tok/doc, atomique)
+│       ├── allemand.jsonl          # 20 docs (~257 tok/doc)
+│       ├── espagnol.jsonl          # 20 docs (~261 tok/doc)
+│       └── italien.jsonl           # 22 docs (~133 tok/doc, atomique)
+├── raw/                # Sources brutes et références Éduscol
+└── test_queries.json   # Test queries pour évaluation RAG
+
+**Total: 250 documents, 11 matières (curriculum 5ème complet)**
 ```
 
-## Schéma Document
+## Schéma Document (Version 2.0 - RAG 2025)
 
 Chaque document JSONL suit le modèle Pydantic `Document` :
 
 | Champ | Type | Description |
 |-------|------|-------------|
-| title | str | 10-150 caractères, descripteur unique |
+| title | str | 10-200 caractères, descripteur unique |
 | domaine | str | Domaine du programme (ex: "Nombres et Calculs") |
 | sousdomaine | str? | Sous-domaine optionnel |
 | content_type | ContentType | definition, theoreme, formule, methode, exemple, erreur_courante |
 | difficulty | Difficulty | decouverte, standard, approfondissement |
-| content | str | 100-2500 caractères (~25-600 tokens) |
-| keywords | list[str]? | Jusqu'à 10 mots-clés |
-| prerequis | list[str]? | Jusqu'à 5 prérequis |
+| content | str | **200-2400 caractères (~50-600 tokens)** |
+| keywords | list[str]? | Jusqu'à 15 mots-clés |
+| prerequis | list[str]? | Jusqu'à 10 prérequis (IDs de documents) |
+| typical_questions | list[str]? | Questions types (jusqu'à 10) |
+| learning_objectives | list[str]? | Objectifs pédagogiques (jusqu'à 5) |
+| common_errors | list[str]? | Erreurs courantes (jusqu'à 5) |
+| version | str | Version sémantique (défaut: "2.0.0") |
+| review_status | ReviewStatus | draft, reviewed, validated, published |
+| confidence_level | float | Niveau de confiance (0-1, défaut: 0.8) |
+| tags | list[str]? | Tags libres (jusqu'à 10) |
 
-## Contraintes RAG
+**Distribution de taille** :
+- Atomique : 200-600 chars (~50-150 tokens) pour vocabulaire/définitions courtes
+- Standard : 800-1600 chars (~200-400 tokens) pour concepts/méthodes
+- Cible optimale RAG 2025 : 1200-1600 chars (~300-400 tokens)
 
-| Paramètre | Valeur |
-|-----------|--------|
-| Taille chunk cible | 400-512 tokens |
-| Validation contenu | 50-600 tokens par document |
-| Estimation tokens | 1 token ≈ 4 caractères français |
-| Modèle embeddings | Mistral `mistral-embed` (1024 dimensions) |
-| Distance metric | Cosine |
-| Collection Qdrant | `tomai_educational` |
+## Configuration RAG - Best Practices 2025
+
+| Paramètre | Valeur | Optimisation |
+|-----------|--------|--------------|
+| **Chunking** |
+| Taille chunk cible | 300-400 tokens | Optimal pour retrieval |
+| Overlap | 15% | Préserve contexte |
+| Validation contenu | 200-600 tokens | Pydantic strict |
+| **Embeddings** |
+| Modèle | Mistral `mistral-embed` | 1024 dimensions |
+| Format | Conversationnel | +15-25% pertinence |
+| Distance metric | Cosine | Standard pour sémantique |
+| **Qdrant** |
+| Collection | `tomai_educational` | Nom par défaut |
+| HNSW config | m=16, ef_construct=100 | Optimisé 1024D |
+| Quantization | int8 scalar | -75% RAM, 99%+ accuracy |
+| Payload indexes | niveau, matiere, difficulty, quality_score | 2-5x queries filtrées |
+| **Reranking** |
+| Algorithme | BM25 hybride | +25-35% précision |
+| Pipeline | top-20 → BM25 → top-5 | Lightweight, 0 ML deps |
 
 ## Variables d'environnement
 
