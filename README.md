@@ -2,17 +2,13 @@
 
 Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol**.
 
-Pipeline RAG souverain EU : **Mistral embeddings 1024D + sparse BM25 IDF (hybrid)** ingéré dans **Qdrant Cloud** (région EU).
+Pipeline RAG souverain EU : **Mistral embeddings 1024D** ingéré dans **Qdrant Cloud** (région EU). Évaluation via **RAGAS** natif Mistral (Phase B).
 
-## Scope
+## Scope MVP (2026-05-11)
 
-| Cycle | Niveaux | Matières |
-|-------|---------|----------|
-| Cycle 3 | 6ème | 6 |
-| Cycle 4 | 5ème, 4ème, 3ème | 11 par niveau |
-| Lycée | 2nde, 1ère, Terminale | 12 / 16 / 18 (avec spécialités) |
+**5ème uniquement** : 288 documents Pydantic-valides, 11 matières du tronc commun collège (math, français, hist-géo, PC, SVT, EMC, anglais, allemand, espagnol, italien, technologie).
 
-**Total : 1854 documents, 22 matières uniques** (6ème → Terminale). Le primaire est reporté.
+Les autres niveaux (6ème, 4ème, 3ème, lycée) sont **archivés** via tag git `archive/v1.0-pre-mvp` et branche `archive/pre-mvp-refonte`. Restaurés en Phase H après validation du MVP. Voir `docs/specs/2026-05-11-mvp-rebuild-plan.md`.
 
 ## Structure
 
@@ -20,20 +16,27 @@ Pipeline RAG souverain EU : **Mistral embeddings 1024D + sparse BM25 IDF (hybrid
 data/
 ├── raw/
 │   └── sources_officielles.md         # Liens Éduscol et structure programmes
-├── processed/
-│   ├── college/{sixieme,cinquieme,quatrieme,troisieme}/<matiere>.jsonl
-│   └── lycee/{seconde,premiere,terminale}/<matiere>.jsonl
-└── golden/
-    └── test_queries.json               # 31 queries curées pour évaluation
+└── processed/
+    └── college/cinquieme/<matiere>.jsonl
+
+docs/
+├── adr/                # Décisions architecturales versionnées (0001-0005)
+├── programmes/
+│   ├── PROGRAMME_5EME.md
+│   └── CALENDRIER_REFORMES.md
+├── specs/              # Specs design (mai 2026 RAG overhaul + MVP rebuild)
+└── audits/             # Rapports baseline (post Phase C)
 ```
 
 ## Format JSONL
 
-Chaque ligne est un document JSON validé Pydantic :
+Chaque ligne est un document JSON validé Pydantic (`schema/document.py`) :
 
 ```json
 {
   "title": "Théorème de Pythagore - Énoncé",
+  "niveau": "cinquieme",
+  "matiere": "mathematiques",
   "domaine": "Géométrie",
   "sousdomaine": "Triangles",
   "content_type": "theoreme",
@@ -45,18 +48,6 @@ Chaque ligne est un document JSON validé Pydantic :
 }
 ```
 
-Validation : `200-2400 chars` (cible 1200-1600 chars ≈ 300-400 tokens). Voir `schema/document.py` pour le modèle complet (knowledge graph, qualité, versioning).
-
-## Pipeline RAG (mai 2026)
-
-| Étape | Outil | Note |
-|-------|-------|------|
-| Chunking | Pydantic strict + `chunking.py` | Cible 300-400 tokens, overlap 15% |
-| Embeddings | Mistral `mistral-embed` 1024D | Batch 50, cache local versionné par modèle |
-| Storage | Qdrant Cloud (EU) | Scalar int8 + sparse BM25 IDF, indexes KEYWORD |
-| Retrieval | Hybrid search RRF (Query API) | Dense + sparse, fusion server-side |
-| Eval | `expected_ids` exact + RAGAS | Recall, Precision, MRR, NDCG, Context P/R |
-
 ## CLI
 
 ```bash
@@ -64,30 +55,41 @@ Validation : `200-2400 chars` (cible 1200-1600 chars ≈ 300-400 tokens). Voir `
 uv run python scripts/cli.py validate
 uv run python scripts/cli.py stats
 
-# Ingestion (3 phases idempotentes)
-uv run python scripts/ingest.py embed              # 1. Embeddings → cache
-uv run python scripts/ingest.py upsert             # 2. Cache → Qdrant
-uv run python scripts/ingest.py prune              # 3. Supprimer orphelins
-uv run python scripts/ingest.py run                # Orchestrateur
+# Ingestion Qdrant (3 phases idempotentes)
+uv run python scripts/ingest.py run
 
-# Évaluation
-uv run python scripts/evaluate.py run --verbose
-
-# Gap analysis (couverture vs programmes officiels)
+# Gap analysis vs PROGRAMME_5EME.md
 uv run python scripts/audit_coverage.py
 ```
 
-Setup complet et architecture détaillée : voir `CLAUDE.md`.
+Détails dans `CLAUDE.md`.
 
 ## Souveraineté EU
 
 Aucun SaaS/SDK runtime hors UE. Pipeline 100% Mistral + Qdrant Cloud EU + Scaleway. RGPD-compatible.
 
+## Veille programmes Éduscol
+
+Les programmes changent régulièrement (réforme cycle 3 en 2025-2028). Stratégie de veille à 4 couches documentée dans `docs/adr/0005-eduscol-veille-strategy.md` et calendrier anticipé dans `docs/programmes/CALENDRIER_REFORMES.md`.
+
+## Récupération état pre-MVP
+
+L'état détaillé avant la refonte (1854 docs / 7 niveaux) reste accessible :
+
+```bash
+# Browse l'état archivé
+git checkout archive/pre-mvp-refonte
+
+# Cherry-pick d'un fichier précis sans switch
+git checkout archive/pre-mvp-refonte -- data/processed/college/sixieme/
+```
+
 ## Sources Officielles
 
-- **Éduscol** : https://eduscol.education.fr/
-- **Bulletin Officiel** : BO 30/07/2020 (programmes en vigueur), BO 13/06/2024 (EMC), BO 29/02/2024 (Technologie)
-- Référentiel local : `docs/programmes/PROGRAMME_*.md`
+- **Éduscol** : https://eduscol.education.gouv.fr/
+- **Bulletin Officiel** : https://www.education.gouv.fr/le-bulletin-officiel-de-l-education-nationale-de-la-jeunesse-et-des-sports
+- **Légifrance API** (arrêtés MENE*) : https://api.gouv.fr/les-api/legifrance-api
+- BO en vigueur pour la 5ème : BO 30/07/2020 (commun), BO 13/06/2024 (EMC), BO 29/02/2024 (Technologie)
 
 ## License
 

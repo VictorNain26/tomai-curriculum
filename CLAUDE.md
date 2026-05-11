@@ -2,9 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol** (BO 30/07/2020, BO 13/06/2024 pour EMC, BO 29/02/2024 pour Technologie). Documents JSONL optimisés pour RAG avec Qdrant + Mistral embeddings 1024D + sparse BM25 IDF (hybrid).
+Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol**. Pipeline RAG souverain EU : Mistral embeddings 1024D + Qdrant Cloud (région EU).
 
-Scope mai 2026 : **6ème → Terminale**. Le primaire (CP-CM2) est reporté.
+**Scope MVP actif (2026-05-11)** : **5ème uniquement** (288 docs Pydantic-valides, 11 matières tronc commun collège). Les autres niveaux (6ème, 4ème, 3ème, lycée) sont archivés via tag git `archive/v1.0-pre-mvp` + branche `archive/pre-mvp-refonte`, restaurables en Phase H une fois le MVP validé.
+
+Voir `docs/specs/2026-05-11-mvp-rebuild-plan.md` pour le plan complet.
 
 ## Setup
 
@@ -34,23 +36,15 @@ uv run python scripts/ingest.py prune              # Phase 3 : supprimer orpheli
 uv run python scripts/ingest.py run                # Orchestrateur (embed+upsert+prune)
 uv run python scripts/ingest.py status             # Status collection
 
-# === Audit & optimisation Qdrant ===
+# === Optimisation Qdrant ===
 uv run python scripts/qdrant_optimize.py optimize  # Indexes + quantization HNSW
 uv run python scripts/qdrant_optimize.py status
-uv run python scripts/audit_qdrant.py              # Audit complet collection
-uv run python scripts/audit_coverage.py            # Gap analysis vs programmes officiels
 
-# === Évaluation RAG (expected_ids exact + RAGAS déterministe) ===
-uv run python scripts/evaluate.py run --verbose
-uv run python scripts/evaluate.py run --output evaluation_results.json
-uv run python scripts/evaluate.py compare run-a.json run-b.json
+# === Audit couverture vs Éduscol ===
+uv run python scripts/audit_coverage.py            # Gap analysis vs PROGRAMME_5EME.md
 
-# === Golden set ===
-uv run python scripts/generate_golden.py           # Auto-génère smoke test depuis typical_questions
-
-# === Migration & enrichissement ===
-uv run python scripts/migrate_collection.py        # Alias swap atomique (cutover)
-uv run python scripts/enrich.py                    # Enrichir JSONL (questions, prérequis, etc.)
+# === Évaluation RAG (Phase B, RAGAS-based) ===
+# À venir : scripts/evaluate.py refait sur RAGAS + Mistral natif
 
 # === Linting et formatage ===
 uv run ruff check .
@@ -67,157 +61,112 @@ schema/                 # Modèles Pydantic (source unique de vérité)
 └── __init__.py
 
 scripts/
-├── cli.py                          # CLI: validate, stats
-├── ingest.py                       # Pipeline 3 phases : embed → upsert → prune (CLI Typer)
-├── ingest_lib.py                   # Helpers ingest (hash, cache, payload, Qdrant ops)
-├── chunking.py                     # Merge + overlap + enrichment
-├── enrich.py                       # Enrichissement metadata (remplace add_*_chapters.py legacy)
-├── evaluate.py                     # Retrieval eval : expected_ids + Recall/Precision/MRR/NDCG
-├── evaluate_judge.py               # LLM-judge eval : Faithfulness + Response Relevancy + cross-EU
-├── generate_golden.py              # Auto-génération golden set depuis typical_questions
-├── audit_qdrant.py                 # Audit collection : config, indexes, duplicates
-├── audit_coverage.py               # Gap analysis dataset vs programmes Éduscol
-├── qdrant_optimize.py              # Optimisation : indexes KEYWORD + scalar int8 + HNSW
-├── migrate_collection.py           # Alias swap atomique (sparse vectors + indexes)
-└── utils.py                        # Helpers communs (load JSONL, validate, etc.)
+├── cli.py              # CLI: validate, stats
+├── ingest.py           # Pipeline 3 phases : embed → upsert → prune (CLI Typer)
+├── ingest_lib.py       # Helpers ingest (hash, cache, payload, Qdrant ops)
+├── audit_coverage.py   # Gap analysis dataset vs programmes Éduscol
+├── qdrant_optimize.py  # Optimisation : indexes KEYWORD + scalar int8 + HNSW
+└── utils.py            # Helpers communs (load JSONL, validate, etc.)
 
 data/
-├── raw/                # Sources brutes Éduscol (sources_officielles.md)
-├── processed/          # JSONL validés (1854 docs au 2026-05-11)
-│   ├── college/{sixieme,cinquieme,quatrieme,troisieme}/
-│   └── lycee/{seconde,premiere,terminale}/
-└── golden/
-    └── test_queries.json  # Golden set curé (31 queries de référence)
+├── raw/                            # Sources brutes Éduscol (sources_officielles.md)
+├── processed/college/cinquieme/    # Scope MVP : 288 docs, 11 matières
+└── golden/                         # (Phase D) golden set généré via RAGAS TestsetGenerator
 
 docs/
 ├── adr/                # Décisions architecturales versionnées
-├── audits/             # Rapports d'audit (RAPPORT_*.md)
-├── programmes/         # PROGRAMME_*.md (référentiel chapitres par niveau)
-└── specs/              # Specs de design (2026-05-09-rag-overhaul-design.md)
+│   ├── 0001-rag-overhaul.md           # Historique chantier mai 2026
+│   ├── 0002-archive-pre-mvp.md        # Refonte radicale : archivage
+│   ├── 0003-mvp-cinquieme-first.md    # Pourquoi MVP 5ème
+│   ├── 0004-ragas-adoption.md         # Pourquoi RAGAS vs custom
+│   └── 0005-eduscol-veille-strategy.md # Stratégie veille programmes
+├── audits/             # Rapports baseline + suivi (re-créés post Phase C)
+├── programmes/
+│   ├── PROGRAMME_5EME.md       # Référentiel chapitres 5ème (BO 30/07/2020 + MAJ)
+│   └── CALENDRIER_REFORMES.md  # Réformes officielles à anticiper
+└── specs/
+    ├── 2026-05-09-rag-overhaul-design.md  # Spec chantier précédent
+    └── 2026-05-11-mvp-rebuild-plan.md     # Plan refonte MVP (ce chantier)
 
 tests/
-├── test_evaluate_metrics.py    # Métriques retrieval déterministes
-├── test_evaluate_judge.py      # Faithfulness, Response Relevancy, cross-validation (mocks)
-├── test_ingest_pipeline.py     # Hash, UUID, sparse, cache, prune
-├── test_chunking.py            # Estimate tokens, group by theme, merge
-├── test_audit_coverage.py      # Normalize, fuzzy match, parse programmes Éduscol
-└── test_schema.py              # Validation Document, cycle_from_niveau, niveau/matiere
+├── test_audit_coverage.py    # Parser markdown, normalize, fuzzy match
+├── test_ingest_pipeline.py   # Hash, UUID, cache, prune
+└── test_schema.py            # Validation Document, cycle_from_niveau
 ```
 
-## Stats dataset (2026-05-11)
+## Stats dataset (2026-05-11, post refonte MVP)
 
-| Niveau | Documents | Matières |
-|--------|-----------|----------|
-| 6ème | 150 | 6 |
-| 5ème | 288 | 11 |
-| 4ème | 255 | 11 |
-| 3ème | 200 | 11 |
-| 2nde | 302 | 12 |
-| 1ère | 312 | 16 (avec spécialités) |
-| Terminale | 347 | 18 (avec spécialités + options) |
-| **Total** | **1854** | **22 matières uniques** |
+| Niveau | Documents | Matières | Statut |
+|--------|-----------|----------|--------|
+| 5ème | 288 | 11 | **MVP actif** |
+| Autres | — | — | Archivés via `archive/v1.0-pre-mvp` |
 
-Stats régénérables : `uv run python scripts/cli.py stats`.
+Pre-refonte stats régénérables via `git checkout archive/pre-mvp-refonte` puis `uv run python scripts/cli.py stats`.
 
 ## Schéma Document
 
-Chaque document JSONL suit le modèle Pydantic `Document` :
+Chaque document JSONL suit le modèle Pydantic `Document` (`schema/document.py`). Champs principaux :
 
 | Champ | Type | Description |
 |-------|------|-------------|
 | id | str? | UUID stable = `uuid5(NAMESPACE_URL, sha256(niveau+matiere+title+content))` |
-| title | str | 10-200 caractères, descripteur unique |
-| domaine | str | Domaine du programme (ex: "Nombres et Calculs") |
-| sousdomaine | str? | Sous-domaine optionnel |
+| niveau | Niveau? | Enum NiveauCollege/NiveauLycee (validé) |
+| matiere | Matiere? | Enum (mathematiques, francais, ...) |
+| title | str | 10-200 caractères |
+| domaine | str | Domaine du programme |
 | content_type | ContentType | definition, theoreme, formule, methode, exemple, erreur_courante |
 | difficulty | Difficulty | decouverte, standard, approfondissement |
-| content | str | **200-2400 caractères (~50-600 tokens)** |
-| keywords | list[str]? | Jusqu'à 15 mots-clés |
-| prerequis | list[str]? | Jusqu'à 10 prérequis (IDs documents) |
-| typical_questions | list[str]? | Questions types (jusqu'à 10) — source pour golden auto-gen |
-| learning_objectives | list[str]? | Objectifs pédagogiques (jusqu'à 5) |
-| common_errors | list[str]? | Erreurs courantes (jusqu'à 5) |
-| version | str | Semver (défaut: "2.0.0") |
-| review_status | ReviewStatus | draft, reviewed, validated, published, deprecated |
-| confidence_level | float | 0-1 (défaut: 0.8) |
-| quality | QualityMetrics? | Calculé à l'ingestion via `compute_quality()` |
-| tags | list[str]? | Tags libres (jusqu'à 10) |
-
-**Note** : `niveau`, `matiere`, `cycle` sont actuellement dérivés du chemin du fichier au moment de l'ingestion (pas dans le JSONL). Voir spec RAG overhaul pour la migration prévue vers validation explicite.
+| content | str | 200-2400 caractères (~50-600 tokens) |
+| keywords | list[str]? | Mots-clés (15 max) |
+| prerequis | list[str]? | Prérequis pédagogiques (10 max) |
+| typical_questions | list[str]? | Questions types (10 max) |
+| learning_objectives | list[str]? | Objectifs (5 max) |
+| common_errors | list[str]? | Erreurs courantes (5 max) |
+| review_status | ReviewStatus | draft, reviewed, validated, published |
 
 ## Configuration RAG (mai 2026)
 
 | Paramètre | Valeur | Justification |
 |-----------|--------|---------------|
-| **Chunking** |
-| Taille chunk cible | 300-400 tokens | Optimal retrieval (validé eval) |
-| Overlap | 15% | Préserve contexte |
-| Validation contenu | 200-600 tokens (Pydantic strict) | Atomique → standard |
-| **Embeddings** |
-| Modèle | Mistral `mistral-embed` | 1024 dimensions, EU sovereignty |
-| Format | Conversationnel | +15-25% pertinence (cookbook Mistral) |
-| Batch size API | 50 | D2 spec RAG overhaul |
-| Distance metric | Cosine | Standard sémantique |
-| **Qdrant** |
-| Collection | `tomai_educational` (alias) → `tomai_educational_v2` (canonical) | Alias swap atomique |
-| Dense vectors | 1024D, scalar int8 quantization always_ram | -75% RAM, ≥99% accuracy |
-| Sparse vectors | BM25 IDF (`Modifier.IDF` natif Qdrant) | Hybrid search |
-| HNSW config | m=16, ef_construct=100 | Optimisé 1024D |
-| Payload indexes KEYWORD | niveau, matiere, cycle, difficulty, content_type | 2-5x queries filtrées |
-| **Reranking** |
-| Fusion | RRF (Reciprocal Rank Fusion) Query API côté Qdrant | BM25 + dense server-side |
-| Pas de Cohere | Souveraineté EU (D15) | Cohere déprécié côté server |
-
-## Évaluation
-
-Pipeline d'évaluation à deux étages :
-
-- **Retrieval déterministe** (`evaluate.py`, sans LLM) : Recall@K, Precision@K, MRR, NDCG@K, Context Precision/Recall — basés sur `expected_ids` exact (UUID), pas de fuzzy title matching.
-- **LLM-judge** (`evaluate_judge.py`, Mistral seul, souveraineté EU) : Faithfulness (claims supportés / claims totaux) + Response Relevancy (cosine entre question originale et N questions re-générées). Cross-validation avec second modèle EU (`magistral-medium-latest`) via `cross-validate` qui flag les samples à désaccord > 0.3.
-- **Golden set** : `data/golden/test_queries.json` (31 queries curées) + auto-générées depuis `typical_questions` (4615 queries smoke test, régénérable via `generate_golden.py`, gitignored).
-- **Cache eval** : `data/embeddings_cache/` (versionné par `model_version`).
-- **Historique runs** : `eval_runs/*.json` horodatés.
-
-## Variables d'environnement
-
-```bash
-QDRANT_URL=        # URL Qdrant Cloud (région EU obligatoire)
-QDRANT_API_KEY=    # Clé API Qdrant
-MISTRAL_API_KEY=   # Clé API Mistral (embeddings + judge)
-QDRANT_COLLECTION= # Nom collection (défaut: tomai_educational)
-```
-
-Voir `.env.example` pour le template complet.
+| Chunking cible | 300-400 tokens (1200-1600 chars) | Optimal retrieval |
+| Embeddings | Mistral `mistral-embed` 1024D | Souveraineté EU |
+| Batch embeddings | 50 | Mistral cookbook |
+| Distance | Cosine | Standard sémantique |
+| Quantization | Scalar int8 always_ram | -75% RAM, ≥99% accuracy |
+| HNSW | m=16, ef_construct=100 | Optimisé 1024D |
+| Indexes KEYWORD | niveau, matiere, cycle, difficulty, content_type | 2-5x queries filtrées |
+| Eval framework (Phase B) | **RAGAS** natif Mistral | Pas de code custom à maintenir |
 
 ## Règles d'or
 
 ### Souveraineté EU stricte
 
-Aucun SaaS/SDK runtime hors EU. Mistral (chat, embed, judge), Qdrant Cloud (EU), Scaleway (storage). **Pas de Cohere, OpenAI, Anthropic dans le runtime**.
+Aucun SaaS/SDK runtime hors EU. Mistral (chat, embed, judge), Qdrant Cloud (EU), Scaleway (storage). **Pas de Cohere, OpenAI, Anthropic**.
 
-### Pas de sur-engineering
+### Sans inventions
 
-- Format JSONL simple, un document par ligne
-- Validation Pydantic stricte
-- Pas de transformations complexes implicites
-- Pas de feature flag ou shim de rétrocompat : migration via alias = rollback gratuit
+Réutiliser les standards éprouvés. Pour eval : RAGAS (pas re-implémenter Faithfulness/Response Relevancy). Pour testset : RAGAS TestsetGenerator (pas curation manuelle artisanale). Pour parser markdown : libs standards.
 
 ### Idempotence
 
-- ID document = `uuid5(NAMESPACE_URL, content_hash)` (stable sur re-run)
-- Ingest = embed (cache) → upsert (set_payload si hash inchangé) → prune (orphelins)
-- Renommer un titre = nouvel ID + ancien pruned automatiquement
+ID document = `uuid5(NAMESPACE_URL, content_hash)` stable. Ingest = embed (cache) → upsert (set_payload si hash inchangé) → prune (orphans). Renommer un titre = nouvel ID + ancien pruned automatiquement.
 
 ### Qualité des données
 
-- Chaque document doit être autonome et compréhensible
-- Respecter 200-2400 chars (~50-600 tokens), cible 1200-1600 chars (~300-400 tokens)
-- Keywords pertinents pour le retrieval
-- `typical_questions` réalistes (utilisées pour le golden set auto)
+Validation Pydantic stricte. Cross-check path ↔ champs JSONL à l'ingestion (`load_documents` fail loud sur divergence niveau/matiere). 200-2400 chars/doc, cible 1200-1600.
 
-## Références
+### Veille programmes Éduscol
 
-- Spec design RAG overhaul : `docs/specs/2026-05-09-rag-overhaul-design.md`
-- ADR référence : `docs/adr/0001-rag-overhaul.md`
-- Audits historiques : `docs/audits/`
-- Programmes officiels : `docs/programmes/PROGRAMME_*.md`
+Voir ADR-0005 et `docs/programmes/CALENDRIER_REFORMES.md`. Stratégie 4 couches : RSS BO (GH Action Phase G), API Légifrance semestriel, header `source_bo` dans MD, calendrier anticipation.
+
+## Référence pre-MVP
+
+État détaillé pre-refonte accessible via git :
+
+```bash
+git checkout archive/pre-mvp-refonte
+# ou cherry-pick d'un fichier précis :
+git checkout archive/pre-mvp-refonte -- data/processed/college/sixieme/
+```
+
+Voir ADR-0002 pour la procédure complète.

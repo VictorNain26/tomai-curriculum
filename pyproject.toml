@@ -24,6 +24,9 @@ dev = [
     "ruff>=0.8",               # Linting
     "pytest>=8.0",             # Tests
 ]
+eval = [
+    "ragas>=0.2",              # Phase B : eval RAG via RAGAS + Mistral natif (ADR-0004)
+]
 
 [project.scripts]
 curriculum = "scripts.cli:app"
