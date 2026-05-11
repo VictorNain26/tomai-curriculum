@@ -1,50 +1,30 @@
 # Rapport d'audit — couverture du curriculum
 
-_Généré le 2026-05-11 10:17 UTC_
+_Généré le 2026-05-11 13:17 UTC_
 
 Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programmes/`) avec les titres présents dans les JSONL `data/processed/`. Match fuzzy (chevauchement de mots), peut produire des faux positifs/négatifs sur les chapitres au titre court.
 
 ## Niveau : 6ème
 
-**Couverture globale : 32.3%** (75/232 chapitres)
+**Couverture globale : 27.2%** (63/232 chapitres)
 
 | Statut | Matière | Couverture | Docs JSONL |
 |--------|---------|------------|------------|
-| ❌ | Organisation et Gestion de Données | 20% (2/10) | 0 |
-| ❌ | Grammaire | 20% (3/15) | 0 |
-| ❌ | Littérature | 20% (3/15) | 0 |
-| ❌ | LV1 - Anglais | 21% (9/42) | 31 |
-| ❌ | Grandeurs et Mesures | 22% (2/9) | 0 |
-| ❌ | Conjugaison | 22% (2/9) | 0 |
-| ❌ | Sciences et Technologie | 29% (13/45) | 24 |
-| ❌ | Espace et Géométrie | 33% (5/15) | 0 |
-| ❌ | Nombres et Calculs | 38% (6/16) | 0 |
-| ❌ | Construire une culture civique | 40% (2/5) | 0 |
-| ⚠️ | Géographie | 50% (7/14) | 26 |
-| ⚠️ | Acquérir les valeurs de la République | 50% (2/4) | 0 |
-| ⚠️ | Histoire | 53% (9/17) | 26 |
-| ⚠️ | Orthographe | 57% (4/7) | 0 |
-| ⚠️ | Lexique | 60% (3/5) | 0 |
-| ⚠️ | Respecter autrui | 75% (3/4) | 0 |
+| ❌ | Français | 20% (10/51) | 30 |
+| ❌ | Mathématiques | 20% (10/50) | 32 |
+| ❌ | Langues Vivantes | 21% (9/42) | 22 |
+| ❌ | Sciences et Technologie | 24% (11/45) | 24 |
+| ⚠️ | Histoire-Géographie | 52% (16/31) | 26 |
+| ⚠️ | EMC - Éducation Morale et Civique | 54% (7/13) | 16 |
 
-### Manques en Organisation et Gestion de Données (8)
-
-- [ ] Proportionnalité (introduction, reconnaissance)
-- [ ] Tableaux de proportionnalité
-- [ ] Coefficient de proportionnalité
-- [ ] Lecture de tableaux
-- [ ] Diagrammes en bâtons
-- [ ] Diagrammes circulaires
-- [ ] Graphiques cartésiens
-- [ ] Repérage sur un axe gradué
-
-### Manques en Grammaire (12)
+### Manques en Français (41)
 
 - [ ] Types de phrases (déclarative, interrogative, impérative, exclamative)
 - [ ] Formes de phrases (affirmative, négative)
 - [ ] Classes de mots variables (nom, verbe, adjectif, déterminant, pronom)
 - [ ] Classes de mots invariables (adverbe, préposition, conjonction)
 - [ ] Les déterminants (articles, possessifs, démonstratifs)
+- [ ] Les pronoms personnels
 - [ ] Les prépositions
 - [ ] Fonction sujet
 - [ ] Fonction COD (complément d'objet direct)
@@ -52,9 +32,22 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Fonction attribut du sujet
 - [ ] Compléments circonstanciels (temps, lieu, manière)
 - [ ] Connecteurs spatio-temporels
-
-### Manques en Littérature (12)
-
+- [ ] Infinitif et groupes de verbes
+- [ ] Indicatif présent (tous groupes)
+- [ ] Indicatif imparfait
+- [ ] Indicatif passé simple (3e personne)
+- [ ] Impératif présent
+- [ ] Conditionnel présent (introduction)
+- [ ] Verbes irréguliers courants (être, avoir, aller, faire, dire, venir)
+- [ ] Accord sujet-verbe
+- [ ] Accord de l'adjectif
+- [ ] Accord de l'attribut du sujet
+- [ ] Accord du déterminant
+- [ ] Pluriel des noms et adjectifs
+- [ ] Familles de mots (radical, préfixes, suffixes)
+- [ ] Sens propre et sens figuré
+- [ ] Champ lexical
+- [ ] Utilisation du dictionnaire
 - [ ] Récits de création (mythes cosmogoniques)
 - [ ] Textes fondateurs (Bible, mythologie)
 - [ ] Récits étiologiques
@@ -68,7 +61,50 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Créatures mythologiques
 - [ ] Monstres et héros
 
-### Manques en LV1 - Anglais (33)
+### Manques en Mathématiques (40)
+
+- [ ] Nombres décimaux (partie entière, partie décimale)
+- [ ] Valeur de position des chiffres
+- [ ] Arrondis (à l'unité, au dixième, au centième)
+- [ ] Multiplication de nombres décimaux
+- [ ] Multiples et diviseurs
+- [ ] Critères de divisibilité (2, 3, 5, 9, 10)
+- [ ] Fractions (écriture, lecture, représentation)
+- [ ] Fractions décimales
+- [ ] Numérateur et dénominateur
+- [ ] Comparaison de fractions (même dénominateur)
+- [ ] Calcul mental et ordre de grandeur
+- [ ] Proportionnalité (introduction, reconnaissance)
+- [ ] Tableaux de proportionnalité
+- [ ] Coefficient de proportionnalité
+- [ ] Lecture de tableaux
+- [ ] Diagrammes en bâtons
+- [ ] Diagrammes circulaires
+- [ ] Graphiques cartésiens
+- [ ] Repérage sur un axe gradué
+- [ ] Longueurs (mesure, conversion)
+- [ ] Masses (mesure, conversion)
+- [ ] Durées (calcul, conversion)
+- [ ] Angles (mesure en degrés)
+- [ ] Aires (rectangle, triangle, disque)
+- [ ] Unités d'aire (m², cm², km²)
+- [ ] Unités de volume et contenance
+- [ ] Points, droites, segments
+- [ ] Droites perpendiculaires
+- [ ] Médiatrice d'un segment
+- [ ] Bissectrice d'un angle
+- [ ] Cercle (rayon, diamètre, corde)
+- [ ] Triangles (construction, propriétés)
+- [ ] Triangle rectangle, isocèle, équilatéral
+- [ ] Quadrilatères (propriétés)
+- [ ] Rectangle, carré, losange, parallélogramme
+- [ ] Symétrie axiale (construction, propriétés)
+- [ ] Axes de symétrie des figures
+- [ ] Solides (cube, pavé droit, cylindre, cône, pyramide)
+- [ ] Patrons de solides
+- [ ] Représentation en perspective
+
+### Manques en Langues Vivantes (33)
 
 - [ ] Phrases affirmatives, négatives, interrogatives
 - [ ] Be et Have (présent)
@@ -104,33 +140,14 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Accentuation des mots
 - [ ] Intonation des questions
 
-### Manques en Grandeurs et Mesures (7)
-
-- [ ] Longueurs (mesure, conversion)
-- [ ] Masses (mesure, conversion)
-- [ ] Durées (calcul, conversion)
-- [ ] Angles (mesure en degrés)
-- [ ] Aires (rectangle, triangle, disque)
-- [ ] Unités d'aire (m², cm², km²)
-- [ ] Unités de volume et contenance
-
-### Manques en Conjugaison (7)
-
-- [ ] Infinitif et groupes de verbes
-- [ ] Indicatif présent (tous groupes)
-- [ ] Indicatif imparfait
-- [ ] Indicatif passé simple (3e personne)
-- [ ] Impératif présent
-- [ ] Conditionnel présent (introduction)
-- [ ] Verbes irréguliers courants (être, avoir, aller, faire, dire, venir)
-
-### Manques en Sciences et Technologie (32)
+### Manques en Sciences et Technologie (34)
 
 - [ ] Constitution de la matière à l'échelle macroscopique
 - [ ] Mélanges (homogènes, hétérogènes)
 - [ ] Masse et volume
 - [ ] Types de mouvements (rectiligne, circulaire)
 - [ ] Vitesse (introduction)
+- [ ] Sources d'énergie
 - [ ] Conversions d'énergie
 - [ ] Économies d'énergie
 - [ ] Signal et information
@@ -155,58 +172,12 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Programmation (introduction)
 - [ ] Le Soleil et les planètes
 - [ ] Alternance jour/nuit
+- [ ] Les saisons
 - [ ] Conditions de la vie sur Terre
 - [ ] Enjeux environnementaux
 - [ ] Actions humaines sur l'environnement
 
-### Manques en Espace et Géométrie (10)
-
-- [ ] Points, droites, segments
-- [ ] Cercle (rayon, diamètre, corde)
-- [ ] Triangles (construction, propriétés)
-- [ ] Triangle rectangle, isocèle, équilatéral
-- [ ] Quadrilatères (propriétés)
-- [ ] Rectangle, carré, losange, parallélogramme
-- [ ] Symétrie axiale (construction, propriétés)
-- [ ] Axes de symétrie des figures
-- [ ] Solides (cube, pavé droit, cylindre, cône, pyramide)
-- [ ] Représentation en perspective
-
-### Manques en Nombres et Calculs (10)
-
-- [ ] Nombres décimaux (partie entière, partie décimale)
-- [ ] Valeur de position des chiffres
-- [ ] Arrondis (à l'unité, au dixième, au centième)
-- [ ] Multiplication de nombres décimaux
-- [ ] Critères de divisibilité (2, 3, 5, 9, 10)
-- [ ] Fractions (écriture, lecture, représentation)
-- [ ] Fractions décimales
-- [ ] Numérateur et dénominateur
-- [ ] Comparaison de fractions (même dénominateur)
-- [ ] Calcul mental et ordre de grandeur
-
-### Manques en Construire une culture civique (3)
-
-- [ ] L'engagement dans l'école
-- [ ] Les délégués de classe
-- [ ] L'intérêt général
-
-### Manques en Géographie (7)
-
-- [ ] Les métropoles et leurs habitants
-- [ ] Habiter un espace à forte contrainte naturelle
-- [ ] Déserts chauds et froids
-- [ ] Montagnes
-- [ ] Aménagement des littoraux
-- [ ] Les dynamiques de peuplement
-- [ ] Les grandes métropoles mondiales
-
-### Manques en Acquérir les valeurs de la République (2)
-
-- [ ] Symboles républicains (drapeau, Marianne, hymne)
-- [ ] Devise républicaine (Liberté, Égalité, Fraternité)
-
-### Manques en Histoire (8)
+### Manques en Histoire-Géographie (15)
 
 - [ ] Athènes : démocratie et citoyenneté
 - [ ] Les mythes grecs
@@ -216,21 +187,22 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Naissance et diffusion du christianisme
 - [ ] Les relations de l'Empire avec les autres mondes anciens
 - [ ] La route de la soie
+- [ ] Les métropoles et leurs habitants
+- [ ] Habiter un espace à forte contrainte naturelle
+- [ ] Déserts chauds et froids
+- [ ] Montagnes
+- [ ] Aménagement des littoraux
+- [ ] Les dynamiques de peuplement
+- [ ] Les grandes métropoles mondiales
 
-### Manques en Orthographe (3)
-
-- [ ] Accord sujet-verbe
-- [ ] Accord de l'adjectif
-- [ ] Accord du déterminant
-
-### Manques en Lexique (2)
-
-- [ ] Familles de mots (radical, préfixes, suffixes)
-- [ ] Utilisation du dictionnaire
-
-### Manques en Respecter autrui (1)
+### Manques en EMC - Éducation Morale et Civique (6)
 
 - [ ] L'empathie
+- [ ] Symboles républicains (drapeau, Marianne, hymne)
+- [ ] Devise républicaine (Liberté, Égalité, Fraternité)
+- [ ] L'engagement dans l'école
+- [ ] Les délégués de classe
+- [ ] L'intérêt général
 
 ## Niveau : 5ème
 
@@ -238,47 +210,33 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 
 | Statut | Matière | Couverture | Docs JSONL |
 |--------|---------|------------|------------|
-| ❌ | L'énergie et ses conversions | 0% (0/3) | 0 |
-| ❌ | Histoire | 25% (3/12) | 32 |
+| ❌ | SVT - Sciences de la Vie et de la Terre | 24% (5/21) | 23 |
 | ❌ | EMC - Éducation Morale et Civique | 25% (2/8) | 18 |
-| ❌ | La planète Terre, l'environnement et l'action humaine | 29% (2/7) | 0 |
-| ❌ | Le vivant et son évolution | 29% (2/7) | 0 |
-| ❌ | Le corps humain et la santé | 29% (2/7) | 0 |
-| ❌ | Littérature | 31% (4/13) | 0 |
-| ❌ | Grandeurs et Mesures | 33% (2/6) | 0 |
-| ❌ | Algorithmique et Programmation | 33% (1/3) | 0 |
 | ❌ | Technologie - Programme 2024 | 33% (4/12) | 20 |
-| ❌ | LV1 - Anglais | 35% (6/17) | 26 |
-| ❌ | Grammaire | 38% (3/8) | 0 |
-| ⚠️ | Orthographe | 50% (2/4) | 0 |
-| ⚠️ | LV2 - Espagnol/Allemand/Italien | 50% (7/14) | 62 |
-| ⚠️ | Conjugaison | 56% (5/9) | 0 |
-| ⚠️ | Géographie | 56% (5/9) | 32 |
-| ⚠️ | Organisation et transformations de la matière | 60% (3/5) | 0 |
-| ⚠️ | Organisation et Gestion de Données | 62% (5/8) | 0 |
-| ⚠️ | Des signaux pour observer et communiquer | 67% (2/3) | 0 |
-| ⚠️ | Mouvements et interactions | 67% (2/3) | 0 |
-| ✅ | Lexique | 83% (5/6) | 0 |
-| ✅ | Nombres et Calculs | 85% (11/13) | 0 |
-| ✅ | Géométrie | 89% (8/9) | 0 |
+| ❌ | Histoire-Géographie | 38% (8/21) | 32 |
+| ❌ | Langues Vivantes | 45% (14/31) | 88 |
+| ❌ | Français | 48% (19/40) | 44 |
+| ⚠️ | Physique-Chimie | 50% (7/14) | 23 |
+| ⚠️ | Mathématiques | 69% (27/39) | 40 |
 
-### Manques en L'énergie et ses conversions (3)
+### Manques en SVT - Sciences de la Vie et de la Terre (16)
 
-- [ ] Sources d'énergie
-- [ ] Formes d'énergie
-- [ ] Conversions d'énergie
-
-### Manques en Histoire (9)
-
-- [ ] Byzance et l'Europe carolingienne
-- [ ] De la naissance de l'Islam à la prise de Bagdad
-- [ ] Relations entre chrétiens et musulmans (commerce, croisades)
-- [ ] L'ordre seigneurial (domination des campagnes)
-- [ ] La société féodale
-- [ ] Émergence d'une nouvelle société urbaine
-- [ ] L'affirmation de l'État monarchique (Capétiens, Valois)
-- [ ] Grandes Découvertes et premiers empires coloniaux
-- [ ] Du prince de la Renaissance au roi absolu (François Ier, Henri IV, Louis XIV)
+- [ ] Système solaire et Terre
+- [ ] Risques géologiques
+- [ ] Risques météorologiques
+- [ ] Plaques tectoniques
+- [ ] Exploitation des ressources naturelles
+- [ ] Organisation fonctionnelle des êtres vivants
+- [ ] Reproduction sexuée et asexuée
+- [ ] Diversité génétique
+- [ ] Classification des êtres vivants
+- [ ] Fossiles et évolution
+- [ ] Appareil respiratoire
+- [ ] Appareil digestif
+- [ ] Système circulatoire (sang, cœur)
+- [ ] Fonctionnement lors d'un effort physique
+- [ ] Commande nerveuse du mouvement
+- [ ] Hygiène et prévention
 
 ### Manques en EMC - Éducation Morale et Civique (6)
 
@@ -288,54 +246,6 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] La laïcité (Charte de la laïcité)
 - [ ] Le respect des croyances
 - [ ] Liberté de conscience
-
-### Manques en La planète Terre, l'environnement et l'action humaine (5)
-
-- [ ] Système solaire et Terre
-- [ ] Risques géologiques
-- [ ] Risques météorologiques
-- [ ] Plaques tectoniques
-- [ ] Exploitation des ressources naturelles
-
-### Manques en Le vivant et son évolution (5)
-
-- [ ] Organisation fonctionnelle des êtres vivants
-- [ ] Reproduction sexuée et asexuée
-- [ ] Diversité génétique
-- [ ] Classification des êtres vivants
-- [ ] Fossiles et évolution
-
-### Manques en Le corps humain et la santé (5)
-
-- [ ] Appareil respiratoire
-- [ ] Appareil digestif
-- [ ] Système circulatoire (sang, cœur)
-- [ ] Fonctionnement lors d'un effort physique
-- [ ] Commande nerveuse du mouvement
-
-### Manques en Littérature (9)
-
-- [ ] Récits d'aventures
-- [ ] Pourquoi aller vers l'inconnu ?
-- [ ] Le roman de Renart (la ruse)
-- [ ] Relations avec autrui
-- [ ] Contes merveilleux
-- [ ] Utopies
-- [ ] Imagination poétique
-- [ ] Littérature médiévale (chevalerie)
-- [ ] Figures mythologiques
-
-### Manques en Grandeurs et Mesures (4)
-
-- [ ] Périmètres (figures usuelles)
-- [ ] Aires (rectangle, triangle, disque)
-- [ ] Unités de mesure (conversions)
-- [ ] Volumes (pavé droit, prisme)
-
-### Manques en Algorithmique et Programmation (2)
-
-- [ ] Scratch (bases)
-- [ ] Instructions conditionnelles
 
 ### Manques en Technologie - Programme 2024 (8)
 
@@ -348,7 +258,23 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Design et créativité
 - [ ] Prototypage
 
-### Manques en LV1 - Anglais (11)
+### Manques en Histoire-Géographie (13)
+
+- [ ] Byzance et l'Europe carolingienne
+- [ ] De la naissance de l'Islam à la prise de Bagdad
+- [ ] Relations entre chrétiens et musulmans (commerce, croisades)
+- [ ] L'ordre seigneurial (domination des campagnes)
+- [ ] La société féodale
+- [ ] Émergence d'une nouvelle société urbaine
+- [ ] L'affirmation de l'État monarchique (Capétiens, Valois)
+- [ ] Grandes Découvertes et premiers empires coloniaux
+- [ ] Du prince de la Renaissance au roi absolu (François Ier, Henri IV, Louis XIV)
+- [ ] Répartition de la richesse et de la pauvreté
+- [ ] L'énergie, ressource à ménager
+- [ ] Nourrir une humanité en croissance
+- [ ] Changement global et ses effets
+
+### Manques en Langues Vivantes (17)
 
 - [ ] Past simple (regular/irregular verbs)
 - [ ] Comparatifs et superlatifs
@@ -361,109 +287,78 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Décrire des actions passées
 - [ ] Exprimer des projets
 - [ ] Donner son opinion
+- [ ] Pluriels
+- [ ] Interrogation
+- [ ] Se présenter
+- [ ] Les couleurs
+- [ ] Prononciation spécifique à la langue
+- [ ] Accentuation
 
-### Manques en Grammaire (5)
+### Manques en Français (21)
 
 - [ ] Classes de mots (verbe, nom, déterminant, adjectif, pronom)
 - [ ] Fonctions : sujet, attribut du sujet
 - [ ] Fonctions : compléments d'objet (COD, COI)
 - [ ] Fonctions : compléments circonstanciels (temps, lieu, manière)
 - [ ] Propositions subordonnées (introduction)
-
-### Manques en Orthographe (2)
-
-- [ ] Accords sujet-verbe
-- [ ] Accord du participe passé
-
-### Manques en LV2 - Espagnol/Allemand/Italien (7)
-
-- [ ] Pluriels
-- [ ] Interrogation
-- [ ] Se présenter
-- [ ] Les couleurs
-- [ ] Les loisirs
-- [ ] Prononciation spécifique à la langue
-- [ ] Accentuation
-
-### Manques en Conjugaison (4)
-
 - [ ] Indicatif présent (tous groupes)
 - [ ] Indicatif imparfait
 - [ ] Temps composés (passé composé, plus-que-parfait)
 - [ ] Participe passé (accords)
+- [ ] Accords sujet-verbe
+- [ ] Accord du participe passé
+- [ ] Familles de mots (radical, préfixes, suffixes)
+- [ ] Récits d'aventures
+- [ ] Pourquoi aller vers l'inconnu ?
+- [ ] Le roman de Renart (la ruse)
+- [ ] Relations avec autrui
+- [ ] Contes merveilleux
+- [ ] Utopies
+- [ ] Imagination poétique
+- [ ] Littérature médiévale (chevalerie)
+- [ ] Figures mythologiques
 
-### Manques en Géographie (4)
-
-- [ ] Répartition de la richesse et de la pauvreté
-- [ ] L'énergie, ressource à ménager
-- [ ] Nourrir une humanité en croissance
-- [ ] Changement global et ses effets
-
-### Manques en Organisation et transformations de la matière (2)
+### Manques en Physique-Chimie (7)
 
 - [ ] L'eau dans notre environnement
 - [ ] Dissolution et saturation
+- [ ] Sources d'énergie
+- [ ] Formes d'énergie
+- [ ] Conversions d'énergie
+- [ ] Ombres et pénombres
+- [ ] Circuits électriques en courant continu
 
-### Manques en Organisation et Gestion de Données (3)
+### Manques en Mathématiques (12)
 
+- [ ] Nombres entiers et décimaux positifs
+- [ ] Fractions (écriture fractionnaire)
 - [ ] **Échelles** (plans, cartes)
 - [ ] **Vitesse** (distance, temps, vitesse constante)
 - [ ] Représentations graphiques
-
-### Manques en Des signaux pour observer et communiquer (1)
-
-- [ ] Ombres et pénombres
-
-### Manques en Mouvements et interactions (1)
-
-- [ ] Circuits électriques en courant continu
+- [ ] Médiatrice d'un segment
+- [ ] Périmètres (figures usuelles)
+- [ ] Aires (rectangle, triangle, disque)
+- [ ] Unités de mesure (conversions)
+- [ ] Volumes (pavé droit, prisme)
+- [ ] Scratch (bases)
+- [ ] Instructions conditionnelles
 
 ## Niveau : 4ème
 
-**Couverture globale : 32.0%** (101/316 chapitres)
+**Couverture globale : 31.6%** (100/316 chapitres)
 
 | Statut | Matière | Couverture | Docs JSONL |
 |--------|---------|------------|------------|
-| ❌ | Organisation et Gestion de Données | 0% (0/11) | 0 |
-| ❌ | Organisation et transformations de la matière | 6% (1/16) | 0 |
-| ❌ | LV1 - Anglais | 12% (4/32) | 21 |
-| ❌ | Grandeurs et Mesures | 17% (1/6) | 0 |
-| ❌ | Algorithmique et Programmation | 17% (1/6) | 0 |
-| ❌ | Géographie | 21% (4/19) | 29 |
-| ❌ | Mouvements et interactions | 22% (2/9) | 0 |
-| ❌ | Lexique | 29% (2/7) | 0 |
-| ❌ | La planète Terre, l'environnement et l'action humaine | 31% (5/16) | 0 |
-| ❌ | Nombres et Calculs | 33% (6/18) | 0 |
-| ❌ | Grammaire | 33% (5/15) | 0 |
-| ❌ | Littérature | 35% (8/23) | 0 |
-| ❌ | Technologie - Programme 2024 | 36% (5/14) | 22 |
-| ❌ | Histoire | 36% (12/33) | 29 |
-| ❌ | Le vivant et son évolution | 38% (5/13) | 0 |
-| ❌ | Orthographe | 40% (2/5) | 0 |
-| ❌ | Des signaux pour observer et communiquer | 40% (2/5) | 0 |
-| ❌ | Le corps humain et la santé | 43% (3/7) | 0 |
-| ❌ | Conjugaison | 44% (4/9) | 0 |
+| ❌ | Physique-Chimie | 28% (11/40) | 23 |
+| ❌ | Mathématiques | 28% (15/54) | 31 |
+| ❌ | Histoire-Géographie | 29% (15/52) | 25 |
+| ❌ | Français | 31% (18/59) | 40 |
+| ❌ | Langues Vivantes | 35% (17/48) | 79 |
+| ❌ | SVT - Sciences de la Vie et de la Terre | 36% (13/36) | 19 |
+| ❌ | Technologie - Programme 2024 | 39% (7/18) | 22 |
 | ❌ | EMC - Éducation Morale et Civique | 44% (4/9) | 16 |
-| ⚠️ | Démarche de projet | 50% (2/4) | 0 |
-| ⚠️ | LV2 - Espagnol/Allemand/Italien | 50% (8/16) | 58 |
-| ⚠️ | L'énergie et ses conversions | 60% (6/10) | 0 |
-| ⚠️ | Géométrie | 69% (9/13) | 0 |
 
-### Manques en Organisation et Gestion de Données (11)
-
-- [ ] Proportionnalité (approfondissement)
-- [ ] Quatrième proportionnelle
-- [ ] Pourcentages (augmentation, réduction)
-- [ ] Pourcentages d'évolution
-- [ ] Moyennes
-- [ ] Moyennes pondérées
-- [ ] Médiane et étendue
-- [ ] Effectifs et fréquences
-- [ ] Représentations graphiques
-- [ ] Histogrammes
-- [ ] Probabilités (expériences aléatoires)
-
-### Manques en Organisation et transformations de la matière (15)
+### Manques en Physique-Chimie (29)
 
 - [ ] L'air et sa composition
 - [ ] Molécules de l'air (O₂, N₂, CO₂)
@@ -480,74 +375,6 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Conservation de la masse
 - [ ] Transformation chimique
 - [ ] Réactifs et produits
-
-### Manques en LV1 - Anglais (28)
-
-- [ ] Present simple et present continuous
-- [ ] Past simple (regular et irregular verbs)
-- [ ] Prétérit be + V-ing
-- [ ] For et since
-- [ ] Ago et yet
-- [ ] Conditional (would)
-- [ ] Modaux (can, could, must, should, may, might)
-- [ ] Had to (obligation passée)
-- [ ] Comparatifs et superlatifs
-- [ ] Pronoms relatifs (who, which, that, whose)
-- [ ] Voix passive (introduction)
-- [ ] Discours indirect (introduction)
-- [ ] Proposition infinitive
-- [ ] Subordonnées en if (1er conditionnel)
-- [ ] Les médias et l'information
-- [ ] Les nouvelles technologies
-- [ ] L'environnement
-- [ ] Les voyages et le tourisme
-- [ ] La vie quotidienne
-- [ ] Les émotions et sentiments
-- [ ] L'avenir et les projets
-- [ ] La santé
-- [ ] Raconter au passé
-- [ ] Parler d'expériences (present perfect)
-- [ ] Exprimer des projets et prédictions
-- [ ] Argumenter et donner son opinion
-- [ ] Comparer
-- [ ] Écrire un récit (15-20 lignes)
-
-### Manques en Grandeurs et Mesures (5)
-
-- [ ] Volumes (pyramide, cône, sphère)
-- [ ] Grandeurs composées (vitesse)
-- [ ] Conversion d'unités composées
-- [ ] Effets d'agrandissement/réduction sur les aires
-- [ ] Effets d'agrandissement/réduction sur les volumes
-
-### Manques en Algorithmique et Programmation (5)
-
-- [ ] Scratch (approfondissement)
-- [ ] Boucles (for, while)
-- [ ] Instructions conditionnelles
-- [ ] Fonctions simples
-- [ ] Débogage
-
-### Manques en Géographie (15)
-
-- [ ] Croissance urbaine mondiale
-- [ ] Métropolisation
-- [ ] Des villes inégalement connectées
-- [ ] Réseaux de la mondialisation
-- [ ] Villes mondiales vs villes périphériques
-- [ ] Flux migratoires mondiaux
-- [ ] Causes et conséquences des migrations
-- [ ] Le tourisme et ses espaces
-- [ ] Tourisme de masse
-- [ ] Impacts du tourisme
-- [ ] Mers et océans : un monde maritimisé
-- [ ] Routes maritimes mondiales
-- [ ] Ports et façades maritimes
-- [ ] Territoire américain et mondialisation
-- [ ] Dynamiques d'un grand ensemble africain
-
-### Manques en Mouvements et interactions (7)
-
 - [ ] Calcul de vitesse (v = d/t)
 - [ ] Unités de vitesse
 - [ ] Mouvement rectiligne non uniforme
@@ -555,30 +382,15 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Représentation d'une force
 - [ ] Poids et masse
 - [ ] Relation P = mg
+- [ ] Circuits électriques
+- [ ] Mesure avec multimètre
+- [ ] Loi d'Ohm (U = R × I)
+- [ ] Puissance électrique
+- [ ] Vitesse de la lumière
+- [ ] Vitesse du son
+- [ ] Signaux sonores et lumineux
 
-### Manques en Lexique (5)
-
-- [ ] Champ lexical des sentiments
-- [ ] Champ lexical de l'amour
-- [ ] Champ lexical du jugement
-- [ ] Connotation et dénotation
-- [ ] Figures de style (métaphore, comparaison, hyperbole, antithèse)
-
-### Manques en La planète Terre, l'environnement et l'action humaine (11)
-
-- [ ] Ondes sismiques
-- [ ] Magnitude et intensité
-- [ ] Prévention des risques sismiques
-- [ ] Volcans
-- [ ] Volcanisme effusif et explosif
-- [ ] Magma et lave
-- [ ] Prévision des éruptions
-- [ ] Lithosphère et asthénosphère
-- [ ] Plaques tectoniques
-- [ ] Dorsales et fosses océaniques
-- [ ] Chaînes de montagnes
-
-### Manques en Nombres et Calculs (12)
+### Manques en Mathématiques (39)
 
 - [ ] Addition et soustraction de nombres relatifs
 - [ ] Multiplication et division de nombres relatifs
@@ -588,55 +400,39 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Fractions irréductibles
 - [ ] Notation scientifique
 - [ ] Écriture scientifique
+- [ ] Racines carrées (introduction)
 - [ ] Distributivité (simple et double)
 - [ ] Identités remarquables (introduction)
 - [ ] Équations du 1er degré à une inconnue
 - [ ] Résolution d'équations
+- [ ] Proportionnalité (approfondissement)
+- [ ] Quatrième proportionnelle
+- [ ] Pourcentages (augmentation, réduction)
+- [ ] Pourcentages d'évolution
+- [ ] Moyennes
+- [ ] Moyennes pondérées
+- [ ] Médiane et étendue
+- [ ] Effectifs et fréquences
+- [ ] Représentations graphiques
+- [ ] Histogrammes
+- [ ] Probabilités (expériences aléatoires)
+- [ ] Trigonométrie (introduction)
+- [ ] Vecteurs (introduction)
+- [ ] Rotation (introduction)
+- [ ] Distance entre deux points
+- [ ] Volumes (pyramide, cône, sphère)
+- [ ] Grandeurs composées (vitesse)
+- [ ] Conversion d'unités composées
+- [ ] Effets d'agrandissement/réduction sur les aires
+- [ ] Effets d'agrandissement/réduction sur les volumes
+- [ ] Scratch (approfondissement)
+- [ ] Variables et affectation
+- [ ] Boucles (for, while)
+- [ ] Instructions conditionnelles
+- [ ] Fonctions simples
+- [ ] Débogage
 
-### Manques en Grammaire (10)
-
-- [ ] Phrase simple et phrase complexe
-- [ ] Propositions indépendantes, principales, subordonnées
-- [ ] Subordonnées circonstancielles de temps
-- [ ] Subordonnées circonstancielles de cause
-- [ ] Subordonnées circonstancielles de conséquence
-- [ ] Subordonnées circonstancielles de but
-- [ ] Subordonnées circonstancielles de comparaison
-- [ ] Transposition du discours
-- [ ] Classes de mots (approfondissement)
-- [ ] Interjections et onomatopées
-
-### Manques en Littérature (15)
-
-- [ ] Le registre lyrique
-- [ ] Poèmes d'amour (corpus varié)
-- [ ] Théâtre : scènes d'amour
-- [ ] Émile Zola (extraits)
-- [ ] Nouvelle fantastique
-- [ ] Honoré de Balzac
-- [ ] Description réaliste
-- [ ] Personnage de roman
-- [ ] Récit fantastique
-- [ ] Maupassant (nouvelles)
-- [ ] Analyse de documents médiatiques
-- [ ] Éducation aux médias
-- [ ] Argumentation dans les médias
-- [ ] La ville dans la littérature
-- [ ] Poésie urbaine
-
-### Manques en Technologie - Programme 2024 (9)
-
-- [ ] La domotique
-- [ ] Définition et applications
-- [ ] Systèmes automatisés
-- [ ] Partie commande et partie opérative
-- [ ] Programmation de systèmes automatisés
-- [ ] Scratch (algorithmes)
-- [ ] Conditions
-- [ ] Économies d'énergie
-- [ ] Gestion intelligente du bâtiment
-
-### Manques en Histoire (21)
+### Manques en Histoire-Géographie (37)
 
 - [ ] Bourgeoisies marchandes et négoces internationaux
 - [ ] Philosophes des Lumières (Voltaire, Rousseau, Montesquieu)
@@ -659,60 +455,92 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Lois Ferry
 - [ ] La République et la laïcité
 - [ ] Luttes pour les droits des femmes
+- [ ] Croissance urbaine mondiale
+- [ ] Métropolisation
+- [ ] Des villes inégalement connectées
+- [ ] Réseaux de la mondialisation
+- [ ] Villes mondiales vs villes périphériques
+- [ ] Flux migratoires mondiaux
+- [ ] Causes et conséquences des migrations
+- [ ] Le tourisme et ses espaces
+- [ ] Tourisme de masse
+- [ ] Impacts du tourisme
+- [ ] Mers et océans : un monde maritimisé
+- [ ] Routes maritimes mondiales
+- [ ] Ports et façades maritimes
+- [ ] Territoire américain et mondialisation
+- [ ] Dynamiques d'un grand ensemble africain
+- [ ] L'Afrique face à la mondialisation
 
-### Manques en Le vivant et son évolution (8)
+### Manques en Français (41)
 
-- [ ] Cellules reproductrices
-- [ ] Puberté
-- [ ] Caractères sexuels secondaires
-- [ ] Infections sexuellement transmissibles (IST)
-- [ ] Reproduction asexuée
-- [ ] Transmission du patrimoine génétique
-- [ ] Chromosomes
-- [ ] Gènes (introduction)
-
-### Manques en Orthographe (3)
-
-- [ ] Accords complexes (sujet-verbe)
-- [ ] Accord du participe passé (tous les cas)
-- [ ] Orthographe des verbes pronominaux
-
-### Manques en Des signaux pour observer et communiquer (3)
-
-- [ ] Vitesse de la lumière
-- [ ] Vitesse du son
-- [ ] Signaux sonores et lumineux
-
-### Manques en Le corps humain et la santé (4)
-
-- [ ] Neurones et synapses
-- [ ] Message nerveux
-- [ ] Réflexe
-- [ ] Addictions
-
-### Manques en Conjugaison (5)
-
+- [ ] Phrase simple et phrase complexe
+- [ ] Propositions indépendantes, principales, subordonnées
+- [ ] Subordonnées circonstancielles de temps
+- [ ] Subordonnées circonstancielles de cause
+- [ ] Subordonnées circonstancielles de conséquence
+- [ ] Subordonnées circonstancielles de but
+- [ ] Subordonnées circonstancielles de comparaison
+- [ ] Transposition du discours
+- [ ] Classes de mots (approfondissement)
+- [ ] Adverbes (formation, emploi)
+- [ ] Interjections et onomatopées
 - [ ] Indicatif (tous les temps)
 - [ ] Passé simple (toutes les personnes)
 - [ ] Plus-que-parfait
 - [ ] Passé antérieur
 - [ ] Futur antérieur
+- [ ] Accords complexes (sujet-verbe)
+- [ ] Accord du participe passé (tous les cas)
+- [ ] Orthographe des verbes pronominaux
+- [ ] Champ lexical des sentiments
+- [ ] Champ lexical de l'amour
+- [ ] Champ lexical du jugement
+- [ ] Vocabulaire de l'argumentation
+- [ ] Connotation et dénotation
+- [ ] Figures de style (métaphore, comparaison, hyperbole, antithèse)
+- [ ] Le registre lyrique
+- [ ] Poèmes d'amour (corpus varié)
+- [ ] Théâtre : scènes d'amour
+- [ ] Émile Zola (extraits)
+- [ ] Nouvelle fantastique
+- [ ] Honoré de Balzac
+- [ ] Description réaliste
+- [ ] Personnage de roman
+- [ ] Récit fantastique
+- [ ] Maupassant (nouvelles)
+- [ ] Analyse de documents médiatiques
+- [ ] Éducation aux médias
+- [ ] Fake news et esprit critique
+- [ ] Argumentation dans les médias
+- [ ] La ville dans la littérature
+- [ ] Poésie urbaine
 
-### Manques en EMC - Éducation Morale et Civique (5)
+### Manques en Langues Vivantes (31)
 
-- [ ] Le tribunal
-- [ ] Les principes de la justice (présomption d'innocence, droit à la défense)
-- [ ] Mineurs et justice
-- [ ] La liberté d'expression et ses limites
-- [ ] La vie privée et le droit à l'image
-
-### Manques en Démarche de projet (2)
-
-- [ ] Cahier des charges
-- [ ] Tests et validation
-
-### Manques en LV2 - Espagnol/Allemand/Italien (8)
-
+- [ ] Present simple et present continuous
+- [ ] Past simple (regular et irregular verbs)
+- [ ] Prétérit be + V-ing
+- [ ] For et since
+- [ ] Ago et yet
+- [ ] Conditional (would)
+- [ ] Modaux (can, could, must, should, may, might)
+- [ ] Had to (obligation passée)
+- [ ] Pronoms relatifs (who, which, that, whose)
+- [ ] Voix passive (introduction)
+- [ ] Discours indirect (introduction)
+- [ ] Proposition infinitive
+- [ ] Subordonnées en if (1er conditionnel)
+- [ ] Les médias et l'information
+- [ ] Les nouvelles technologies
+- [ ] L'environnement
+- [ ] Les voyages et le tourisme
+- [ ] La vie quotidienne
+- [ ] L'avenir et les projets
+- [ ] La santé
+- [ ] Parler d'expériences (present perfect)
+- [ ] Comparer
+- [ ] Écrire un récit (15-20 lignes)
 - [ ] Présent de l'indicatif (consolidation)
 - [ ] Passé simple/Prétérit (introduction)
 - [ ] Imparfait
@@ -722,61 +550,104 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] La vie quotidienne
 - [ ] Les vacances
 
-### Manques en L'énergie et ses conversions (4)
+### Manques en SVT - Sciences de la Vie et de la Terre (23)
 
-- [ ] Circuits électriques
-- [ ] Mesure avec multimètre
-- [ ] Loi d'Ohm (U = R × I)
-- [ ] Puissance électrique
+- [ ] Ondes sismiques
+- [ ] Magnitude et intensité
+- [ ] Prévention des risques sismiques
+- [ ] Volcans
+- [ ] Volcanisme effusif et explosif
+- [ ] Magma et lave
+- [ ] Prévision des éruptions
+- [ ] Lithosphère et asthénosphère
+- [ ] Plaques tectoniques
+- [ ] Dorsales et fosses océaniques
+- [ ] Chaînes de montagnes
+- [ ] Cellules reproductrices
+- [ ] Puberté
+- [ ] Caractères sexuels secondaires
+- [ ] Infections sexuellement transmissibles (IST)
+- [ ] Reproduction asexuée
+- [ ] Transmission du patrimoine génétique
+- [ ] Chromosomes
+- [ ] Gènes (introduction)
+- [ ] Neurones et synapses
+- [ ] Message nerveux
+- [ ] Réflexe
+- [ ] Addictions
 
-### Manques en Géométrie (4)
+### Manques en Technologie - Programme 2024 (11)
 
-- [ ] Trigonométrie (introduction)
-- [ ] Vecteurs (introduction)
-- [ ] Rotation (introduction)
-- [ ] Distance entre deux points
+- [ ] La domotique
+- [ ] Définition et applications
+- [ ] Systèmes automatisés
+- [ ] Partie commande et partie opérative
+- [ ] Programmation de systèmes automatisés
+- [ ] Scratch (algorithmes)
+- [ ] Conditions
+- [ ] Économies d'énergie
+- [ ] Gestion intelligente du bâtiment
+- [ ] Cahier des charges
+- [ ] Tests et validation
+
+### Manques en EMC - Éducation Morale et Civique (5)
+
+- [ ] Le tribunal
+- [ ] Les principes de la justice (présomption d'innocence, droit à la défense)
+- [ ] Mineurs et justice
+- [ ] La liberté d'expression et ses limites
+- [ ] La vie privée et le droit à l'image
 
 ## Niveau : 3ème
 
-**Couverture globale : 26.4%** (101/383 chapitres)
+**Couverture globale : 24.5%** (93/380 chapitres)
 
 | Statut | Matière | Couverture | Docs JSONL |
 |--------|---------|------------|------------|
-| ❌ | Épreuve orale | 0% (0/3) | 0 |
-| ❌ | Littérature | 7% (2/30) | 0 |
-| ❌ | Grandeurs et Mesures | 14% (1/7) | 0 |
-| ❌ | Algorithmique et Programmation | 14% (1/7) | 0 |
-| ❌ | L'énergie et ses conversions | 14% (2/14) | 0 |
-| ❌ | LV2 - Espagnol/Allemand/Italien | 14% (2/14) | 38 |
-| ❌ | Conjugaison | 17% (1/6) | 0 |
-| ❌ | Orthographe | 20% (1/5) | 0 |
-| ❌ | Géographie | 22% (5/23) | 22 |
-| ❌ | LV1 - Anglais | 22% (7/32) | 16 |
-| ❌ | Le vivant et son évolution | 24% (5/21) | 0 |
-| ❌ | Histoire | 24% (11/46) | 22 |
-| ❌ | Design, innovation et créativité | 25% (1/4) | 0 |
-| ❌ | Modélisation et simulation | 25% (1/4) | 0 |
-| ❌ | Géométrie | 29% (6/21) | 0 |
-| ❌ | Organisation et transformations de la matière | 29% (6/21) | 0 |
-| ❌ | Mouvements et interactions | 30% (3/10) | 0 |
-| ❌ | Grammaire | 31% (4/13) | 0 |
-| ❌ | Nombres et Calculs | 33% (9/27) | 0 |
-| ❌ | Lexique | 33% (3/9) | 0 |
+| ❌ | Préparation au Brevet | 0% (0/3) | 0 |
+| ❌ | Français | 13% (8/63) | 31 |
+| ❌ | Histoire-Géographie | 22% (15/69) | 21 |
+| ❌ | Langues Vivantes | 22% (10/46) | 54 |
+| ❌ | SVT - Sciences de la Vie et de la Terre | 24% (10/41) | 15 |
+| ❌ | Physique-Chimie | 28% (14/50) | 19 |
+| ❌ | Mathématiques | 32% (28/88) | 32 |
 | ❌ | EMC - Éducation Morale et Civique | 33% (4/12) | 13 |
-| ❌ | Le corps humain et la santé | 40% (6/15) | 0 |
-| ❌ | La planète Terre, l'environnement et l'action humaine | 40% (2/5) | 0 |
-| ❌ | Organisation et Gestion de Données | 42% (11/26) | 0 |
-| ✅ | Des signaux pour observer et communiquer | 80% (4/5) | 0 |
-| ✅ | Les objets techniques et leur évolution | 100% (3/3) | 0 |
+| ❌ | Technologie - Programme 2024 | 36% (4/11) | 15 |
 
-### Manques en Épreuve orale (3)
+### Manques en Préparation au Brevet (3)
 
 - [ ] Soutenance de projet (EPI, parcours)
 - [ ] Durée : 15 min (ou 25 min en groupe)
 - [ ] 100 points
 
-### Manques en Littérature (28)
+### Manques en Français (55)
 
+- [ ] La phrase complexe (maîtrise)
+- [ ] Subordonnées circonstancielles (toutes)
+- [ ] Subordonnées de condition (si + imparfait)
+- [ ] La modalisation
+- [ ] Verbes d'opinion
+- [ ] Adverbes modalisateurs
+- [ ] Expression du doute et de la certitude
+- [ ] Connecteurs logiques
+- [ ] Argumentation et structure du texte
+- [ ] Voix active et passive (maîtrise)
+- [ ] Tous les temps de l'indicatif
+- [ ] Conditionnel présent et passé
+- [ ] Subjonctif présent et passé
+- [ ] Concordance des temps (maîtrise)
+- [ ] Valeurs des temps et des modes
+- [ ] Verbes irréguliers
+- [ ] Accords complexes
+- [ ] Participe passé (tous les cas)
+- [ ] Participe présent et adjectif verbal
+- [ ] Homophones (tous)
+- [ ] Vocabulaire abstrait
+- [ ] Champs lexicaux variés
+- [ ] Métaphore, comparaison, personnification
+- [ ] Hyperbole, litote, euphémisme
+- [ ] Antithèse, oxymore, chiasme
+- [ ] Anaphore, gradation
 - [ ] L'autobiographie
 - [ ] Pacte autobiographique
 - [ ] Rousseau (Les Confessions - extraits)
@@ -802,142 +673,12 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Robert Desnos
 - [ ] René Char
 - [ ] Poésie contemporaine
+- [ ] L'engagement
 - [ ] Récits de guerre et résistance
 - [ ] Figures héroïques
 - [ ] Textes et images engagés
 
-### Manques en Grandeurs et Mesures (6)
-
-- [ ] Vitesse moyenne
-- [ ] Conversion d'unités
-- [ ] Volumes (rappels et applications)
-- [ ] Volume de la sphère
-- [ ] Volume du cône
-- [ ] Volume de la pyramide
-
-### Manques en Algorithmique et Programmation (6)
-
-- [ ] Scratch (maîtrise)
-- [ ] Boucles imbriquées
-- [ ] Fonctions avec paramètres
-- [ ] Événements
-- [ ] Scripts multiples
-- [ ] Initiation à Python (selon établissement)
-
-### Manques en L'énergie et ses conversions (12)
-
-- [ ] Formes d'énergie
-- [ ] Énergie potentielle
-- [ ] Énergie mécanique
-- [ ] Conservation de l'énergie
-- [ ] Chaînes énergétiques
-- [ ] Rendement
-- [ ] Puissance et énergie électrique
-- [ ] P = U × I
-- [ ] E = P × t
-- [ ] Production d'électricité
-- [ ] Centrales électriques
-- [ ] Énergies renouvelables
-
-### Manques en LV2 - Espagnol/Allemand/Italien (12)
-
-- [ ] Tous les temps vus (consolidation)
-- [ ] Passé composé / Prétérit
-- [ ] Futur
-- [ ] Conditionnel (introduction)
-- [ ] Subjonctif (introduction)
-- [ ] Impératif
-- [ ] Comparatifs et superlatifs
-- [ ] Pronoms (tous types)
-- [ ] Vie quotidienne (approfondissement)
-- [ ] Voyages et tourisme
-- [ ] Culture et civilisation du pays
-- [ ] Actualités
-
-### Manques en Conjugaison (5)
-
-- [ ] Conditionnel présent et passé
-- [ ] Subjonctif présent et passé
-- [ ] Concordance des temps (maîtrise)
-- [ ] Valeurs des temps et des modes
-- [ ] Verbes irréguliers
-
-### Manques en Orthographe (4)
-
-- [ ] Accords complexes
-- [ ] Participe passé (tous les cas)
-- [ ] Participe présent et adjectif verbal
-- [ ] Homophones (tous)
-
-### Manques en Géographie (18)
-
-- [ ] Les aires urbaines, une nouvelle géographie d'une France mondialisée
-- [ ] Métropolisation
-- [ ] Périurbanisation
-- [ ] Mobilités quotidiennes
-- [ ] Les espaces productifs et leurs évolutions
-- [ ] Espaces agricoles
-- [ ] Espaces industriels
-- [ ] Espaces ruraux
-- [ ] Montagne et littoral
-- [ ] Aménager pour répondre aux inégalités croissantes
-- [ ] Fractures territoriales
-- [ ] Politiques d'aménagement
-- [ ] DROM-COM
-- [ ] Enjeux et défis
-- [ ] Institutions européennes
-- [ ] Citoyenneté européenne
-- [ ] Puissance française
-- [ ] Influence européenne
-
-### Manques en LV1 - Anglais (25)
-
-- [ ] Tous les temps (révision et maîtrise)
-- [ ] Future tenses (all forms)
-- [ ] If-clauses
-- [ ] Modaux (tous)
-- [ ] Should, ought to (conseil)
-- [ ] Must, have to (obligation)
-- [ ] Voix passive (tous temps)
-- [ ] Verbes à particules (phrasal verbs)
-- [ ] Relatives restrictives et non-restrictives
-- [ ] Used to / would (habitude passée)
-- [ ] Make/let/help + infinitive
-- [ ] Gérondif vs infinitif
-- [ ] Environnement et développement durable
-- [ ] Médias et nouvelles technologies
-- [ ] Monde du travail et orientation
-- [ ] Citoyenneté et engagement
-- [ ] Arts et culture
-- [ ] Voyages et rencontres
-- [ ] Santé et bien-être
-- [ ] Compréhension écrite (textes variés)
-- [ ] Expression écrite (20-25 lignes)
-- [ ] Argumentation à l'écrit
-- [ ] Compréhension orale (documents authentiques)
-- [ ] Expression orale en continu
-- [ ] Interaction orale
-
-### Manques en Le vivant et son évolution (16)
-
-- [ ] Information génétique
-- [ ] Localisation dans le noyau
-- [ ] Chromosomes
-- [ ] Gènes et allèles
-- [ ] Caractères héréditaires
-- [ ] Formation des gamètes
-- [ ] Brassage génétique
-- [ ] Diversité génétique
-- [ ] Mutations
-- [ ] Causes des mutations
-- [ ] Conséquences (maladies génétiques)
-- [ ] Évolution des êtres vivants
-- [ ] Sélection naturelle
-- [ ] Ancêtres communs
-- [ ] Évolution humaine
-- [ ] Homo sapiens et primates
-
-### Manques en Histoire (35)
+### Manques en Histoire-Géographie (54)
 
 - [ ] Civils et militaires dans la Première Guerre mondiale
 - [ ] Déroulement et grandes phases
@@ -974,38 +715,100 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Place des femmes
 - [ ] Immigration
 - [ ] Transformations culturelles
+- [ ] Les aires urbaines, une nouvelle géographie d'une France mondialisée
+- [ ] Métropolisation
+- [ ] Périurbanisation
+- [ ] Mobilités quotidiennes
+- [ ] Les espaces productifs et leurs évolutions
+- [ ] Espaces agricoles
+- [ ] Espaces industriels
+- [ ] Espaces ruraux
+- [ ] Montagne et littoral
+- [ ] Aménager pour répondre aux inégalités croissantes
+- [ ] Fractures territoriales
+- [ ] Politiques d'aménagement
+- [ ] Les territoires ultramarins français
+- [ ] DROM-COM
+- [ ] Enjeux et défis
+- [ ] Institutions européennes
+- [ ] Citoyenneté européenne
+- [ ] Puissance française
+- [ ] Influence européenne
 
-### Manques en Design, innovation et créativité (3)
+### Manques en Langues Vivantes (36)
 
-- [ ] Démarche de projet
-- [ ] Du besoin au cahier des charges
-- [ ] Innovation technologique
+- [ ] Tous les temps (révision et maîtrise)
+- [ ] Future tenses (all forms)
+- [ ] If-clauses
+- [ ] Modaux (tous)
+- [ ] Should, ought to (conseil)
+- [ ] Must, have to (obligation)
+- [ ] Voix passive (tous temps)
+- [ ] Verbes à particules (phrasal verbs)
+- [ ] Relatives restrictives et non-restrictives
+- [ ] Used to / would (habitude passée)
+- [ ] Make/let/help + infinitive
+- [ ] Gérondif vs infinitif
+- [ ] Environnement et développement durable
+- [ ] Médias et nouvelles technologies
+- [ ] Monde du travail et orientation
+- [ ] Citoyenneté et engagement
+- [ ] Arts et culture
+- [ ] Voyages et rencontres
+- [ ] Santé et bien-être
+- [ ] Compréhension écrite (textes variés)
+- [ ] Expression écrite (20-25 lignes)
+- [ ] Argumentation à l'écrit
+- [ ] Compréhension orale (documents authentiques)
+- [ ] Expression orale en continu
+- [ ] Interaction orale
+- [ ] Tous les temps vus (consolidation)
+- [ ] Passé composé / Prétérit
+- [ ] Conditionnel (introduction)
+- [ ] Subjonctif (introduction)
+- [ ] Impératif
+- [ ] Comparatifs et superlatifs
+- [ ] Pronoms (tous types)
+- [ ] Vie quotidienne (approfondissement)
+- [ ] Voyages et tourisme
+- [ ] Culture et civilisation du pays
+- [ ] Actualités
 
-### Manques en Modélisation et simulation (3)
+### Manques en SVT - Sciences de la Vie et de la Terre (31)
 
-- [ ] Représentation numérique
-- [ ] Simulation de comportement
-- [ ] Objets programmables
+- [ ] Information génétique
+- [ ] Structure de l'ADN
+- [ ] Localisation dans le noyau
+- [ ] Chromosomes
+- [ ] Gènes et allèles
+- [ ] Caractères héréditaires
+- [ ] Transmission génétique
+- [ ] Formation des gamètes
+- [ ] Brassage génétique
+- [ ] Diversité génétique
+- [ ] Mutations
+- [ ] Causes des mutations
+- [ ] Conséquences (maladies génétiques)
+- [ ] Évolution des êtres vivants
+- [ ] Sélection naturelle
+- [ ] Ancêtres communs
+- [ ] Évolution humaine
+- [ ] Homo sapiens et primates
+- [ ] Micro-organismes pathogènes
+- [ ] Barrières naturelles
+- [ ] Réaction inflammatoire
+- [ ] Phagocytose
+- [ ] Réponse immunitaire adaptative
+- [ ] Lymphocytes B et anticorps
+- [ ] Lymphocytes T
+- [ ] Mémoire immunitaire
+- [ ] Alimentation équilibrée
+- [ ] Changements climatiques
+- [ ] Effet de serre
+- [ ] Impacts humains sur l'environnement
+- [ ] Biodiversité et développement durable
 
-### Manques en Géométrie (15)
-
-- [ ] Démonstrations
-- [ ] Cosinus d'un angle aigu (rappel)
-- [ ] Sinus d'un angle aigu
-- [ ] Tangente d'un angle aigu
-- [ ] Relations trigonométriques
-- [ ] Calcul d'un angle à partir d'un rapport
-- [ ] Calcul d'une longueur
-- [ ] Théorème de Pythagore (rappel et applications)
-- [ ] Transformations
-- [ ] Translation
-- [ ] Rotation
-- [ ] Réductions et agrandissements
-- [ ] Géométrie dans l'espace
-- [ ] Sphère et boule
-- [ ] Repérage dans un pavé droit
-
-### Manques en Organisation et transformations de la matière (15)
+### Manques en Physique-Chimie (36)
 
 - [ ] Noyau (protons, neutrons)
 - [ ] Électrons
@@ -1019,12 +822,10 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Neutralisation
 - [ ] Transformations chimiques
 - [ ] Réactifs et produits
+- [ ] Conservation de la masse
 - [ ] Conservation des atomes
 - [ ] Équations de réaction équilibrées
 - [ ] Synthèse chimique
-
-### Manques en Mouvements et interactions (7)
-
 - [ ] Mouvements (rectiligne, circulaire)
 - [ ] Relativité du mouvement
 - [ ] Forces et interactions
@@ -1032,20 +833,21 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Effets des forces
 - [ ] Poids P = mg
 - [ ] Gravitation universelle
+- [ ] Formes d'énergie
+- [ ] Énergie potentielle
+- [ ] Énergie mécanique
+- [ ] Conservation de l'énergie
+- [ ] Chaînes énergétiques
+- [ ] Rendement
+- [ ] Puissance et énergie électrique
+- [ ] P = U × I
+- [ ] E = P × t
+- [ ] Production d'électricité
+- [ ] Centrales électriques
+- [ ] Énergies renouvelables
+- [ ] Vitesse du son et de la lumière
 
-### Manques en Grammaire (9)
-
-- [ ] La phrase complexe (maîtrise)
-- [ ] Subordonnées circonstancielles (toutes)
-- [ ] Subordonnées de condition (si + imparfait)
-- [ ] La modalisation
-- [ ] Verbes d'opinion
-- [ ] Adverbes modalisateurs
-- [ ] Expression du doute et de la certitude
-- [ ] Argumentation et structure du texte
-- [ ] Voix active et passive (maîtrise)
-
-### Manques en Nombres et Calculs (18)
+### Manques en Mathématiques (60)
 
 - [ ] Nombres rationnels
 - [ ] Fractions (toutes opérations)
@@ -1065,47 +867,6 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Nombres premiers
 - [ ] Décomposition en facteurs premiers
 - [ ] PGCD (introduction)
-
-### Manques en Lexique (6)
-
-- [ ] Vocabulaire abstrait
-- [ ] Champs lexicaux variés
-- [ ] Métaphore, comparaison, personnification
-- [ ] Hyperbole, litote, euphémisme
-- [ ] Antithèse, oxymore, chiasme
-- [ ] Anaphore, gradation
-
-### Manques en EMC - Éducation Morale et Civique (8)
-
-- [ ] Les valeurs et principes de la République
-- [ ] Liberté, égalité, fraternité
-- [ ] Droits et devoirs du citoyen
-- [ ] La participation citoyenne
-- [ ] Engagement associatif
-- [ ] Volontariat
-- [ ] Journée Défense et Citoyenneté (JDC)
-- [ ] Armée et missions
-
-### Manques en Le corps humain et la santé (9)
-
-- [ ] Micro-organismes pathogènes
-- [ ] Barrières naturelles
-- [ ] Réaction inflammatoire
-- [ ] Phagocytose
-- [ ] Réponse immunitaire adaptative
-- [ ] Lymphocytes B et anticorps
-- [ ] Lymphocytes T
-- [ ] Mémoire immunitaire
-- [ ] Alimentation équilibrée
-
-### Manques en La planète Terre, l'environnement et l'action humaine (3)
-
-- [ ] Changements climatiques
-- [ ] Effet de serre
-- [ ] Impacts humains sur l'environnement
-
-### Manques en Organisation et Gestion de Données (15)
-
 - [ ] Image et antécédent
 - [ ] Tableau de valeurs
 - [ ] Représentation graphique d'une fonction
@@ -1121,41 +882,104 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Probabilité d'un événement
 - [ ] Équiprobabilité
 - [ ] Événement contraire
+- [ ] Démonstrations
+- [ ] Cosinus d'un angle aigu (rappel)
+- [ ] Sinus d'un angle aigu
+- [ ] Tangente d'un angle aigu
+- [ ] Relations trigonométriques
+- [ ] Calcul d'un angle à partir d'un rapport
+- [ ] Calcul d'une longueur
+- [ ] Théorème de Pythagore (rappel et applications)
+- [ ] Transformations
+- [ ] Translation
+- [ ] Rotation
+- [ ] Réductions et agrandissements
+- [ ] Géométrie dans l'espace
+- [ ] Sphère et boule
+- [ ] Repérage dans un pavé droit
+- [ ] Vitesse moyenne
+- [ ] Conversion d'unités
+- [ ] Volumes (rappels et applications)
+- [ ] Volume de la sphère
+- [ ] Volume du cône
+- [ ] Volume de la pyramide
+- [ ] Scratch (maîtrise)
+- [ ] Boucles imbriquées
+- [ ] Fonctions avec paramètres
+- [ ] Événements
+- [ ] Scripts multiples
+- [ ] Initiation à Python (selon établissement)
+
+### Manques en EMC - Éducation Morale et Civique (8)
+
+- [ ] Les valeurs et principes de la République
+- [ ] Liberté, égalité, fraternité
+- [ ] Droits et devoirs du citoyen
+- [ ] La participation citoyenne
+- [ ] Engagement associatif
+- [ ] Volontariat
+- [ ] Journée Défense et Citoyenneté (JDC)
+- [ ] Armée et missions
+
+### Manques en Technologie - Programme 2024 (7)
+
+- [ ] Démarche de projet
+- [ ] Du besoin au cahier des charges
+- [ ] Innovation technologique
+- [ ] Représentation numérique
+- [ ] Simulation de comportement
+- [ ] Programmation (Scratch, mBlock)
+- [ ] Objets programmables
 
 ## Niveau : Seconde
 
-**Couverture globale : 34.1%** (107/314 chapitres)
+**Couverture globale : 29.6%** (88/297 chapitres)
 
 | Statut | Matière | Couverture | Docs JSONL |
 |--------|---------|------------|------------|
-| ❌ | Corps humain et santé | 7% (1/14) | 0 |
-| ❌ | LVA - Anglais | 17% (4/24) | 21 |
-| ❌ | LVB - Espagnol/Allemand/Italien | 17% (1/6) | 75 |
-| ❌ | Les 4 objets d'étude | 20% (5/25) | 0 |
-| ❌ | Compétences | 20% (1/5) | 0 |
-| ❌ | La Terre, la vie et l'évolution du vivant | 20% (3/15) | 0 |
-| ❌ | Géographie | 23% (5/22) | 31 |
-| ❌ | Histoire | 24% (9/38) | 31 |
-| ❌ | Constitution et transformations de la matière | 31% (9/29) | 0 |
-| ❌ | Étude de la langue | 33% (3/9) | 0 |
-| ❌ | Les données structurées | 33% (1/3) | 0 |
-| ❌ | Géométrie | 38% (6/16) | 0 |
-| ❌ | Statistiques et Probabilités | 38% (6/16) | 0 |
-| ❌ | Mouvement et interactions | 40% (6/15) | 0 |
-| ❌ | Ondes et signaux | 44% (4/9) | 0 |
-| ⚠️ | Enjeux contemporains de la planète | 50% (2/4) | 0 |
+| ❌ | Sciences numériques et technologie | 0% (0/17) | 0 |
+| ❌ | SVT - Sciences de la Vie et de la Terre | 15% (5/33) | 21 |
+| ❌ | Français | 15% (6/39) | 27 |
+| ❌ | Langues Vivantes | 17% (5/30) | 96 |
+| ❌ | Histoire-Géographie | 22% (13/60) | 31 |
+| ❌ | Physique-Chimie | 34% (18/53) | 27 |
+| ⚠️ | Mathématiques | 50% (37/74) | 38 |
 | ⚠️ | Enseignement moral et civique | 50% (4/8) | 16 |
-| ⚠️ | Fonctions | 53% (10/19) | 0 |
-| ⚠️ | Nombres et Calculs | 67% (10/15) | 0 |
-| ⚠️ | Internet | 67% (2/3) | 0 |
-| ⚠️ | La photographie numérique | 67% (2/3) | 0 |
-| ⚠️ | Algorithmique et Programmation | 75% (6/8) | 0 |
-| ⚠️ | Le Web | 75% (3/4) | 0 |
-| ✅ | Localisation, cartographie | 100% (2/2) | 0 |
-| ✅ | Informatique embarquée et objets connectés | 100% (2/2) | 0 |
 
-### Manques en Corps humain et santé (13)
+### Manques en Sciences numériques et technologie (17)
 
+- [ ] Histoire d'Internet
+- [ ] Protocoles (TCP/IP)
+- [ ] Routage
+- [ ] Fonctionnement du Web
+- [ ] URL, HTTP, HTML
+- [ ] Moteurs de recherche
+- [ ] Réseaux sociaux
+- [ ] Données et métadonnées
+- [ ] Bases de données
+- [ ] Big Data
+- [ ] GPS et géolocalisation
+- [ ] Cartographie numérique
+- [ ] Capteurs et actionneurs
+- [ ] Objets connectés (IoT)
+- [ ] Image numérique
+- [ ] Pixels et résolution
+- [ ] Traitement d'images
+
+### Manques en SVT - Sciences de la Vie et de la Terre (28)
+
+- [ ] L'organisme pluricellulaire
+- [ ] Cellules spécialisées
+- [ ] ADN et information génétique
+- [ ] Respiration et fermentation
+- [ ] Échelles de la biodiversité
+- [ ] Biodiversité des écosystèmes
+- [ ] Biodiversité génétique
+- [ ] Sélection naturelle
+- [ ] Dérive génétique
+- [ ] Spéciation
+- [ ] Communication intraspécifique
+- [ ] Sélection sexuelle
 - [ ] Reproduction humaine
 - [ ] Développement embryonnaire
 - [ ] Puberté et adolescence
@@ -1169,8 +993,47 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Le microbiote humain
 - [ ] Rôle du microbiote
 - [ ] Équilibre et déséquilibre
+- [ ] Écosystèmes naturels vs agrosystèmes
+- [ ] Structure des sols
+- [ ] Agriculture durable
 
-### Manques en LVA - Anglais (20)
+### Manques en Français (33)
+
+- [ ] Grammaire de la phrase et du texte
+- [ ] Phrase complexe (maîtrise)
+- [ ] Progression du texte
+- [ ] Lexique
+- [ ] Enrichissement du vocabulaire
+- [ ] Champs lexicaux
+- [ ] Registres littéraires
+- [ ] Poésie médiévale (troubadours, trouvères)
+- [ ] La Pléiade (Ronsard, Du Bellay)
+- [ ] Poésie baroque
+- [ ] Poésie classique (La Fontaine, Boileau)
+- [ ] Formes poétiques (sonnet, ode, ballade)
+- [ ] Versification (rimes, mètres, strophes)
+- [ ] L'essai
+- [ ] Le discours argumentatif
+- [ ] L'article de presse
+- [ ] Stratégies argumentatives
+- [ ] Thèse, arguments, exemples
+- [ ] Histoire du roman
+- [ ] Roman réaliste et naturaliste
+- [ ] Roman contemporain
+- [ ] Nouvelle
+- [ ] Récit autobiographique
+- [ ] Construction des personnages
+- [ ] Comédie classique (Molière)
+- [ ] Drame romantique
+- [ ] Théâtre contemporain
+- [ ] Didascalies et dialogue
+- [ ] Mise en scène
+- [ ] Lecture analytique
+- [ ] Dissertation (initiation)
+- [ ] Écriture d'invention
+- [ ] Oral (exposé, lecture expressive)
+
+### Manques en Langues Vivantes (25)
 
 - [ ] Identités et échanges
 - [ ] Espace privé et espace public
@@ -1192,62 +1055,44 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Expression écrite (essai, compte-rendu)
 - [ ] Expression orale (exposé, débat)
 - [ ] Interaction
-
-### Manques en LVB - Espagnol/Allemand/Italien (5)
-
 - [ ] Consolidation des temps
 - [ ] Subjonctif (bases)
 - [ ] Passé (toutes formes)
 - [ ] Expression de l'hypothèse
 - [ ] Subordination
 
-### Manques en Les 4 objets d'étude (20)
+### Manques en Histoire-Géographie (47)
 
-- [ ] Poésie médiévale (troubadours, trouvères)
-- [ ] La Pléiade (Ronsard, Du Bellay)
-- [ ] Poésie baroque
-- [ ] Poésie classique (La Fontaine, Boileau)
-- [ ] Formes poétiques (sonnet, ode, ballade)
-- [ ] Versification (rimes, mètres, strophes)
-- [ ] L'essai
-- [ ] L'article de presse
-- [ ] Stratégies argumentatives
-- [ ] Thèse, arguments, exemples
-- [ ] Histoire du roman
-- [ ] Roman réaliste et naturaliste
-- [ ] Nouvelle
-- [ ] Récit autobiographique
-- [ ] Construction des personnages
-- [ ] Comédie classique (Molière)
-- [ ] Drame romantique
-- [ ] Théâtre contemporain
-- [ ] Didascalies et dialogue
-- [ ] Mise en scène
-
-### Manques en Compétences (4)
-
-- [ ] Lecture analytique
-- [ ] Dissertation (initiation)
-- [ ] Écriture d'invention
-- [ ] Oral (exposé, lecture expressive)
-
-### Manques en La Terre, la vie et l'évolution du vivant (12)
-
-- [ ] L'organisme pluricellulaire
-- [ ] Cellules spécialisées
-- [ ] ADN et information génétique
-- [ ] Respiration et fermentation
-- [ ] Échelles de la biodiversité
-- [ ] Biodiversité des écosystèmes
-- [ ] Biodiversité génétique
-- [ ] Sélection naturelle
-- [ ] Dérive génétique
-- [ ] Spéciation
-- [ ] Communication intraspécifique
-- [ ] Sélection sexuelle
-
-### Manques en Géographie (17)
-
+- [ ] Empreintes grecques
+- [ ] Alexandre le Grand
+- [ ] Empreintes romaines
+- [ ] La République romaine
+- [ ] L'Empire romain
+- [ ] Trois civilisations (chrétienté occidentale, Empire byzantin, Islam)
+- [ ] Échanges commerciaux
+- [ ] Conflits (croisades)
+- [ ] Transferts culturels
+- [ ] L'ouverture atlantique
+- [ ] Grandes découvertes
+- [ ] Conquistadors
+- [ ] Premiers empires coloniaux
+- [ ] Conséquences de l'ouverture au monde
+- [ ] Réformes religieuses
+- [ ] Luther et la Réforme protestante
+- [ ] Contre-Réforme catholique
+- [ ] Guerres de religion
+- [ ] François Ier et la Renaissance française
+- [ ] Henri IV et l'édit de Nantes
+- [ ] Louis XIV et l'absolutisme
+- [ ] Versailles
+- [ ] La monarchie parlementaire
+- [ ] Les révolutions anglaises
+- [ ] Philosophes des Lumières
+- [ ] L'Encyclopédie
+- [ ] Tensions dans la société d'ordres
+- [ ] Noblesse, clergé, tiers-état
+- [ ] Économie et société
+- [ ] Prémices de la Révolution
 - [ ] Risques technologiques
 - [ ] Vulnérabilité et résilience
 - [ ] Des ressources majeures sous pression
@@ -1266,39 +1111,7 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Tourisme de masse
 - [ ] Impacts du tourisme
 
-### Manques en Histoire (29)
-
-- [ ] Empreintes grecques
-- [ ] Alexandre le Grand
-- [ ] Empreintes romaines
-- [ ] La République romaine
-- [ ] L'Empire romain
-- [ ] Trois civilisations (chrétienté occidentale, Empire byzantin, Islam)
-- [ ] Échanges commerciaux
-- [ ] Conflits (croisades)
-- [ ] Transferts culturels
-- [ ] L'ouverture atlantique
-- [ ] Grandes découvertes
-- [ ] Conquistadors
-- [ ] Premiers empires coloniaux
-- [ ] Conséquences de l'ouverture au monde
-- [ ] Luther et la Réforme protestante
-- [ ] Contre-Réforme catholique
-- [ ] Guerres de religion
-- [ ] François Ier et la Renaissance française
-- [ ] Henri IV et l'édit de Nantes
-- [ ] Louis XIV et l'absolutisme
-- [ ] Versailles
-- [ ] La monarchie parlementaire
-- [ ] Les révolutions anglaises
-- [ ] Philosophes des Lumières
-- [ ] L'Encyclopédie
-- [ ] Tensions dans la société d'ordres
-- [ ] Noblesse, clergé, tiers-état
-- [ ] Économie et société
-- [ ] Prémices de la Révolution
-
-### Manques en Constitution et transformations de la matière (20)
+### Manques en Physique-Chimie (35)
 
 - [ ] Espèce chimique
 - [ ] Corps pur simple et composé
@@ -1318,25 +1131,41 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Nombre d'Avogadro
 - [ ] Masse molaire
 - [ ] Réactifs et produits
+- [ ] Équation de réaction
 - [ ] Stœchiométrie
 - [ ] Synthèse chimique
+- [ ] Trajectoire
+- [ ] Vecteur déplacement
+- [ ] Vitesse instantanée
+- [ ] Mouvement rectiligne uniforme
+- [ ] Mouvement circulaire
+- [ ] Force : modélisation vectorielle
+- [ ] Actions de contact et à distance
+- [ ] Principe des actions réciproques
+- [ ] Force gravitationnelle
+- [ ] Signaux sonores
+- [ ] Fréquence et période
+- [ ] Signaux lumineux
+- [ ] Vitesse de la lumière
+- [ ] Propagation rectiligne
 
-### Manques en Étude de la langue (6)
+### Manques en Mathématiques (37)
 
-- [ ] Grammaire de la phrase et du texte
-- [ ] Phrase complexe (maîtrise)
-- [ ] Progression du texte
-- [ ] Lexique
-- [ ] Champs lexicaux
-- [ ] Registres littéraires
-
-### Manques en Les données structurées (2)
-
-- [ ] Bases de données
-- [ ] Big Data
-
-### Manques en Géométrie (10)
-
+- [ ] Intervalles
+- [ ] Calcul algébrique
+- [ ] Développement et factorisation
+- [ ] Systèmes d'équations linéaires
+- [ ] Arithmétique
+- [ ] Décomposition en facteurs premiers
+- [ ] Ensemble de définition
+- [ ] Image et antécédent
+- [ ] Lecture graphique
+- [ ] Maximum et minimum
+- [ ] Parité d'une fonction (paire, impaire)
+- [ ] Coefficient directeur et ordonnée à l'origine
+- [ ] Représentation graphique
+- [ ] Résolution d'équations f(x) = k
+- [ ] Résolution d'inéquations f(x) < k
 - [ ] Géométrie plane
 - [ ] Colinéarité
 - [ ] Équations de droites
@@ -1347,9 +1176,6 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Triangles
 - [ ] Parallélogrammes
 - [ ] Projeté orthogonal
-
-### Manques en Statistiques et Probabilités (10)
-
 - [ ] Moyenne pondérée
 - [ ] Étendue
 - [ ] Écart interquartile
@@ -1360,31 +1186,8 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Événement contraire
 - [ ] Arbres et tableaux
 - [ ] Simulations et approche fréquentiste
-
-### Manques en Mouvement et interactions (9)
-
-- [ ] Trajectoire
-- [ ] Vecteur déplacement
-- [ ] Vitesse instantanée
-- [ ] Mouvement rectiligne uniforme
-- [ ] Mouvement circulaire
-- [ ] Force : modélisation vectorielle
-- [ ] Actions de contact et à distance
-- [ ] Principe des actions réciproques
-- [ ] Force gravitationnelle
-
-### Manques en Ondes et signaux (5)
-
-- [ ] Signaux sonores
-- [ ] Fréquence et période
-- [ ] Signaux lumineux
-- [ ] Vitesse de la lumière
-- [ ] Propagation rectiligne
-
-### Manques en Enjeux contemporains de la planète (2)
-
-- [ ] Écosystèmes naturels vs agrosystèmes
-- [ ] Structure des sols
+- [ ] Types de données (int, float, string, bool)
+- [ ] Paramètres et valeur de retour
 
 ### Manques en Enseignement moral et civique (4)
 
@@ -1393,61 +1196,61 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Égalité et discriminations
 - [ ] Médias et information
 
-### Manques en Fonctions (9)
-
-- [ ] Ensemble de définition
-- [ ] Image et antécédent
-- [ ] Lecture graphique
-- [ ] Maximum et minimum
-- [ ] Parité d'une fonction (paire, impaire)
-- [ ] Coefficient directeur et ordonnée à l'origine
-- [ ] Représentation graphique
-- [ ] Résolution d'équations f(x) = k
-- [ ] Résolution d'inéquations f(x) < k
-
-### Manques en Nombres et Calculs (5)
-
-- [ ] Intervalles
-- [ ] Calcul algébrique
-- [ ] Systèmes d'équations linéaires
-- [ ] Arithmétique
-- [ ] Décomposition en facteurs premiers
-
-### Manques en Internet (1)
-
-- [ ] Protocoles (TCP/IP)
-
-### Manques en La photographie numérique (1)
-
-- [ ] Image numérique
-
-### Manques en Algorithmique et Programmation (2)
-
-- [ ] Types de données (int, float, string, bool)
-- [ ] Paramètres et valeur de retour
-
-### Manques en Le Web (1)
-
-- [ ] URL, HTTP, HTML
-
 ## Niveau : Première
 
-**Couverture globale : 27.0%** (75/278 chapitres)
+**Couverture globale : 0.0%** (0/0 chapitres)
 
 | Statut | Matière | Couverture | Docs JSONL |
 |--------|---------|------------|------------|
-| ❌ | Histoire-Géographie | 6% (3/51) | 26 |
-| ❌ | Français - Épreuves anticipées du Bac | 16% (7/43) | 40 |
-| ❌ | Physique-Chimie | 20% (10/51) | 23 |
-| ❌ | SVT | 23% (9/39) | 17 |
-| ❌ | Autres spécialités | 31% (8/26) | 0 |
-| ❌ | EMC | 33% (1/3) | 12 |
-| ❌ | Mathématiques | 49% (22/45) | 34 |
-| ⚠️ | Enseignement scientifique | 67% (8/12) | 20 |
-| ✅ | Langues vivantes A et B | 88% (7/8) | 60 |
+| ❌ | Enseignements communs | 0% (0/117) | 0 |
+| ❌ | Enseignements de spécialité | 0% (0/161) | 0 |
 
-### Manques en Histoire-Géographie (48)
+### Manques en Enseignements communs (117)
 
+- [ ] Grammaire de la phrase complexe
+- [ ] Subordination et coordination
+- [ ] Discours rapportés
+- [ ] Lexique et style
+- [ ] Figures de style (maîtrise complète)
+- [ ] Romantisme (Hugo, Lamartine, Musset)
+- [ ] Parnasse (Leconte de Lisle, Hérédia)
+- [ ] Symbolisme (Baudelaire, Verlaine, Rimbaud, Mallarmé)
+- [ ] Surréalisme (Breton, Éluard, Aragon)
+- [ ] Poésie contemporaine
+- [ ] Œuvres au programme 2024-2025 :
+- [ ] Rimbaud, *Cahier de Douai* (parcours : émancipations créatrices)
+- [ ] Ponge, *La rage de l'expression* (parcours : dans l'atelier du poète)
+- [ ] Hélène Dorion, *Mes forêts* (parcours : la poésie, la nature, l'intime)
+- [ ] Humanisme (Rabelais, Montaigne)
+- [ ] Classicisme (La Bruyère, La Fontaine)
+- [ ] Les Lumières (Voltaire, Rousseau, Montesquieu, Diderot)
+- [ ] Œuvres au programme 2024-2025 :
+- [ ] Rabelais, *Gargantua* (parcours : Rire et savoir)
+- [ ] La Bruyère, *Les Caractères* (parcours : La comédie sociale)
+- [ ] Olympe de Gouges, *Déclaration des droits de la femme* (parcours : écrire et combattre pour l'égalité)
+- [ ] Roman médiéval (Chrétien de Troyes)
+- [ ] Roman classique (Mme de Lafayette)
+- [ ] Roman du XVIIIe siècle
+- [ ] Roman réaliste et naturaliste (Balzac, Zola, Flaubert)
+- [ ] Roman du XXe siècle
+- [ ] Œuvres au programme 2024-2025 :
+- [ ] Abbé Prévost, *Manon Lescaut* (parcours : personnages en marge)
+- [ ] Balzac, *La Peau de chagrin* (parcours : les romans de l'énergie)
+- [ ] Colette, *Sido* et *Les Vrilles de la vigne* (parcours : la célébration du monde)
+- [ ] Tragédie classique (Corneille, Racine)
+- [ ] Comédie classique (Molière)
+- [ ] Drame romantique (Hugo)
+- [ ] Théâtre de l'absurde (Ionesco, Beckett)
+- [ ] Théâtre contemporain
+- [ ] Œuvres au programme 2024-2025 :
+- [ ] Molière, *Le Malade imaginaire* (parcours : spectacle et comédie)
+- [ ] Marivaux, *Les Fausses Confidences* (parcours : théâtre et stratagème)
+- [ ] Lagarce, *Juste la fin du monde* (parcours : crise personnelle, crise familiale)
+- [ ] Commentaire littéraire
+- [ ] Dissertation sur œuvre
+- [ ] Oral : explication linéaire et entretien
+- [ ] Grammaire à l'oral
+- [ ] La Révolution française et l'Empire
 - [ ] Révolution de 1789
 - [ ] Période révolutionnaire (1789-1799)
 - [ ] Consulat et Empire napoléonien
@@ -1458,6 +1261,7 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] La difficile entrée dans l'âge démocratique
 - [ ] IIe République (1848-1852)
 - [ ] Second Empire (1852-1870)
+- [ ] L'industrialisation et ses conséquences
 - [ ] Révolution industrielle en France
 - [ ] Transformations sociales
 - [ ] Urbanisation
@@ -1487,6 +1291,7 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Métropoles françaises
 - [ ] Paris, métropole mondiale
 - [ ] Attractivité et rayonnement
+- [ ] Les systèmes productifs
 - [ ] Espaces agricoles
 - [ ] Espaces industriels
 - [ ] Espaces de services
@@ -1496,57 +1301,88 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Institutions
 - [ ] Frontières et territoires
 - [ ] L'Europe dans la mondialisation
+- [ ] Une longue histoire de la matière
+- [ ] Éléments chimiques
+- [ ] Des édifices ordonnés : les cristaux
+- [ ] Le Soleil, notre source d'énergie
+- [ ] Rayonnement solaire
+- [ ] Bilan radiatif terrestre
+- [ ] La Terre, un astre singulier
+- [ ] Forme de la Terre
+- [ ] Histoire de l'âge de la Terre
+- [ ] Son et musique
+- [ ] Physique du son
+- [ ] Perception du son
+- [ ] Identités et échanges
+- [ ] Espace privé et espace public
+- [ ] Art et pouvoir
+- [ ] Citoyenneté et mondes virtuels
+- [ ] Fictions et réalités
+- [ ] Innovations scientifiques et responsabilité
+- [ ] Diversité et inclusion
+- [ ] Territoire et mémoire
+- [ ] La société et les inégalités
+- [ ] La démocratie
+- [ ] La citoyenneté européenne
 
-### Manques en Français - Épreuves anticipées du Bac (36)
+### Manques en Enseignements de spécialité (161)
 
-- [ ] Grammaire de la phrase complexe
-- [ ] Subordination et coordination
-- [ ] Discours rapportés
-- [ ] Lexique et style
-- [ ] Romantisme (Hugo, Lamartine, Musset)
-- [ ] Parnasse (Leconte de Lisle, Hérédia)
-- [ ] Symbolisme (Baudelaire, Verlaine, Rimbaud, Mallarmé)
-- [ ] Surréalisme (Breton, Éluard, Aragon)
-- [ ] Poésie contemporaine
-- [ ] Œuvres au programme 2024-2025 :
-- [ ] Rimbaud, *Cahier de Douai* (parcours : émancipations créatrices)
-- [ ] Ponge, *La rage de l'expression* (parcours : dans l'atelier du poète)
-- [ ] Hélène Dorion, *Mes forêts* (parcours : la poésie, la nature, l'intime)
-- [ ] Humanisme (Rabelais, Montaigne)
-- [ ] Classicisme (La Bruyère, La Fontaine)
-- [ ] Les Lumières (Voltaire, Rousseau, Montesquieu, Diderot)
-- [ ] Œuvres au programme 2024-2025 :
-- [ ] Rabelais, *Gargantua* (parcours : Rire et savoir)
-- [ ] La Bruyère, *Les Caractères* (parcours : La comédie sociale)
-- [ ] Olympe de Gouges, *Déclaration des droits de la femme* (parcours : écrire et combattre pour l'égalité)
-- [ ] Roman médiéval (Chrétien de Troyes)
-- [ ] Roman classique (Mme de Lafayette)
-- [ ] Roman réaliste et naturaliste (Balzac, Zola, Flaubert)
-- [ ] Œuvres au programme 2024-2025 :
-- [ ] Abbé Prévost, *Manon Lescaut* (parcours : personnages en marge)
-- [ ] Balzac, *La Peau de chagrin* (parcours : les romans de l'énergie)
-- [ ] Colette, *Sido* et *Les Vrilles de la vigne* (parcours : la célébration du monde)
-- [ ] Tragédie classique (Corneille, Racine)
-- [ ] Comédie classique (Molière)
-- [ ] Théâtre de l'absurde (Ionesco, Beckett)
-- [ ] Théâtre contemporain
-- [ ] Œuvres au programme 2024-2025 :
-- [ ] Molière, *Le Malade imaginaire* (parcours : spectacle et comédie)
-- [ ] Marivaux, *Les Fausses Confidences* (parcours : théâtre et stratagème)
-- [ ] Lagarce, *Juste la fin du monde* (parcours : crise personnelle, crise familiale)
-- [ ] Oral : explication linéaire et entretien
-
-### Manques en Physique-Chimie (41)
-
+- [ ] Suites numériques
+- [ ] Suites arithmétiques
+- [ ] Suites géométriques
+- [ ] Définition par récurrence
+- [ ] Sens de variation
+- [ ] Modélisation par les suites
+- [ ] Équations et inéquations du second degré
+- [ ] Discriminant
+- [ ] Résolution algébrique
+- [ ] Résolution graphique
+- [ ] Fonctions polynômes du second degré
+- [ ] Forme canonique
+- [ ] Signe du trinôme
+- [ ] Dérivation
+- [ ] Nombre dérivé
+- [ ] Tangente à une courbe
+- [ ] Fonction dérivée
+- [ ] Dérivées des fonctions usuelles
+- [ ] Opérations sur les dérivées
+- [ ] Variations et signe de la dérivée
+- [ ] Extremums
+- [ ] Fonction exponentielle
+- [ ] Définition et propriétés
+- [ ] Équation différentielle y' = ay
+- [ ] Croissance comparée
+- [ ] Trigonométrie
+- [ ] Cercle trigonométrique
+- [ ] Fonctions sinus et cosinus
+- [ ] Calcul vectoriel et produit scalaire
+- [ ] Produit scalaire (définitions)
+- [ ] Propriétés du produit scalaire
+- [ ] Applications (orthogonalité, distances)
+- [ ] Géométrie repérée
+- [ ] Équations de droites
+- [ ] Équations de cercles
+- [ ] Probabilités conditionnelles
+- [ ] Indépendance
+- [ ] Arbres de probabilités
+- [ ] Variables aléatoires
+- [ ] Espérance, variance, écart-type
+- [ ] Python (approfondissement)
+- [ ] Fonctions
+- [ ] Listes
+- [ ] Boucles imbriquées
+- [ ] Algorithmes de recherche
 - [ ] Structure électronique des atomes
 - [ ] Schéma de Lewis
 - [ ] Électronégativité
 - [ ] Polarité des liaisons et des molécules
+- [ ] Cohésion de la matière
 - [ ] Interactions intermoléculaires
 - [ ] Liaison hydrogène
 - [ ] Dissolution
 - [ ] Structure des espèces organiques
 - [ ] Formules brutes, semi-développées, topologiques
+- [ ] Groupes caractéristiques
 - [ ] Nomenclature
 - [ ] Propriétés physico-chimiques
 - [ ] Transformations acido-basiques
@@ -1555,6 +1391,8 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] pH et concentration
 - [ ] Synthèse chimique
 - [ ] Protocoles de synthèse
+- [ ] Notion de champ
+- [ ] Champ de gravitation
 - [ ] Champ électrique
 - [ ] Force gravitationnelle
 - [ ] Force électrostatique (loi de Coulomb)
@@ -1563,6 +1401,12 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Loi fondamentale de la statique des fluides
 - [ ] Vecteur variation de vitesse
 - [ ] Lien entre force et variation de vitesse
+- [ ] Mouvement dans un champ uniforme
+- [ ] Énergie cinétique
+- [ ] Travail d'une force
+- [ ] Énergie potentielle
+- [ ] Énergie mécanique
+- [ ] Puissance et énergie électrique
 - [ ] Effet Joule
 - [ ] Bilan énergétique
 - [ ] Énergie interne
@@ -1579,25 +1423,30 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Modèle de l'œil
 - [ ] Couleur des objets
 - [ ] Synthèses additive et soustractive
-
-### Manques en SVT (30)
-
 - [ ] Transmission de l'information génétique
+- [ ] Réplication de l'ADN
 - [ ] Transcription
 - [ ] Traduction
+- [ ] Code génétique
 - [ ] Expression des gènes
 - [ ] Phénotype et environnement
+- [ ] Mutations et variabilité génétique
 - [ ] Agents mutagènes
 - [ ] Cancérisation
+- [ ] Structure interne du globe
+- [ ] Tectonique des plaques
 - [ ] Expansion océanique
 - [ ] Subduction
 - [ ] Collision
+- [ ] Mouvements des plaques
 - [ ] GPS et géodésie
 - [ ] Paléomagnétisme
 - [ ] Structure et fonctionnement des écosystèmes
 - [ ] Flux de matière et d'énergie
 - [ ] Interactions entre êtres vivants
 - [ ] Biodiversité et stabilité des écosystèmes
+- [ ] Services écosystémiques
+- [ ] Humanité et écosystèmes
 - [ ] Exploitation et impacts
 - [ ] Ingénierie écologique
 - [ ] Immunité innée
@@ -1609,12 +1458,10 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Mémoire immunitaire
 - [ ] Vaccination
 - [ ] Immunodéficience (VIH/SIDA)
+- [ ] Patrimoine génétique et santé
 - [ ] Prédisposition génétique
 - [ ] Thérapies géniques
 - [ ] Antibiotiques et résistance bactérienne
-
-### Manques en Autres spécialités (18)
-
 - [ ] Comprendre un régime politique : la démocratie
 - [ ] Analyser les dynamiques des puissances internationales
 - [ ] Étudier les divisions politiques du monde
@@ -1622,6 +1469,7 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Analyser les relations entre États et religions
 - [ ] Comment un marché concurrentiel fonctionne-t-il ?
 - [ ] Comment les marchés imparfaitement concurrentiels fonctionnent-ils ?
+- [ ] Quelles sont les principales défaillances du marché ?
 - [ ] Comment les agents économiques se financent-ils ?
 - [ ] Qu'est-ce que la monnaie et comment est-elle créée ?
 - [ ] Comment la socialisation contribue-t-elle à expliquer les différences de comportement ?
@@ -1630,313 +1478,46 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Voter : une affaire individuelle ou collective ?
 - [ ] La parole, ses pouvoirs, ses fonctions et ses usages
 - [ ] Les représentations du monde
+- [ ] Imaginaires
+- [ ] Rencontres
 - [ ] (selon la langue choisie)
+- [ ] Histoire de l'informatique
+- [ ] Représentation des données
+- [ ] Traitement de données en tables
 - [ ] Interactions entre l'homme et la machine
+- [ ] Architectures matérielles et systèmes d'exploitation
 - [ ] Langages et programmation
-
-### Manques en EMC (2)
-
-- [ ] La société et les inégalités
-- [ ] La citoyenneté européenne
-
-### Manques en Mathématiques (23)
-
-- [ ] Sens de variation
-- [ ] Modélisation par les suites
-- [ ] Résolution algébrique
-- [ ] Résolution graphique
-- [ ] Dérivation
-- [ ] Nombre dérivé
-- [ ] Tangente à une courbe
-- [ ] Variations et signe de la dérivée
-- [ ] Équation différentielle y' = ay
-- [ ] Croissance comparée
-- [ ] Trigonométrie
-- [ ] Cercle trigonométrique
-- [ ] Fonctions sinus et cosinus
-- [ ] Calcul vectoriel et produit scalaire
-- [ ] Applications (orthogonalité, distances)
-- [ ] Géométrie repérée
-- [ ] Équations de droites
-- [ ] Équations de cercles
-- [ ] Arbres de probabilités
-- [ ] Espérance, variance, écart-type
-- [ ] Python (approfondissement)
-- [ ] Boucles imbriquées
-- [ ] Algorithmes de recherche
-
-### Manques en Enseignement scientifique (4)
-
-- [ ] Une longue histoire de la matière
-- [ ] Des édifices ordonnés : les cristaux
-- [ ] Rayonnement solaire
-- [ ] La Terre, un astre singulier
+- [ ] Algorithmique
 
 ## Niveau : Terminale
 
-**Couverture globale : 30.1%** (140/465 chapitres)
+**Couverture globale : 0.0%** (0/0 chapitres)
 
 | Statut | Matière | Couverture | Docs JSONL |
 |--------|---------|------------|------------|
-| ❌ | Grand oral | 0% (0/5) | 0 |
-| ❌ | SVT | 9% (7/77) | 26 |
-| ❌ | Histoire-Géographie | 16% (15/92) | 21 |
-| ❌ | Enseignement scientifique | 31% (11/36) | 14 |
-| ❌ | Physique-Chimie | 33% (23/70) | 34 |
-| ❌ | EMC | 33% (2/6) | 8 |
-| ❌ | Philosophie | 35% (17/48) | 41 |
-| ❌ | Mathématiques | 45% (30/66) | 41 |
-| ⚠️ | Langues vivantes A et B | 50% (4/8) | 42 |
-| ⚠️ | Autres spécialités | 54% (31/57) | 0 |
+| ❌ | Enseignements communs | 0% (0/190) | 0 |
+| ❌ | Enseignements de spécialité | 0% (0/270) | 0 |
+| ❌ | Épreuves du Baccalauréat | 0% (0/5) | 0 |
 
-### Manques en Grand oral (5)
+### Manques en Enseignements communs (190)
 
-- [ ] Préparation : 20 minutes
-- [ ] Exposé : 5 minutes (question préparée)
-- [ ] Entretien : 10 minutes (avec le jury)
-- [ ] Échange sur le projet d'orientation : 5 minutes
-- [ ] Question adossée aux 2 spécialités ou transversale
-
-### Manques en SVT (70)
-
-- [ ] L'origine du génotype des individus
-- [ ] Brassages génétiques (méiose)
-- [ ] Brassage interchromosomique
-- [ ] Brassage intrachromosomique (crossing-over)
-- [ ] Les accidents génétiques
-- [ ] Anomalies chromosomiques
-- [ ] D'autres mécanismes contribuent à la diversité du vivant
-- [ ] Transferts horizontaux
-- [ ] Endosymbiose
-- [ ] Complexification des génomes au cours de l'évolution
-- [ ] Duplications géniques
-- [ ] Familles multigéniques
-- [ ] L'évolution : du modèle à la théorie
-- [ ] Sélection naturelle
-- [ ] Dérive génétique
-- [ ] Spéciation
-- [ ] Le temps et les roches
-- [ ] Chronologie relative
-- [ ] Chronologie absolue (radiochronologie)
-- [ ] Les traces du passé mouvementé de la Terre
-- [ ] Reconstitution de l'histoire géologique
-- [ ] L'organisation fonctionnelle des plantes
-- [ ] Nutrition et développement
-- [ ] Circulation de matière
-- [ ] La plante, productrice de matière organique
-- [ ] Phase photochimique
-- [ ] Cycle de Calvin
-- [ ] Rendement de la photosynthèse
-- [ ] Reproduction des plantes à fleurs
-- [ ] Pollinisation
-- [ ] Formation de la graine
-- [ ] La domestication des plantes
-- [ ] Sélection artificielle
-- [ ] Génétique et amélioration des plantes
-- [ ] Enjeux contemporains
-- [ ] Reconstituer et comprendre les variations climatiques passées
-- [ ] Indicateurs paléoclimatiques
-- [ ] Isotopes de l'oxygène
-- [ ] Comprendre les conséquences du réchauffement climatique
-- [ ] Modèles climatiques
-- [ ] Impacts sur les écosystèmes
-- [ ] Les réflexes
-- [ ] Arc réflexe
-- [ ] Réflexe myotatique
-- [ ] Message nerveux
-- [ ] Potentiel d'action
-- [ ] Transmission synaptique
-- [ ] Cerveau et mouvement volontaire
-- [ ] Aires motrices
-- [ ] Motricité et intégration nerveuse
-- [ ] La cellule musculaire
-- [ ] Structure du muscle strié
-- [ ] Mécanisme de la contraction
-- [ ] Actine et myosine
-- [ ] Couplage excitation-contraction
-- [ ] L'origine de l'ATP
-- [ ] Voies métaboliques
-- [ ] Fermentation lactique
-- [ ] Contrôle des flux de glucose
-- [ ] Régulation de la glycémie
-- [ ] Rôle du foie
-- [ ] Hormones pancréatiques (insuline, glucagon)
-- [ ] L'adaptabilité de l'organisme
-- [ ] Agents stresseurs
-- [ ] Axe hypothalamo-hypophyso-surrénalien
-- [ ] Cortisol et adrénaline
-- [ ] Stress aigu et stress chronique
-- [ ] Syndrome général d'adaptation
-- [ ] Effets du stress chronique
-- [ ] Résilience
-
-### Manques en Histoire-Géographie (77)
-
-- [ ] Crise économique et sociale
-- [ ] Montée des extrémismes
-- [ ] Le fascisme italien
-- [ ] Le nazisme allemand
-- [ ] Le stalinisme soviétique
-- [ ] Les phases de la guerre (1939-1945)
-- [ ] Régime de Vichy
-- [ ] Collaboration et Résistance
-- [ ] Bilan de la guerre
-- [ ] La fin de la Seconde Guerre mondiale et nouvel ordre mondial
-- [ ] Conférences de Yalta et Potsdam
-- [ ] Création de l'ONU
-- [ ] Procès de Nuremberg
-- [ ] Une nouvelle donne géopolitique : bipolarisation et guerre froide
-- [ ] Formation des blocs (Est/Ouest)
-- [ ] Crises de la guerre froide (Berlin, Cuba, Corée)
-- [ ] Équilibre de la terreur
-- [ ] La France, une puissance en quête de rayonnement
-- [ ] IVe République et décolonisation
-- [ ] De Gaulle et la Ve République
-- [ ] Politique d'indépendance nationale
-- [ ] Nouveaux États indépendants
-- [ ] Décolonisation en Asie et Afrique
-- [ ] Non-alignement et Tiers-Monde
-- [ ] Enjeux de la décolonisation
-- [ ] La modification des équilibres économiques
-- [ ] Chocs pétroliers (1973, 1979)
-- [ ] Crise du modèle fordiste
-- [ ] Contestations politiques et sociales
-- [ ] Mai 68 et ses héritages
-- [ ] Mouvements féministes
-- [ ] Écologie politique
-- [ ] La fin des régimes soviétiques
-- [ ] Perestroïka et glasnost
-- [ ] Chute du mur de Berlin (1989)
-- [ ] Fin de l'URSS (1991)
-- [ ] De Maastricht à l'euro
-- [ ] Élargissements
-- [ ] Crises et défis de l'UE
-- [ ] La France dans le nouveau contexte international
-- [ ] Politique étrangère française
-- [ ] Interventions militaires
-- [ ] Le monde après 1991
-- [ ] Hyperpuissance américaine
-- [ ] Nouveaux conflits
-- [ ] Terrorisme international
-- [ ] Routes maritimes mondiales
-- [ ] Détroits et canaux stratégiques
-- [ ] Flux maritimes
-- [ ] ZEE et territorialisation
-- [ ] Conflits d'usage
-- [ ] Protection des milieux marins
-- [ ] 2e ZEE mondiale
-- [ ] Outre-mer et stratégie maritime
-- [ ] Des territoires inégalement intégrés
-- [ ] Centres et périphéries
-- [ ] Métropoles mondiales
-- [ ] Espaces marginalisés
-- [ ] Coopérations, tensions et régulations
-- [ ] Organisations régionales
-- [ ] Tensions commerciales
-- [ ] Gouvernance mondiale
-- [ ] La France et ses territoires ultramarins
-- [ ] DROM-COM
-- [ ] Intégration régionale
-- [ ] Défis et atouts
-- [ ] L'UE, un espace plus ou moins ouvert sur le monde
-- [ ] Frontières de l'UE
-- [ ] Politique commerciale
-- [ ] Accords internationaux
-- [ ] L'UE et la mondialisation : acteur ou enjeu ?
-- [ ] Puissance économique
-- [ ] Influence normative
-- [ ] Défis de la compétitivité
-- [ ] Rôle moteur
-- [ ] Coopérations transfrontalières
-- [ ] Enjeux territoriaux
-
-### Manques en Enseignement scientifique (25)
-
-- [ ] Facteurs du climat
-- [ ] Modélisation climatique
-- [ ] Le climat du futur
-- [ ] Scénarios du GIEC
-- [ ] Énergie, choix de développement et futur climatique
-- [ ] Mix énergétique
-- [ ] Transition énergétique
-- [ ] Deux siècles d'énergie électrique
-- [ ] Histoire de l'électricité
-- [ ] Les atouts de l'électricité
-- [ ] Rendements et conversions
-- [ ] Réseaux électriques
-- [ ] Pertes en ligne
-- [ ] Nouveaux défis
-- [ ] Mesure de la biodiversité
-- [ ] Crises biologiques
-- [ ] L'évolution comme grille de lecture du monde
-- [ ] Mécanismes évolutifs
-- [ ] Sélection naturelle et dérive génétique
-- [ ] L'évolution humaine
-- [ ] Origine de l'homme
-- [ ] Paléoanthropologie
-- [ ] Les grandes tendances de l'évolution humaine
-- [ ] Communication et sociabilité
-- [ ] Comportements innés et acquis
-
-### Manques en Physique-Chimie (47)
-
-- [ ] Réactions acide-base
-- [ ] Autoprotolyse de l'eau, Ke
-- [ ] Diagrammes de prédominance
-- [ ] Solutions tampon
-- [ ] Couples ox/red
-- [ ] Équilibrage des équations redox
-- [ ] Dosages
-- [ ] Dosages par titrage (colorimétrique, conductimétrique, pH-métrique)
-- [ ] Modifications de chaîne et de groupe caractéristique
-- [ ] Protection/déprotection
-- [ ] Rendement d'une synthèse
-- [ ] Sélectivité
-- [ ] Synthèse multi-étapes
-- [ ] Polymères
-- [ ] Structure des polymères
-- [ ] Évolution spontanée
-- [ ] Critère d'évolution
-- [ ] État final
-- [ ] Force des acides et des bases
-- [ ] Réactions forcées
-- [ ] Vecteur position
-- [ ] Vecteur vitesse
-- [ ] Vecteur accélération
-- [ ] Loi de la gravitation universelle
-- [ ] Champ de gravitation
-- [ ] Énergie mécanique dans un champ de gravitation
-- [ ] 2e loi de Newton (équation différentielle du mouvement)
-- [ ] Applications (chute, pendule, oscillateur)
-- [ ] Transformations d'un système
-- [ ] Travail des forces de pression
-- [ ] Premier principe de la thermodynamique
-- [ ] Énergie interne
-- [ ] Bilan énergétique
-- [ ] Machines thermiques
-- [ ] Énergie stockée
-- [ ] Circuit RC
-- [ ] Régimes transitoires
-- [ ] Célérité et retard
-- [ ] Ondes périodiques
-- [ ] Longueur d'onde
-- [ ] Modèle photon
-- [ ] Énergie d'un photon E = hν
-- [ ] Effet photoélectrique
-- [ ] Niveaux d'énergie de l'atome
-- [ ] Spectres d'émission et d'absorption
-- [ ] Relation de de Broglie
-- [ ] Principes fondamentaux
-
-### Manques en EMC (4)
-
-- [ ] La démocratie
-- [ ] Les principes démocratiques
-- [ ] Formes d'engagement
-- [ ] Participation politique
-
-### Manques en Philosophie (31)
-
+- [ ] L'art
+- [ ] Le bonheur
+- [ ] La conscience
+- [ ] Le devoir
+- [ ] L'État
+- [ ] L'inconscient
+- [ ] La justice
+- [ ] Le langage
+- [ ] La liberté
+- [ ] La nature
+- [ ] La raison
+- [ ] La religion
+- [ ] La science
+- [ ] La technique
+- [ ] Le temps
+- [ ] Le travail
+- [ ] La vérité
 - [ ] Auteurs antiques (Platon, Aristote, Épicure, Épictète, Marc Aurèle)
 - [ ] Auteurs médiévaux (Thomas d'Aquin, Guillaume d'Ockham)
 - [ ] Auteurs modernes (Machiavel, Hobbes, Descartes, Pascal, Spinoza, Locke, Leibniz, Hume, Rousseau, Kant)
@@ -1968,60 +1549,381 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Universel/Général/Particulier/Singulier
 - [ ] Dissertation (3 sujets au choix)
 - [ ] Explication de texte philosophique
+- [ ] L'impact de la crise de 1929
+- [ ] Crise économique et sociale
+- [ ] Montée des extrémismes
+- [ ] Les régimes totalitaires
+- [ ] Le fascisme italien
+- [ ] Le nazisme allemand
+- [ ] Le stalinisme soviétique
+- [ ] Caractéristiques communes et différences
+- [ ] La Seconde Guerre mondiale
+- [ ] Les phases de la guerre (1939-1945)
+- [ ] France dans la guerre
+- [ ] Régime de Vichy
+- [ ] Collaboration et Résistance
+- [ ] La Shoah
+- [ ] Génocide des Juifs d'Europe
+- [ ] Génocide des Tziganes
+- [ ] Bilan de la guerre
+- [ ] La fin de la Seconde Guerre mondiale et nouvel ordre mondial
+- [ ] Conférences de Yalta et Potsdam
+- [ ] Création de l'ONU
+- [ ] Procès de Nuremberg
+- [ ] Une nouvelle donne géopolitique : bipolarisation et guerre froide
+- [ ] Formation des blocs (Est/Ouest)
+- [ ] Crises de la guerre froide (Berlin, Cuba, Corée)
+- [ ] Équilibre de la terreur
+- [ ] La France, une puissance en quête de rayonnement
+- [ ] IVe République et décolonisation
+- [ ] De Gaulle et la Ve République
+- [ ] Politique d'indépendance nationale
+- [ ] Nouveaux États indépendants
+- [ ] Décolonisation en Asie et Afrique
+- [ ] Non-alignement et Tiers-Monde
+- [ ] Enjeux de la décolonisation
+- [ ] La modification des équilibres économiques
+- [ ] Chocs pétroliers (1973, 1979)
+- [ ] Crise du modèle fordiste
+- [ ] Mondialisation et libéralisme
+- [ ] Contestations politiques et sociales
+- [ ] Mai 68 et ses héritages
+- [ ] Mouvements féministes
+- [ ] Écologie politique
+- [ ] La fin des régimes soviétiques
+- [ ] Perestroïka et glasnost
+- [ ] Chute du mur de Berlin (1989)
+- [ ] Fin de l'URSS (1991)
+- [ ] La construction européenne
+- [ ] De Maastricht à l'euro
+- [ ] Élargissements
+- [ ] Crises et défis de l'UE
+- [ ] La France dans le nouveau contexte international
+- [ ] Politique étrangère française
+- [ ] Interventions militaires
+- [ ] Le monde après 1991
+- [ ] Hyperpuissance américaine
+- [ ] Nouveaux conflits
+- [ ] Terrorisme international
+- [ ] Mers et océans : vecteurs de la mondialisation
+- [ ] Routes maritimes mondiales
+- [ ] Détroits et canaux stratégiques
+- [ ] Flux maritimes
+- [ ] Mers et océans : entre appropriation, protection et liberté de circulation
+- [ ] ZEE et territorialisation
+- [ ] Conflits d'usage
+- [ ] Protection des milieux marins
+- [ ] La France : une puissance maritime ?
+- [ ] 2e ZEE mondiale
+- [ ] Outre-mer et stratégie maritime
+- [ ] Enjeux géopolitiques
+- [ ] Des territoires inégalement intégrés
+- [ ] Centres et périphéries
+- [ ] Métropoles mondiales
+- [ ] Espaces marginalisés
+- [ ] Coopérations, tensions et régulations
+- [ ] Organisations régionales
+- [ ] Tensions commerciales
+- [ ] Gouvernance mondiale
+- [ ] La France et ses territoires ultramarins
+- [ ] DROM-COM
+- [ ] Intégration régionale
+- [ ] Défis et atouts
+- [ ] L'UE, un espace plus ou moins ouvert sur le monde
+- [ ] Frontières de l'UE
+- [ ] Politique commerciale
+- [ ] Accords internationaux
+- [ ] L'UE et la mondialisation : acteur ou enjeu ?
+- [ ] Puissance économique
+- [ ] Influence normative
+- [ ] Défis de la compétitivité
+- [ ] La France dans l'UE
+- [ ] Rôle moteur
+- [ ] Coopérations transfrontalières
+- [ ] Enjeux territoriaux
+- [ ] L'atmosphère terrestre et la vie
+- [ ] Évolution de l'atmosphère
+- [ ] Effet de serre naturel
+- [ ] La complexité du système climatique
+- [ ] Facteurs du climat
+- [ ] Modélisation climatique
+- [ ] Le climat du futur
+- [ ] Scénarios du GIEC
+- [ ] Projections et incertitudes
+- [ ] Énergie, choix de développement et futur climatique
+- [ ] Mix énergétique
+- [ ] Transition énergétique
+- [ ] Deux siècles d'énergie électrique
+- [ ] Histoire de l'électricité
+- [ ] Production et transport
+- [ ] Les atouts de l'électricité
+- [ ] Rendements et conversions
+- [ ] Stockage de l'énergie
+- [ ] Optimisation du transport de l'électricité
+- [ ] Réseaux électriques
+- [ ] Pertes en ligne
+- [ ] Nouveaux défis
+- [ ] Énergies renouvelables
+- [ ] Intermittence et stockage
+- [ ] La biodiversité et son évolution
+- [ ] Mesure de la biodiversité
+- [ ] Crises biologiques
+- [ ] L'évolution comme grille de lecture du monde
+- [ ] Mécanismes évolutifs
+- [ ] Sélection naturelle et dérive génétique
+- [ ] L'évolution humaine
+- [ ] Origine de l'homme
+- [ ] Paléoanthropologie
+- [ ] Les grandes tendances de l'évolution humaine
+- [ ] Communication et sociabilité
+- [ ] Comportements innés et acquis
+- [ ] Identités et échanges
+- [ ] Espace privé et espace public
+- [ ] Art et pouvoir
+- [ ] Citoyenneté et mondes virtuels
+- [ ] Fictions et réalités
+- [ ] Innovations scientifiques et responsabilité
+- [ ] Diversité et inclusion
+- [ ] Territoire et mémoire
+- [ ] La démocratie
+- [ ] Les principes démocratiques
+- [ ] Débats et enjeux contemporains
+- [ ] L'engagement citoyen
+- [ ] Formes d'engagement
+- [ ] Participation politique
 
-### Manques en Mathématiques (36)
+### Manques en Enseignements de spécialité (270)
 
+- [ ] Limites de suites
 - [ ] Opérations sur les limites
 - [ ] Théorèmes de comparaison
+- [ ] Suites et limites
+- [ ] Limites de fonctions
+- [ ] Limite en un point
 - [ ] Limite à l'infini
 - [ ] Asymptotes (horizontales, verticales, obliques)
+- [ ] Continuité
+- [ ] Définition et propriétés
 - [ ] Théorème des valeurs intermédiaires
+- [ ] Fonction logarithme népérien
+- [ ] Définition et propriétés
 - [ ] Équation fonctionnelle ln(ab) = ln(a) + ln(b)
 - [ ] Dérivée de ln
 - [ ] Limites avec ln
 - [ ] Fonctions sinus et cosinus
 - [ ] Dérivées
+- [ ] Limites
+- [ ] Primitives des fonctions usuelles
 - [ ] Primitives et calcul intégral
+- [ ] Équations différentielles y' = ay + b
 - [ ] Intégrale d'une fonction continue
 - [ ] Définition géométrique (aire sous la courbe)
 - [ ] Propriétés de l'intégrale
+- [ ] Intégrale et primitives
 - [ ] Calcul d'intégrales
 - [ ] Valeur moyenne d'une fonction
 - [ ] Applications à l'économie et aux sciences
 - [ ] Succession d'épreuves indépendantes
 - [ ] Schéma de Bernoulli
+- [ ] Loi binomiale B(n,p)
 - [ ] Espérance, variance de la loi binomiale
+- [ ] Coefficients binomiaux
+- [ ] Triangle de Pascal
+- [ ] Variables aléatoires à densité
 - [ ] Fonction de densité
 - [ ] Espérance d'une variable à densité
+- [ ] Loi uniforme sur [a,b]
+- [ ] Loi exponentielle
 - [ ] Durée de vie sans vieillissement
+- [ ] Loi normale
+- [ ] Loi normale centrée réduite N(0,1)
+- [ ] Loi normale N(μ,σ²)
 - [ ] Théorème de Moivre-Laplace (approximation)
+- [ ] Intervalle de fluctuation
+- [ ] Intervalle de confiance
+- [ ] Estimation ponctuelle et par intervalle
+- [ ] Coplanarité de vecteurs
 - [ ] Décomposition d'un vecteur
+- [ ] Repérage dans l'espace
 - [ ] Coordonnées cartésiennes
+- [ ] Définition et propriétés
+- [ ] Orthogonalité
 - [ ] Applications géométriques
 - [ ] Représentations paramétriques de droites
 - [ ] Équations cartésiennes de plans
 - [ ] Vecteur normal à un plan
 - [ ] Positions relatives (droites, plans)
+- [ ] Orthogonalité droite/plan
 - [ ] Distance d'un point à un plan
 - [ ] Python (approfondissement)
 - [ ] Méthode de dichotomie
+- [ ] Algorithmes de tri
 - [ ] Méthode de Monte-Carlo
 - [ ] Simulation de lois de probabilité
-
-### Manques en Langues vivantes A et B (4)
-
-- [ ] Espace privé et espace public
-- [ ] Citoyenneté et mondes virtuels
-- [ ] Fictions et réalités
-- [ ] Territoire et mémoire
-
-### Manques en Autres spécialités (26)
-
+- [ ] Réactions acide-base
+- [ ] Autoprotolyse de l'eau, Ke
+- [ ] pH et concentration
+- [ ] Constante d'acidité Ka, pKa
+- [ ] Diagrammes de prédominance
+- [ ] Solutions tampon
+- [ ] Réactions d'oxydoréduction
+- [ ] Couples ox/red
+- [ ] Équilibrage des équations redox
+- [ ] Dosages
+- [ ] Dosages par titrage (colorimétrique, conductimétrique, pH-métrique)
+- [ ] Équivalence
+- [ ] Stratégie de synthèse
+- [ ] Modifications de chaîne et de groupe caractéristique
+- [ ] Protection/déprotection
+- [ ] Rendement d'une synthèse
+- [ ] Sélectivité
+- [ ] Synthèse multi-étapes
+- [ ] Polymères
+- [ ] Réaction de polymérisation
+- [ ] Structure des polymères
+- [ ] Évolution spontanée
+- [ ] Critère d'évolution
+- [ ] État final
+- [ ] Force des acides et des bases
+- [ ] Réactions forcées
+- [ ] Électrolyse
+- [ ] Piles et accumulateurs
+- [ ] Vecteur position
+- [ ] Vecteur vitesse
+- [ ] Vecteur accélération
+- [ ] Mouvement dans un champ uniforme
+- [ ] Mouvement parabolique (projectile)
+- [ ] Mouvement dans un champ de gravitation
+- [ ] Lois de Kepler
+- [ ] Satellites et orbites
+- [ ] Loi de la gravitation universelle
+- [ ] Champ de gravitation
+- [ ] Mouvement des planètes et satellites
+- [ ] Énergie mécanique dans un champ de gravitation
+- [ ] Lois de Newton
+- [ ] 2e loi de Newton (équation différentielle du mouvement)
+- [ ] Applications (chute, pendule, oscillateur)
+- [ ] Transformations d'un système
+- [ ] Transferts thermiques
+- [ ] Travail des forces de pression
+- [ ] Premier principe de la thermodynamique
+- [ ] Énergie interne
+- [ ] Bilan énergétique
+- [ ] Machines thermiques
+- [ ] Rendement
+- [ ] Condensateur
+- [ ] Charge et décharge
+- [ ] Énergie stockée
+- [ ] Circuit RC
+- [ ] Régimes transitoires
+- [ ] Célérité et retard
+- [ ] Ondes périodiques
+- [ ] Longueur d'onde
+- [ ] Diffraction
+- [ ] Interférences
+- [ ] Effet Doppler
+- [ ] Modèle photon
+- [ ] Énergie d'un photon E = hν
+- [ ] Effet photoélectrique
+- [ ] Niveaux d'énergie de l'atome
+- [ ] Spectres d'émission et d'absorption
+- [ ] Dualité onde-corpuscule
+- [ ] Relation de de Broglie
+- [ ] Principes fondamentaux
+- [ ] L'origine du génotype des individus
+- [ ] Brassages génétiques (méiose)
+- [ ] Brassage interchromosomique
+- [ ] Brassage intrachromosomique (crossing-over)
+- [ ] Fécondation et diversité génétique
+- [ ] Les accidents génétiques
+- [ ] Mutations
+- [ ] Anomalies chromosomiques
+- [ ] D'autres mécanismes contribuent à la diversité du vivant
+- [ ] Transferts horizontaux
+- [ ] Endosymbiose
+- [ ] Complexification des génomes au cours de l'évolution
+- [ ] Duplications géniques
+- [ ] Familles multigéniques
+- [ ] L'évolution : du modèle à la théorie
+- [ ] Sélection naturelle
+- [ ] Dérive génétique
+- [ ] Spéciation
+- [ ] Le temps et les roches
+- [ ] Chronologie relative
+- [ ] Chronologie absolue (radiochronologie)
+- [ ] Les traces du passé mouvementé de la Terre
+- [ ] Reconstitution de l'histoire géologique
+- [ ] L'organisation fonctionnelle des plantes
+- [ ] Nutrition et développement
+- [ ] Photosynthèse
+- [ ] Circulation de matière
+- [ ] La plante, productrice de matière organique
+- [ ] Phase photochimique
+- [ ] Cycle de Calvin
+- [ ] Rendement de la photosynthèse
+- [ ] Reproduction des plantes à fleurs
+- [ ] Pollinisation
+- [ ] Fécondation
+- [ ] Formation de la graine
+- [ ] La domestication des plantes
+- [ ] Sélection artificielle
+- [ ] Génétique et amélioration des plantes
+- [ ] Enjeux contemporains
+- [ ] Reconstituer et comprendre les variations climatiques passées
+- [ ] Indicateurs paléoclimatiques
+- [ ] Isotopes de l'oxygène
+- [ ] Comprendre les conséquences du réchauffement climatique
+- [ ] Modèles climatiques
+- [ ] Impacts sur les écosystèmes
+- [ ] Les réflexes
+- [ ] Arc réflexe
+- [ ] Réflexe myotatique
+- [ ] Message nerveux
+- [ ] Potentiel d'action
+- [ ] Transmission synaptique
+- [ ] Cerveau et mouvement volontaire
+- [ ] Aires motrices
+- [ ] Plasticité cérébrale
+- [ ] Motricité et intégration nerveuse
+- [ ] La cellule musculaire
+- [ ] Structure du muscle strié
+- [ ] Mécanisme de la contraction
+- [ ] Actine et myosine
+- [ ] Couplage excitation-contraction
+- [ ] L'origine de l'ATP
+- [ ] Voies métaboliques
+- [ ] Respiration cellulaire
+- [ ] Fermentation lactique
+- [ ] Contrôle des flux de glucose
+- [ ] Régulation de la glycémie
+- [ ] Rôle du foie
+- [ ] Hormones pancréatiques (insuline, glucagon)
+- [ ] L'adaptabilité de l'organisme
+- [ ] Réponse au stress
+- [ ] Agents stresseurs
+- [ ] Axe hypothalamo-hypophyso-surrénalien
+- [ ] Cortisol et adrénaline
+- [ ] Stress aigu et stress chronique
+- [ ] Syndrome général d'adaptation
+- [ ] Effets du stress chronique
+- [ ] Résilience
 - [ ] De nouveaux espaces de conquête
+- [ ] Océans et espaces maritimes
 - [ ] Espace extra-atmosphérique
+- [ ] Cyberespace
+- [ ] Faire la guerre, faire la paix
+- [ ] Formes de conflits
+- [ ] Processus de paix
+- [ ] Histoire et mémoires
+- [ ] Mémoire et histoire de la Seconde Guerre mondiale
 - [ ] Génocides (Shoah, Rwanda)
 - [ ] Identifier, protéger et valoriser le patrimoine
 - [ ] Patrimoine mondial UNESCO
+- [ ] L'environnement, entre exploitation et protection
+- [ ] Changement climatique
+- [ ] L'enjeu de la connaissance
+- [ ] Information et désinformation
+- [ ] Quels sont les sources et les défis de la croissance économique ?
 - [ ] Quels sont les fondements du commerce international et de l'internationalisation de la production ?
 - [ ] Comment lutter contre le chômage ?
 - [ ] Comment expliquer les crises financières et réguler le système financier ?
@@ -2034,114 +1936,87 @@ Compare les chapitres attendus (extraits des PROGRAMME_*.md sous `docs/programme
 - [ ] Quelles inégalités sont compatibles avec les différentes conceptions de la justice sociale ?
 - [ ] Quelle action publique pour l'environnement ?
 - [ ] La recherche de soi
+- [ ] Éducation, transmission, émancipation
+- [ ] Les métamorphoses du moi
 - [ ] L'humanité en question
+- [ ] Histoire et violence
+- [ ] Création, continuités et ruptures
+- [ ] Arts et débats d'idées
+- [ ] Expression et construction de soi
+- [ ] Voyages, territoires, frontières
 - [ ] (selon la langue choisie)
+- [ ] Structures de données
 - [ ] Listes, piles, files
+- [ ] Arbres et graphes
+- [ ] Dictionnaires
+- [ ] Bases de données
 - [ ] Modèle relationnel
+- [ ] SQL (requêtes, jointures)
 - [ ] Architectures matérielles, systèmes d'exploitation et réseaux
 - [ ] Composants d'un ordinateur
 - [ ] Systèmes d'exploitation
+- [ ] Protocoles réseau
+- [ ] Langages et programmation
+- [ ] Récursivité
 - [ ] Modularité
+- [ ] Programmation orientée objet
+- [ ] Algorithmique
+- [ ] Algorithmes de tri (complexité)
+- [ ] Recherche textuelle
 - [ ] Algorithmes sur les graphes
+
+### Manques en Épreuves du Baccalauréat (5)
+
+- [ ] Préparation : 20 minutes
+- [ ] Exposé : 5 minutes (question préparée)
+- [ ] Entretien : 10 minutes (avec le jury)
+- [ ] Échange sur le projet d'orientation : 5 minutes
+- [ ] Question adossée aux 2 spécialités ou transversale
 
 ---
 
 ## Résumé global
 
-**Couverture totale : 31.5%** (685/2174 chapitres)
+**Couverture totale : 30.5%** (430/1411 chapitres)
 
 ### Lacunes critiques (< 50% couverture, > 3 chapitres attendus)
 
 | Niveau | Matière | Couverture |
 |--------|---------|------------|
-| 6ème | Nombres et Calculs | 38% |
-| 6ème | Organisation et Gestion de Données | 20% |
-| 6ème | Grandeurs et Mesures | 22% |
-| 6ème | Espace et Géométrie | 33% |
-| 6ème | Grammaire | 20% |
-| 6ème | Conjugaison | 22% |
-| 6ème | Littérature | 20% |
-| 6ème | Construire une culture civique | 40% |
-| 6ème | Sciences et Technologie | 29% |
-| 6ème | LV1 - Anglais | 21% |
-| 5ème | Grandeurs et Mesures | 33% |
-| 5ème | Grammaire | 38% |
-| 5ème | Littérature | 31% |
-| 5ème | Histoire | 25% |
+| 6ème | Mathématiques | 20% |
+| 6ème | Français | 20% |
+| 6ème | Sciences et Technologie | 24% |
+| 6ème | Langues Vivantes | 21% |
+| 5ème | Français | 48% |
+| 5ème | Histoire-Géographie | 38% |
 | 5ème | EMC - Éducation Morale et Civique | 25% |
-| 5ème | La planète Terre, l'environnement et l'action humaine | 29% |
-| 5ème | Le vivant et son évolution | 29% |
-| 5ème | Le corps humain et la santé | 29% |
+| 5ème | SVT - Sciences de la Vie et de la Terre | 24% |
 | 5ème | Technologie - Programme 2024 | 33% |
-| 5ème | LV1 - Anglais | 35% |
-| 4ème | Nombres et Calculs | 33% |
-| 4ème | Organisation et Gestion de Données | 0% |
-| 4ème | Grandeurs et Mesures | 17% |
-| 4ème | Algorithmique et Programmation | 17% |
-| 4ème | Grammaire | 33% |
-| 4ème | Conjugaison | 44% |
-| 4ème | Orthographe | 40% |
-| 4ème | Lexique | 29% |
-| 4ème | Littérature | 35% |
-| 4ème | Histoire | 36% |
-| 4ème | Géographie | 21% |
+| 5ème | Langues Vivantes | 45% |
+| 4ème | Mathématiques | 28% |
+| 4ème | Français | 31% |
+| 4ème | Histoire-Géographie | 29% |
 | 4ème | EMC - Éducation Morale et Civique | 44% |
-| 4ème | Organisation et transformations de la matière | 6% |
-| 4ème | Mouvements et interactions | 22% |
-| 4ème | Des signaux pour observer et communiquer | 40% |
-| 4ème | La planète Terre, l'environnement et l'action humaine | 31% |
-| 4ème | Le vivant et son évolution | 38% |
-| 4ème | Le corps humain et la santé | 43% |
-| 4ème | Technologie - Programme 2024 | 36% |
-| 4ème | LV1 - Anglais | 12% |
-| 3ème | Nombres et Calculs | 33% |
-| 3ème | Organisation et Gestion de Données | 42% |
-| 3ème | Géométrie | 29% |
-| 3ème | Grandeurs et Mesures | 14% |
-| 3ème | Algorithmique et Programmation | 14% |
-| 3ème | Grammaire | 31% |
-| 3ème | Conjugaison | 17% |
-| 3ème | Orthographe | 20% |
-| 3ème | Lexique | 33% |
-| 3ème | Littérature | 7% |
-| 3ème | Histoire | 24% |
-| 3ème | Géographie | 22% |
+| 4ème | Physique-Chimie | 28% |
+| 4ème | SVT - Sciences de la Vie et de la Terre | 36% |
+| 4ème | Technologie - Programme 2024 | 39% |
+| 4ème | Langues Vivantes | 35% |
+| 3ème | Mathématiques | 32% |
+| 3ème | Français | 13% |
+| 3ème | Histoire-Géographie | 22% |
 | 3ème | EMC - Éducation Morale et Civique | 33% |
-| 3ème | Organisation et transformations de la matière | 29% |
-| 3ème | Mouvements et interactions | 30% |
-| 3ème | L'énergie et ses conversions | 14% |
-| 3ème | Le vivant et son évolution | 24% |
-| 3ème | Le corps humain et la santé | 40% |
-| 3ème | La planète Terre, l'environnement et l'action humaine | 40% |
-| 3ème | Design, innovation et créativité | 25% |
-| 3ème | Modélisation et simulation | 25% |
-| 3ème | LV1 - Anglais | 22% |
-| 3ème | LV2 - Espagnol/Allemand/Italien | 14% |
-| Seconde | Géométrie | 38% |
-| Seconde | Statistiques et Probabilités | 38% |
-| Seconde | Étude de la langue | 33% |
-| Seconde | Les 4 objets d'étude | 20% |
-| Seconde | Compétences | 20% |
-| Seconde | Histoire | 24% |
-| Seconde | Géographie | 23% |
-| Seconde | Constitution et transformations de la matière | 31% |
-| Seconde | Mouvement et interactions | 40% |
-| Seconde | Ondes et signaux | 44% |
-| Seconde | La Terre, la vie et l'évolution du vivant | 20% |
-| Seconde | Corps humain et santé | 7% |
-| Seconde | LVA - Anglais | 17% |
-| Seconde | LVB - Espagnol/Allemand/Italien | 17% |
-| Première | Français - Épreuves anticipées du Bac | 16% |
-| Première | Histoire-Géographie | 6% |
-| Première | Mathématiques | 49% |
-| Première | Physique-Chimie | 20% |
-| Première | SVT | 23% |
-| Première | Autres spécialités | 31% |
-| Terminale | Philosophie | 35% |
-| Terminale | Histoire-Géographie | 16% |
-| Terminale | Enseignement scientifique | 31% |
-| Terminale | EMC | 33% |
-| Terminale | Mathématiques | 45% |
-| Terminale | Physique-Chimie | 33% |
-| Terminale | SVT | 9% |
-| Terminale | Grand oral | 0% |
+| 3ème | Physique-Chimie | 28% |
+| 3ème | SVT - Sciences de la Vie et de la Terre | 24% |
+| 3ème | Technologie - Programme 2024 | 36% |
+| 3ème | Langues Vivantes | 22% |
+| Seconde | Français | 15% |
+| Seconde | Histoire-Géographie | 22% |
+| Seconde | Physique-Chimie | 34% |
+| Seconde | SVT - Sciences de la Vie et de la Terre | 15% |
+| Seconde | Langues Vivantes | 17% |
+| Seconde | Sciences numériques et technologie | 0% |
+| Première | Enseignements communs | 0% |
+| Première | Enseignements de spécialité | 0% |
+| Terminale | Enseignements communs | 0% |
+| Terminale | Enseignements de spécialité | 0% |
+| Terminale | Épreuves du Baccalauréat | 0% |
