@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Script de chunking optimal pour RAG 2025.
+Script de chunking optimal pour le pipeline RAG.
 
 Regroupe les documents atomiques existants (~100 tokens) en documents
-optimaux de 300-400 tokens selon les best practices 2025.
+optimaux de 300-400 tokens (cf. spec RAG overhaul, `docs/specs/`).
 
-Stratégie:
+Stratégie :
 - Regroupement sémantique par domaine/sousdomaine
 - Préservation du contexte pédagogique
 - Enrichissement automatique des metadata
@@ -13,7 +13,8 @@ Stratégie:
 
 Usage:
     uv run python scripts/chunking.py merge --niveau=cinquieme --matiere=mathematiques --dry-run
-    uv run python scripts/chunking.py merge --niveau=cinquieme --matiere=mathematiques --output=data/processed_v2/
+    uv run python scripts/chunking.py merge --niveau=cinquieme --matiere=mathematiques \
+        --output=data/processed_v2/
 """
 
 import json
@@ -92,7 +93,9 @@ def group_documents_by_theme(documents: list[dict]) -> dict:
     return dict(groups)
 
 
-def merge_documents(docs_group: list[dict], target_tokens: int = 350, overlap_pct: float = 0.15) -> list[dict]:
+def merge_documents(
+    docs_group: list[dict], target_tokens: int = 350, overlap_pct: float = 0.15
+) -> list[dict]:
     """
     Fusionne des documents pour atteindre la cible de tokens avec overlap.
 
@@ -198,14 +201,14 @@ def _create_merged_document(docs_data: list[dict]) -> dict:
     # Agréger les keywords (uniques)
     all_keywords = set()
     for d in docs_data:
-        keywords = getattr(d["doc"], 'keywords', None)
+        keywords = getattr(d["doc"], "keywords", None)
         if keywords:
             all_keywords.update(keywords)
 
     # Agréger les prérequis
     all_prerequis = set()
     for d in docs_data:
-        prerequis = getattr(d["doc"], 'prerequis', None)
+        prerequis = getattr(d["doc"], "prerequis", None)
         if prerequis:
             all_prerequis.update(prerequis)
 
@@ -225,10 +228,12 @@ def _create_merged_document(docs_data: list[dict]) -> dict:
     matiere = docs_data[0]["matiere"]
 
     # Gérer content_type et difficulty (string ou enum)
-    content_type_raw = getattr(first, 'content_type', 'definition')
-    content_type_val = content_type_raw if isinstance(content_type_raw, str) else content_type_raw.value
+    content_type_raw = getattr(first, "content_type", "definition")
+    content_type_val = (
+        content_type_raw if isinstance(content_type_raw, str) else content_type_raw.value
+    )
 
-    difficulty_raw = getattr(first, 'difficulty', 'standard')
+    difficulty_raw = getattr(first, "difficulty", "standard")
     difficulty_val = difficulty_raw if isinstance(difficulty_raw, str) else difficulty_raw.value
 
     return {
@@ -243,22 +248,20 @@ def _create_merged_document(docs_data: list[dict]) -> dict:
         "typical_questions": typical_questions[:10] if typical_questions else None,
         "learning_objectives": learning_objectives[:5] if learning_objectives else None,
         "common_errors": common_errors[:5] if common_errors else None,
-        "enriched": {
-            "latex_formulas": latex_formulas[:20]
-        } if latex_formulas else None,
+        "enriched": {"latex_formulas": latex_formulas[:20]} if latex_formulas else None,
         "version": "2.0.0",
         "author": "TomAI - Migration automatique",
         "source_revision": "BO 30/07/2020",
         "review_status": ReviewStatus.DRAFT.value,
         "confidence_level": 0.85,
-        "tags": ["auto_merged", f"niveau_{niveau}", f"matiere_{matiere}"]
+        "tags": ["auto_merged", f"niveau_{niveau}", f"matiere_{matiere}"],
     }
 
 
 def _enrich_single_document(doc, doc_data: dict) -> dict:
     """Enrichit un document unique avec metadata manquantes."""
     # Convertir UnvalidatedDocument en dict (ou Pydantic Document via model_dump)
-    if hasattr(doc, 'model_dump'):
+    if hasattr(doc, "model_dump"):
         doc_dict = doc.model_dump(exclude_none=True)
     else:
         doc_dict = {k: v for k, v in doc.__dict__.items() if v is not None}
@@ -266,7 +269,9 @@ def _enrich_single_document(doc, doc_data: dict) -> dict:
     # Générer des questions types basées sur le content_type
     typical_questions = []
     title_lower = doc.title.lower()
-    content_type_str = doc.content_type if isinstance(doc.content_type, str) else doc.content_type.value
+    content_type_str = (
+        doc.content_type if isinstance(doc.content_type, str) else doc.content_type.value
+    )
 
     if content_type_str == "definition":
         typical_questions.append(f"Qu'est-ce que {title_lower} ?")
@@ -283,13 +288,11 @@ def _enrich_single_document(doc, doc_data: dict) -> dict:
     return {
         **doc_dict,
         "typical_questions": typical_questions[:10] if typical_questions else None,
-        "enriched": {
-            "latex_formulas": latex_formulas
-        } if latex_formulas else None,
+        "enriched": {"latex_formulas": latex_formulas} if latex_formulas else None,
         "version": "2.0.0",
         "review_status": ReviewStatus.DRAFT.value,
         "confidence_level": 0.9,
-        "tags": ["single_doc", f"niveau_{doc_data['niveau']}", f"matiere_{doc_data['matiere']}"]
+        "tags": ["single_doc", f"niveau_{doc_data['niveau']}", f"matiere_{doc_data['matiere']}"],
     }
 
 
@@ -299,8 +302,12 @@ def _generate_typical_questions(docs_data: list[dict]) -> list[str]:
     for doc_data in docs_data:
         doc = doc_data["doc"]
         title = doc.title.lower().replace(" - ", " ")
-        content_type = getattr(doc, 'content_type', None)
-        content_type_str = content_type if isinstance(content_type, str) else (content_type.value if content_type else "")
+        content_type = getattr(doc, "content_type", None)
+        content_type_str = (
+            content_type
+            if isinstance(content_type, str)
+            else (content_type.value if content_type else "")
+        )
 
         if content_type_str == "definition":
             questions.append(f"Qu'est-ce que {title} ?")
@@ -319,8 +326,12 @@ def _generate_learning_objectives(docs_data: list[dict]) -> list[str]:
     objectives = []
     for doc_data in docs_data:
         doc = doc_data["doc"]
-        content_type = getattr(doc, 'content_type', None)
-        content_type_str = content_type if isinstance(content_type, str) else (content_type.value if content_type else "")
+        content_type = getattr(doc, "content_type", None)
+        content_type_str = (
+            content_type
+            if isinstance(content_type, str)
+            else (content_type.value if content_type else "")
+        )
 
         if content_type_str == "definition":
             objectives.append(f"Connaître la définition de {doc.domaine}")
@@ -359,12 +370,14 @@ def _extract_latex_formulas(content: str) -> list[str]:
     import re
 
     # Chercher des équations avec = et opérations
-    equation_pattern = r'([A-Z]{1,3}[²³]?\s*[=+\-×÷]\s*[A-Z]{1,3}[²³]?(?:\s*[+\-×÷]\s*[A-Z]{1,3}[²³]?)*)'
+    equation_pattern = (
+        r"([A-Z]{1,3}[²³]?\s*[=+\-×÷]\s*[A-Z]{1,3}[²³]?(?:\s*[+\-×÷]\s*[A-Z]{1,3}[²³]?)*)"
+    )
     matches = re.findall(equation_pattern, content)
     formulas.extend(matches)
 
     # Chercher des fractions
-    fraction_pattern = r'(\d+/\d+)'
+    fraction_pattern = r"(\d+/\d+)"
     fractions = re.findall(fraction_pattern, content)
     formulas.extend(fractions)
 
@@ -388,12 +401,14 @@ def load_documents_from_jsonl(file_path: Path, niveau: str, matiere: str, cycle:
             try:
                 data = json.loads(line)
                 doc = UnvalidatedDocument(**data)
-                documents.append({
-                    "niveau": niveau,
-                    "matiere": matiere,
-                    "cycle": cycle,
-                    "doc": doc,
-                })
+                documents.append(
+                    {
+                        "niveau": niveau,
+                        "matiere": matiere,
+                        "cycle": cycle,
+                        "doc": doc,
+                    }
+                )
             except Exception as e:
                 rprint(f"[red]Erreur ligne {line_num}: {e}[/red]")
 
@@ -410,9 +425,9 @@ def merge(
     """
     Fusionne les documents atomiques en chunks optimaux de 300-400 tokens.
 
-    Best practice 2025: chunking sémantique par thème avec enrichissement auto.
+    Chunking sémantique par thème avec enrichissement auto.
     """
-    rprint("\n[bold cyan]Chunking Optimal - RAG 2025[/bold cyan]\n")
+    rprint("\n[bold cyan]Chunking Optimal[/bold cyan]\n")
 
     # Trouver les fichiers
     files = []
@@ -472,14 +487,16 @@ def merge(
         # Calculer tokens moyens
         if merged_docs:
             avg_tokens = sum(estimate_tokens(d["content"]) for d in merged_docs) / len(merged_docs)
-            reduction = ((len(documents) - len(merged_docs)) / len(documents) * 100) if documents else 0
+            reduction = (
+                ((len(documents) - len(merged_docs)) / len(documents) * 100) if documents else 0
+            )
 
             table.add_row(
                 matiere_name,
                 str(len(documents)),
                 str(len(merged_docs)),
                 f"~{int(avg_tokens)}",
-                f"{reduction:.0f}%"
+                f"{reduction:.0f}%",
             )
         else:
             rprint("[yellow]  Aucun document valide trouvé[/yellow]")
@@ -509,7 +526,8 @@ def merge(
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Chunking optimal pour RAG 2025")
+
+    parser = argparse.ArgumentParser(description="Chunking optimal pour le pipeline RAG")
     parser.add_argument("--niveau", help="Niveau à traiter")
     parser.add_argument("--matiere", help="Matière à traiter")
     parser.add_argument("--target-tokens", type=int, default=350, help="Tokens cible")
@@ -522,5 +540,5 @@ if __name__ == "__main__":
         matiere=args.matiere,
         target_tokens=args.target_tokens,
         output=Path(args.output),
-        dry_run=args.dry_run
+        dry_run=args.dry_run,
     )

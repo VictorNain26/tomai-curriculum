@@ -81,14 +81,16 @@ def load_documents_from_file(file_path: Path) -> list[dict]:
             try:
                 data = json.loads(line)
                 doc = Document.model_validate(data)
-                documents.append({
-                    "niveau": niveau,
-                    "matiere": matiere,
-                    "cycle": cycle,
-                    "doc": doc,
-                    "line_num": line_num,
-                    "raw_data": data,
-                })
+                documents.append(
+                    {
+                        "niveau": niveau,
+                        "matiere": matiere,
+                        "cycle": cycle,
+                        "doc": doc,
+                        "line_num": line_num,
+                        "raw_data": data,
+                    }
+                )
             except json.JSONDecodeError as e:
                 raise ValueError(f"{file_path}:{line_num}: JSON invalide - {e}")
             except ValidationError as e:

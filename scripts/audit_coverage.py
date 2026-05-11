@@ -371,9 +371,7 @@ def _emit_report(all_results: list[dict], output, markdown: bool = False) -> Non
             )
             line()
 
-        subjects_sorted = sorted(
-            result["subjects"].items(), key=lambda x: x[1]["coverage_percent"]
-        )
+        subjects_sorted = sorted(result["subjects"].items(), key=lambda x: x[1]["coverage_percent"])
 
         for subject, data in subjects_sorted:
             pct = data["coverage_percent"]
@@ -430,10 +428,7 @@ def _emit_report(all_results: list[dict], output, markdown: bool = False) -> Non
         line("=" * 80)
         line("RÉSUMÉ GLOBAL")
         line("=" * 80)
-        line(
-            f"Couverture totale: {global_pct:.1f}% "
-            f"({total_covered}/{total_expected} chapitres)"
-        )
+        line(f"Couverture totale: {global_pct:.1f}% ({total_covered}/{total_expected} chapitres)")
         line()
         line("LACUNES CRITIQUES (< 50% couverture):")
 

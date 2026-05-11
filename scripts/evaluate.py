@@ -153,8 +153,7 @@ def ndcg_at_k(retrieved_ids: list[str], expected_ids: list[str], k: int) -> floa
     expected_set = set(expected_ids)
     top_k = retrieved_ids[:k]
     dcg = sum(
-        (1.0 if rid in expected_set else 0.0) / math.log2(i + 1)
-        for i, rid in enumerate(top_k, 1)
+        (1.0 if rid in expected_set else 0.0) / math.log2(i + 1) for i, rid in enumerate(top_k, 1)
     )
     ideal_count = min(len(expected_ids), k)
     idcg = sum(1.0 / math.log2(i + 1) for i in range(1, ideal_count + 1))
@@ -587,10 +586,7 @@ def migrate_titles(
             rprint(f"  - {qid} : {titles}")
     if partial:
         action = "incluses (--allow-partial)" if allow_partial else "rejetées"
-        rprint(
-            f"[yellow]⊘ {len(partial)} queries partiellement résolues "
-            f"({action})[/yellow]"
-        )
+        rprint(f"[yellow]⊘ {len(partial)} queries partiellement résolues ({action})[/yellow]")
         for qid, missing_titles in partial[:5]:
             rprint(f"  - {qid} : titres manquants {missing_titles}")
 

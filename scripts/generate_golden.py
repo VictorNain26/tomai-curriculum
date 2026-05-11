@@ -141,9 +141,9 @@ def _build_query_entry(query: str, doc_data: dict, counter: int) -> dict:
 
 @app.command()
 def run(
-    output: Annotated[
-        Path, typer.Option(help="Fichier de sortie JSON")
-    ] = Path("data/golden/test_queries_from_typical.json"),
+    output: Annotated[Path, typer.Option(help="Fichier de sortie JSON")] = Path(
+        "data/golden/test_queries_from_typical.json"
+    ),
     niveau: Annotated[str | None, typer.Option(help="Filtrer par niveau")] = None,
     matiere: Annotated[str | None, typer.Option(help="Filtrer par matière")] = None,
     max_per_doc: Annotated[

@@ -2,26 +2,34 @@
 
 Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol**.
 
+Pipeline RAG souverain EU : **Mistral embeddings 1024D + sparse BM25 IDF (hybrid)** ingéré dans **Qdrant Cloud** (région EU).
+
+## Scope
+
+| Cycle | Niveaux | Matières |
+|-------|---------|----------|
+| Cycle 3 | 6ème | 6 |
+| Cycle 4 | 5ème, 4ème, 3ème | 11 par niveau |
+| Lycée | 2nde, 1ère, Terminale | 12 / 16 / 18 (avec spécialités) |
+
+**Total : 1854 documents, 22 matières uniques** (6ème → Terminale). Le primaire est reporté.
+
 ## Structure
 
 ```
 data/
-├── raw/                          # Sources brutes et références
-│   └── sources_officielles.md    # Liens Éduscol et structure programmes
-└── processed/                    # Données prêtes pour ingestion
-    └── college/
-        └── cinquieme/
-            ├── metadata.json     # Métadonnées du niveau
-            ├── mathematiques.jsonl
-            ├── francais.jsonl
-            ├── physique_chimie.jsonl
-            ├── svt.jsonl
-            └── anglais.jsonl
+├── raw/
+│   └── sources_officielles.md         # Liens Éduscol et structure programmes
+├── processed/
+│   ├── college/{sixieme,cinquieme,quatrieme,troisieme}/<matiere>.jsonl
+│   └── lycee/{seconde,premiere,terminale}/<matiere>.jsonl
+└── golden/
+    └── test_queries.json               # 31 queries curées pour évaluation
 ```
 
 ## Format JSONL
 
-Chaque ligne est un document JSON autonome :
+Chaque ligne est un document JSON validé Pydantic :
 
 ```json
 {
@@ -32,68 +40,55 @@ Chaque ligne est un document JSON autonome :
   "difficulty": "standard",
   "content": "Dans un triangle rectangle...",
   "keywords": ["pythagore", "triangle rectangle"],
+  "typical_questions": ["Comment calculer l'hypoténuse ?"],
   "prerequis": ["Triangle rectangle"]
 }
 ```
 
-## Best Practices RAG 2025
+Validation : `200-2400 chars` (cible 1200-1600 chars ≈ 300-400 tokens). Voir `schema/document.py` pour le modèle complet (knowledge graph, qualité, versioning).
 
-Ce dataset suit les recommandations :
+## Pipeline RAG (mai 2026)
 
-| Aspect | Implémentation | Source |
-|--------|----------------|--------|
-| **Chunking** | 400-512 tokens/doc | [NVIDIA](https://developer.nvidia.com/blog/finding-the-best-chunking-strategy/) |
-| **Metadata** | Hiérarchique, pas excessive | [DataScienceCentral](https://www.datasciencecentral.com/best-practices-for-structuring-large-datasets-in-rag/) |
-| **Format** | JSONL streamable | [HuggingFace](https://huggingface.co/blog/tegridydev/llm-dataset-formats-101-hugging-face) |
+| Étape | Outil | Note |
+|-------|-------|------|
+| Chunking | Pydantic strict + `chunking.py` | Cible 300-400 tokens, overlap 15% |
+| Embeddings | Mistral `mistral-embed` 1024D | Batch 50, cache local versionné par modèle |
+| Storage | Qdrant Cloud (EU) | Scalar int8 + sparse BM25 IDF, indexes KEYWORD |
+| Retrieval | Hybrid search RRF (Query API) | Dense + sparse, fusion server-side |
+| Eval | `expected_ids` exact + RAGAS | Recall, Precision, MRR, NDCG, Context P/R |
 
 ## CLI
 
 ```bash
-# Validation
+# Validation et stats
 uv run python scripts/cli.py validate
-
-# Statistiques
 uv run python scripts/cli.py stats
 
-# Ingestion Qdrant (dry-run)
-uv run python scripts/ingest.py run --dry-run
+# Ingestion (3 phases idempotentes)
+uv run python scripts/ingest.py embed              # 1. Embeddings → cache
+uv run python scripts/ingest.py upsert             # 2. Cache → Qdrant
+uv run python scripts/ingest.py prune              # 3. Supprimer orphelins
+uv run python scripts/ingest.py run                # Orchestrateur
 
-# Ingestion réelle
-QDRANT_URL=... QDRANT_API_KEY=... MISTRAL_API_KEY=... \
-  uv run python scripts/ingest.py run
+# Évaluation
+uv run python scripts/evaluate.py run --verbose
+
+# Gap analysis (couverture vs programmes officiels)
+uv run python scripts/audit_coverage.py
 ```
 
-## Schema Pydantic
+Setup complet et architecture détaillée : voir `CLAUDE.md`.
 
-```python
-from schema import Document, ContentType, Difficulty
+## Souveraineté EU
 
-# Types de contenu
-ContentType.DEFINITION    # Définition officielle
-ContentType.THEOREME      # Théorème mathématique
-ContentType.FORMULE       # Formule à retenir
-ContentType.METHODE       # Méthode pas à pas
-ContentType.EXEMPLE       # Exemple illustratif
-ContentType.ERREUR_COURANTE  # Piège à éviter
-
-# Niveaux de difficulté
-Difficulty.DECOUVERTE        # Introduction
-Difficulty.STANDARD          # Niveau programme
-Difficulty.APPROFONDISSEMENT # Pour aller plus loin
-```
+Aucun SaaS/SDK runtime hors UE. Pipeline 100% Mistral + Qdrant Cloud EU + Scaleway. RGPD-compatible.
 
 ## Sources Officielles
 
 - **Éduscol** : https://eduscol.education.fr/
-- **Bulletin Officiel** : 30 juillet 2020 (programmes en vigueur 2024-2025)
-- **Cycle 4** : 5ème, 4ème, 3ème
-
-## Stats Actuelles
-
-| Niveau | Documents | Tokens | Matières |
-|--------|-----------|--------|----------|
-| 5ème   | 114       | ~12k   | Maths, Français, PC, SVT, Anglais |
+- **Bulletin Officiel** : BO 30/07/2020 (programmes en vigueur), BO 13/06/2024 (EMC), BO 29/02/2024 (Technologie)
+- Référentiel local : `docs/programmes/PROGRAMME_*.md`
 
 ## License
 
-MIT - Contenu pédagogique adapté des programmes officiels de l'Éducation Nationale française.
+MIT — contenu pédagogique adapté des programmes officiels de l'Éducation Nationale française.
