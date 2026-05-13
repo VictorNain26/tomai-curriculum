@@ -114,43 +114,11 @@ def test_rename_doc_produces_new_id():
     assert doc_id_from_hash(h_before) != doc_id_from_hash(h_recontent)
 
 
-def test_sparse_vector_stable_across_calls():
-    """
-    Le sparse vector doit être déterministe entre processus (sinon les indices
-    en Qdrant ne matchent pas ceux que le server calcule à la query → recall
-    sparse = 0). FNV-1a stable, vs hash() Python qui ne l'est pas avec
-    PYTHONHASHSEED non fixé.
-    """
-    import importlib
-
-    from scripts import migrate_collection
-
-    importlib.reload(migrate_collection)
-
-    text = "Théorème de Pythagore : a²+b²=c²"
-    s1 = migrate_collection._build_sparse_from_text(text)
-    s2 = migrate_collection._build_sparse_from_text(text)
-
-    assert s1.indices == s2.indices
-    assert s1.values == s2.values
-    # Indices doivent rester en 31-bit positifs (cohérent avec TS server)
-    assert all(0 <= idx <= 0x7FFFFFFF for idx in s1.indices)
-
-
-def test_sparse_tokenizer_handles_french_apostrophes():
-    """
-    Le tokenizer doit splitter sur l'apostrophe (`l'aire` → `l`, `aire`) pour
-    matcher le comportement du tokenizer TypeScript côté server. Sinon les
-    indices divergent et le canal sparse est silencieusement inutilisable.
-    """
-    from scripts.migrate_collection import _build_sparse_from_text, _fnv1a_32
-
-    sparse = _build_sparse_from_text("l'aire")
-    expected_l = _fnv1a_32("l")
-    expected_aire = _fnv1a_32("aire")
-
-    assert expected_l in sparse.indices, "Token 'l' devrait être indexé séparément"
-    assert expected_aire in sparse.indices, "Token 'aire' devrait être indexé séparément"
+# Note : les tests sparse_vector_* ont été retirés avec scripts/migrate_collection.py
+# lors de la refonte MVP-5ème (2026-05-11). Sparse vectors BM25 IDF reviendront en
+# Phase 2 (RAGAS integration) via une implémentation conjointe avec ingest_lib si
+# pertinent, sinon Qdrant natif Modifier.IDF côté collection config.
+# Référence pre-MVP : tag git archive/v1.0-pre-mvp.
 
 
 # =============================================================================
