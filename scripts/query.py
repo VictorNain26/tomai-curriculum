@@ -81,6 +81,7 @@ def generate_response(query: str, context_chunks: list[dict]) -> str:
     context = "\n\n---\n\n".join(f"[{c['matiere']}] {c['text']}" for c in context_chunks)
 
     messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
         {
             "role": "user",
             "content": (
@@ -92,7 +93,6 @@ def generate_response(query: str, context_chunks: list[dict]) -> str:
     response = client.chat.complete(
         model="mistral-large-latest",
         messages=messages,
-        system=SYSTEM_PROMPT,
         temperature=0.3,
         max_tokens=400,
     )

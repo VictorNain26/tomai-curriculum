@@ -137,31 +137,42 @@ def extract_section(text: str, start_pattern: str, end_pattern: str | None) -> s
 
 
 def load_source_text(source: dict) -> str:
-    """Charge et extrait le texte d'une source."""
+    """Charge et extrait le texte d'une source. Lève une erreur si section introuvable."""
     path = RAW / f"{source['file']}.txt"
     if not path.exists():
-        print(f"  ⚠ Fichier manquant : {path.name}", file=sys.stderr)
-        return ""
+        raise FileNotFoundError(f"Fichier source manquant : {path}")
 
     text = path.read_text(encoding="utf-8")
 
     if source.get("section_pattern"):
-        text = extract_section(
+        extracted = extract_section(
             text,
             source["section_pattern"],
             source.get("section_end"),
         )
+        if len(extracted.strip()) < 200:
+            raise ValueError(
+                f"Section '{source['section_name']}' introuvable dans {path.name} "
+                f"(pattern: {source['section_pattern']}). "
+                f"Vérifier le formatage du fichier source."
+            )
+        return extracted.strip()
 
     return text.strip()
 
 
 def chunk_text(text: str, source: dict) -> list[dict]:
-    """Découpe le texte en chunks avec chonkie SentenceChunker."""
+    """
+    Découpe le texte en chunks avec chonkie SentenceChunker.
+
+    chunk_size=1600 caractères ≈ 400 tokens en français (1 token ≈ 4 chars).
+    Le tokenizer par défaut de chonkie est "character" — on calibre en conséquence.
+    """
     from chonkie import SentenceChunker
 
     chunker = SentenceChunker(
-        chunk_size=400,  # tokens cible
-        chunk_overlap=40,  # ~10% overlap
+        chunk_size=1600,  # caractères ≈ 400 tokens (4 chars/token en français)
+        chunk_overlap=160,  # ~10% overlap
         min_sentences_per_chunk=2,
     )
 
@@ -200,6 +211,17 @@ def embed_chunks(texts: list[str]) -> list[list[float]]:
     return vectors
 
 
+def validate_chunks(chunks: list[dict]) -> list[dict]:
+    """Valide les chunks via le schéma Pydantic Chunk. Lève une erreur au premier échec."""
+    from schema.document import Chunk
+
+    validated = []
+    for chunk in chunks:
+        c = Chunk(**chunk)  # lève ValidationError si invalide
+        validated.append(c.to_qdrant_payload())
+    return validated
+
+
 def upsert_to_qdrant(chunks: list[dict], vectors: list[list[float]], collection: str) -> int:
     """Upsert les chunks dans Qdrant (idempotent via hash du texte)."""
     import hashlib
@@ -223,18 +245,11 @@ def upsert_to_qdrant(chunks: list[dict], vectors: list[list[float]], collection:
         print(f"  Collection '{collection}' créée (1024D, cosine)")
 
     points = []
-    for chunk, vector in zip(chunks, vectors, strict=True):
+    for payload, vector in zip(chunks, vectors, strict=True):
         # ID stable = uuid5 sur le hash du texte (idempotence)
-        text_hash = hashlib.sha256(chunk["text"].encode()).hexdigest()
+        text_hash = hashlib.sha256(payload["text"].encode()).hexdigest()
         point_id = str(_uuid.uuid5(_uuid.NAMESPACE_URL, text_hash))
-
-        points.append(
-            PointStruct(
-                id=point_id,
-                vector=vector,
-                payload=chunk,
-            )
-        )
+        points.append(PointStruct(id=point_id, vector=vector, payload=payload))
 
     client.upsert(collection_name=collection, points=points)
     return len(points)
@@ -281,11 +296,15 @@ def main() -> None:
             sys.exit(1)
 
     total_chunks = 0
+    errors: list[str] = []
 
     for source in sources:
         print(f"\n▶ {source['section_name']} ({source['matiere']})")
-        text = load_source_text(source)
-        if not text:
+        try:
+            text = load_source_text(source)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"  ✗ {e}", file=sys.stderr)
+            errors.append(source["matiere"])
             continue
 
         chunks = chunk_text(text, source)
@@ -297,15 +316,24 @@ def main() -> None:
             continue
 
         if not chunks:
+            errors.append(source["matiere"])
             continue
 
+        print("  Validation…", end=" ", flush=True)
+        validated = validate_chunks(chunks)
+        print(f"{len(validated)} valides")
+
         print("  Embedding…", end=" ", flush=True)
-        vectors = embed_chunks([c["text"] for c in chunks])
+        vectors = embed_chunks([c["text"] for c in validated])
         print(f"{len(vectors)} vecteurs")
 
-        n = upsert_to_qdrant(chunks, vectors, collection)
+        n = upsert_to_qdrant(validated, vectors, collection)
         print(f"  ✓ {n} points upsertés dans '{collection}'")
         total_chunks += n
+
+    if errors:
+        print(f"\n✗ {len(errors)} matière(s) en erreur : {errors}", file=sys.stderr)
+        sys.exit(1)
 
     if not args.dry_run:
         print(f"\nTotal : {total_chunks} points upsertés")
