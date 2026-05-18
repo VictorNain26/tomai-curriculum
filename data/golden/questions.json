@@ -1,0 +1,416 @@
+[
+  {
+    "query": "Comment calcule-t-on le périmètre d'un rectangle ?",
+    "matiere": "mathematiques",
+    "niveau": "cinquieme",
+    "expected_keywords": ["périmètre", "rectangle", "longueur", "largeur"]
+  },
+  {
+    "query": "Qu'est-ce qu'un nombre relatif ?",
+    "matiere": "mathematiques",
+    "niveau": "cinquieme",
+    "expected_keywords": ["nombre relatif", "positif", "négatif"]
+  },
+  {
+    "query": "Que signifie l'égalité de deux fractions ?",
+    "matiere": "mathematiques",
+    "niveau": "cinquieme",
+    "expected_keywords": ["fraction", "égalité", "produit"]
+  },
+  {
+    "query": "Énonce le théorème de Pythagore.",
+    "matiere": "mathematiques",
+    "niveau": "quatrieme",
+    "expected_keywords": ["pythagore", "triangle rectangle", "hypoténuse", "carré"]
+  },
+  {
+    "query": "Qu'est-ce qu'une puissance d'un nombre ?",
+    "matiere": "mathematiques",
+    "niveau": "quatrieme",
+    "expected_keywords": ["puissance", "exposant", "base"]
+  },
+  {
+    "query": "Qu'est-ce qu'une fonction linéaire ?",
+    "matiere": "mathematiques",
+    "niveau": "troisieme",
+    "expected_keywords": ["fonction linéaire", "coefficient", "droite"]
+  },
+  {
+    "query": "Comment calcule-t-on le PGCD de deux entiers ?",
+    "matiere": "mathematiques",
+    "niveau": "troisieme",
+    "expected_keywords": ["pgcd", "diviseur", "euclide"]
+  },
+  {
+    "query": "Qu'est-ce qu'un récit à la première personne ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": ["récit", "narrateur", "personne"]
+  },
+  {
+    "query": "Quelle est la fonction d'un complément circonstanciel ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": ["complément circonstanciel", "circonstances", "lieu"]
+  },
+  {
+    "query": "Qu'est-ce qu'un champ lexical ?",
+    "matiere": "francais",
+    "niveau": "quatrieme",
+    "expected_keywords": ["champ lexical", "thème", "vocabulaire"]
+  },
+  {
+    "query": "Distingue récit et discours.",
+    "matiere": "francais",
+    "niveau": "quatrieme",
+    "expected_keywords": ["récit", "discours", "énonciation"]
+  },
+  {
+    "query": "Qu'est-ce qu'une thèse dans un texte argumentatif ?",
+    "matiere": "francais",
+    "niveau": "troisieme",
+    "expected_keywords": ["thèse", "argument", "argumentatif"]
+  },
+  {
+    "query": "Comment identifier un registre lyrique en poésie ?",
+    "matiere": "francais",
+    "niveau": "troisieme",
+    "expected_keywords": ["lyrique", "sentiment", "poésie"]
+  },
+  {
+    "query": "Quelles sont les causes de la Révolution française ?",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": ["révolution", "monarchie", "lumières"]
+  },
+  {
+    "query": "Qu'est-ce que la traite atlantique ?",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": ["traite", "esclavage", "atlantique"]
+  },
+  {
+    "query": "Qu'est-ce que la mondialisation ?",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": ["mondialisation", "échanges", "monde"]
+  },
+  {
+    "query": "Quelles sont les grandes phases de la Première Guerre mondiale ?",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": ["première guerre", "tranchées", "armistice"]
+  },
+  {
+    "query": "Qu'est-ce que la Shoah ?",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": ["shoah", "génocide", "juifs"]
+  },
+  {
+    "query": "Qu'est-ce qu'une aire urbaine ?",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": ["aire urbaine", "banlieue", "périurbain"]
+  },
+  {
+    "query": "Qu'est-ce qu'une transformation chimique ?",
+    "matiere": "physique_chimie",
+    "niveau": "cinquieme",
+    "expected_keywords": ["transformation chimique", "réactif", "produit"]
+  },
+  {
+    "query": "Comment distinguer un mélange homogène d'un mélange hétérogène ?",
+    "matiere": "physique_chimie",
+    "niveau": "cinquieme",
+    "expected_keywords": ["mélange", "homogène", "hétérogène"]
+  },
+  {
+    "query": "Énonce le principe d'inertie.",
+    "matiere": "physique_chimie",
+    "niveau": "quatrieme",
+    "expected_keywords": ["inertie", "force", "mouvement"]
+  },
+  {
+    "query": "Qu'est-ce qu'une tension électrique ?",
+    "matiere": "physique_chimie",
+    "niveau": "quatrieme",
+    "expected_keywords": ["tension", "volt", "circuit"]
+  },
+  {
+    "query": "Qu'est-ce que la loi d'Ohm ?",
+    "matiere": "physique_chimie",
+    "niveau": "troisieme",
+    "expected_keywords": ["ohm", "tension", "intensité", "résistance"]
+  },
+  {
+    "query": "Qu'est-ce que la masse volumique ?",
+    "matiere": "physique_chimie",
+    "niveau": "troisieme",
+    "expected_keywords": ["masse volumique", "volume", "masse"]
+  },
+  {
+    "query": "Comment fonctionne la photosynthèse ?",
+    "matiere": "svt",
+    "niveau": "cinquieme",
+    "expected_keywords": ["photosynthèse", "lumière", "plante", "dioxygène"]
+  },
+  {
+    "query": "Qu'est-ce que la respiration cellulaire ?",
+    "matiere": "svt",
+    "niveau": "cinquieme",
+    "expected_keywords": ["respiration", "cellule", "dioxygène", "glucose"]
+  },
+  {
+    "query": "Qu'est-ce qu'une chaîne alimentaire ?",
+    "matiere": "svt",
+    "niveau": "cinquieme",
+    "expected_keywords": ["chaîne alimentaire", "producteur", "consommateur"]
+  },
+  {
+    "query": "Comment se déroule la reproduction sexuée chez les mammifères ?",
+    "matiere": "svt",
+    "niveau": "quatrieme",
+    "expected_keywords": ["reproduction", "gamète", "fécondation"]
+  },
+  {
+    "query": "Qu'est-ce que la tectonique des plaques ?",
+    "matiere": "svt",
+    "niveau": "quatrieme",
+    "expected_keywords": ["tectonique", "plaque", "lithosphère"]
+  },
+  {
+    "query": "Comment fonctionne le système immunitaire ?",
+    "matiere": "svt",
+    "niveau": "troisieme",
+    "expected_keywords": ["immunitaire", "anticorps", "lymphocyte"]
+  },
+  {
+    "query": "Qu'est-ce qu'un gène ?",
+    "matiere": "svt",
+    "niveau": "troisieme",
+    "expected_keywords": ["gène", "adn", "allèle"]
+  },
+  {
+    "query": "Qu'est-ce que la laïcité ?",
+    "matiere": "emc",
+    "niveau": "cinquieme",
+    "expected_keywords": ["laïcité", "religion", "liberté"]
+  },
+  {
+    "query": "Qu'est-ce qu'un droit fondamental ?",
+    "matiere": "emc",
+    "niveau": "quatrieme",
+    "expected_keywords": ["droit", "fondamental", "constitution"]
+  },
+  {
+    "query": "Qu'est-ce que la séparation des pouvoirs ?",
+    "matiere": "emc",
+    "niveau": "quatrieme",
+    "expected_keywords": ["séparation", "pouvoir", "exécutif", "législatif"]
+  },
+  {
+    "query": "Qu'est-ce que la démocratie représentative ?",
+    "matiere": "emc",
+    "niveau": "troisieme",
+    "expected_keywords": ["démocratie", "représentative", "élire"]
+  },
+  {
+    "query": "Qu'est-ce que la Défense nationale en France ?",
+    "matiere": "emc",
+    "niveau": "troisieme",
+    "expected_keywords": ["défense", "national", "sécurité"]
+  },
+  {
+    "query": "Qu'est-ce qu'un algorithme ?",
+    "matiere": "technologie",
+    "niveau": "cinquieme",
+    "expected_keywords": ["algorithme", "instruction", "problème"]
+  },
+  {
+    "query": "Qu'est-ce qu'un objet technique ?",
+    "matiere": "technologie",
+    "niveau": "cinquieme",
+    "expected_keywords": ["objet technique", "besoin", "fonction"]
+  },
+  {
+    "query": "À quoi sert un capteur dans un système programmé ?",
+    "matiere": "technologie",
+    "niveau": "quatrieme",
+    "expected_keywords": ["capteur", "grandeur", "actionneur"]
+  },
+  {
+    "query": "Qu'est-ce qu'un protocole de communication ?",
+    "matiere": "technologie",
+    "niveau": "quatrieme",
+    "expected_keywords": ["protocole", "communication", "échange"]
+  },
+  {
+    "query": "Qu'est-ce que l'éco-conception ?",
+    "matiere": "technologie",
+    "niveau": "troisieme",
+    "expected_keywords": ["éco-conception", "environnement", "cycle de vie"]
+  },
+  {
+    "query": "Qu'est-ce qu'un réseau informatique ?",
+    "matiere": "technologie",
+    "niveau": "troisieme",
+    "expected_keywords": ["réseau", "informatique", "données"]
+  },
+  {
+    "query": "Quelles activités langagières sont travaillées en anglais au collège ?",
+    "matiere": "anglais",
+    "niveau": "cinquieme",
+    "expected_keywords": ["activités langagières", "compréhension", "expression"]
+  },
+  {
+    "query": "Quels sont les axes culturels du programme d'anglais en 4e ?",
+    "matiere": "anglais",
+    "niveau": "quatrieme",
+    "expected_keywords": ["axes culturels", "axe", "voyage"]
+  },
+  {
+    "query": "Quels niveaux du CECRL sont visés en anglais au collège ?",
+    "matiere": "anglais",
+    "niveau": "troisieme",
+    "expected_keywords": ["cecrl", "niveau", "a2"]
+  },
+  {
+    "query": "Quels axes culturels enseigne-t-on en espagnol au collège ?",
+    "matiere": "espagnol",
+    "niveau": "cinquieme",
+    "expected_keywords": ["axes culturels", "axe", "quotidien"]
+  },
+  {
+    "query": "Comment se travaille la compréhension orale en espagnol ?",
+    "matiere": "espagnol",
+    "niveau": "quatrieme",
+    "expected_keywords": ["compréhension", "orale", "écoute"]
+  },
+  {
+    "query": "Que vise l'enseignement de l'espagnol en classe de 3e ?",
+    "matiere": "espagnol",
+    "niveau": "troisieme",
+    "expected_keywords": ["niveau", "linguistique", "année"]
+  },
+  {
+    "query": "Quelles repères linguistiques sont visés en allemand au collège ?",
+    "matiere": "allemand",
+    "niveau": "cinquieme",
+    "expected_keywords": ["repères linguistiques", "outils linguistiques", "langagières"]
+  },
+  {
+    "query": "Quels sont les outils linguistiques en allemand 4e ?",
+    "matiere": "allemand",
+    "niveau": "quatrieme",
+    "expected_keywords": ["outils linguistiques", "phonologie", "lexique"]
+  },
+  {
+    "query": "Quelles activités d'expression écrite en allemand en 3e ?",
+    "matiere": "allemand",
+    "niveau": "troisieme",
+    "expected_keywords": ["expression écrite", "écrite", "production"]
+  },
+  {
+    "query": "Quels sont les axes culturels enseignés en italien ?",
+    "matiere": "italien",
+    "niveau": "cinquieme",
+    "expected_keywords": ["axes culturels", "axe", "italie"]
+  },
+  {
+    "query": "Comment l'élève apprend l'italien en 4e ?",
+    "matiere": "italien",
+    "niveau": "quatrieme",
+    "expected_keywords": ["activités langagières", "linguistique", "axe"]
+  },
+  {
+    "query": "Quels niveaux CECRL sont visés en italien au collège ?",
+    "matiere": "italien",
+    "niveau": "troisieme",
+    "expected_keywords": ["cecrl", "niveau", "linguistique"]
+  },
+  {
+    "query": "Que travaille-t-on en français au cycle 3 ?",
+    "matiere": "francais",
+    "niveau": "sixieme",
+    "expected_keywords": ["langage oral", "lecture", "écriture"]
+  },
+  {
+    "query": "Quelles compétences en lecture sont visées en 6e ?",
+    "matiere": "francais",
+    "niveau": "sixieme",
+    "expected_keywords": ["lecture", "compréhension", "texte"]
+  },
+  {
+    "query": "Comment apprend-on les fractions en 6e ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": ["fraction", "nombre", "calcul"]
+  },
+  {
+    "query": "Que sont les grandeurs et mesures en mathématiques cycle 3 ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": ["grandeur", "mesure", "longueur"]
+  },
+  {
+    "query": "Comment l'élève découvre les sciences et technologie en 6e ?",
+    "matiere": "sciences_technologie",
+    "niveau": "sixieme",
+    "expected_keywords": ["matière", "vivant", "objet"]
+  },
+  {
+    "query": "Que travaille-t-on en histoire-géographie au cycle 3 ?",
+    "matiere": "histoire_geo",
+    "niveau": "sixieme",
+    "expected_keywords": ["histoire", "temps", "géographie"]
+  },
+  {
+    "query": "Quelles activités en arts plastiques au cycle 3 ?",
+    "matiere": "arts_plastiques",
+    "niveau": "sixieme",
+    "expected_keywords": ["arts", "matière", "représentation"]
+  },
+  {
+    "query": "Quels apprentissages en éducation musicale en 6e ?",
+    "matiere": "education_musicale",
+    "niveau": "sixieme",
+    "expected_keywords": ["musique", "écoute", "chant"]
+  },
+  {
+    "query": "Comment se travaille l'EPS au cycle 3 ?",
+    "matiere": "eps",
+    "niveau": "sixieme",
+    "expected_keywords": ["activité physique", "corps", "sportive"]
+  },
+  {
+    "query": "Qu'apprend-on en EMC en 6e ?",
+    "matiere": "emc",
+    "niveau": "sixieme",
+    "expected_keywords": ["citoyen", "valeur", "république"]
+  },
+  {
+    "query": "Quelles activités en arts plastiques au cycle 4 ?",
+    "matiere": "arts_plastiques",
+    "niveau": "quatrieme",
+    "expected_keywords": ["arts plastiques", "représentation", "création"]
+  },
+  {
+    "query": "Comment développer l'écoute musicale au cycle 4 ?",
+    "matiere": "education_musicale",
+    "niveau": "cinquieme",
+    "expected_keywords": ["écoute", "musique", "perception"]
+  },
+  {
+    "query": "Quels grands domaines en EPS au cycle 4 ?",
+    "matiere": "eps",
+    "niveau": "troisieme",
+    "expected_keywords": ["champ", "apprentissage", "activité"]
+  },
+  {
+    "query": "Qu'est-ce que l'histoire des arts au collège ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "cinquieme",
+    "expected_keywords": ["histoire des arts", "œuvre", "période"]
+  }
+]

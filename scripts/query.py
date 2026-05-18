@@ -1,112 +1,50 @@
 #!/usr/bin/env python3
 """
-Test du pipeline RAG — requête + réponse socratique.
+Outil interactif : tester le retrieval hybrid sur la collection Qdrant.
+
+Affiche les chunks retournés (top-k) — RIEN de plus. Ce repo gère
+exclusivement l'INDEX, pas la couche LLM. Toute génération de réponse
+(tutorat socratique, chat) est la responsabilité du backend
+(tomai-monorepo/apps/server). Voir docs/adr/0007.
 
 Usage :
-  uv run python scripts/query.py "Comment calculer le PGCD de deux nombres ?"
-  uv run python scripts/query.py --matiere=mathematiques "Qu'est-ce qu'une puissance ?"
-  uv run python scripts/query.py --top-k=5 "Définition d'un angle"
+  uv run python scripts/query.py "Comment calculer le PGCD ?"
+  uv run python scripts/query.py --matiere=mathematiques --top-k=5 "Pythagore"
+  uv run python scripts/query.py --niveau=cinquieme "respiration cellulaire"
+  uv run python scripts/query.py --cycle=cycle4 --matiere=svt "photosynthèse"
 """
 
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 
 from dotenv import load_dotenv
+
+from schema import DEFAULT_TOP_K, hybrid_search
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 load_dotenv()
 
-SYSTEM_PROMPT = """Tu es TomAI, un tuteur pédagogique socratique pour les élèves de 5ème.
-
-Règles absolues :
-- Ne donne JAMAIS la réponse directement.
-- Pose une question de relance qui guide l'élève vers la découverte.
-- Utilise UNIQUEMENT les informations du contexte fourni.
-- Si le contexte ne contient pas l'information, dis-le clairement.
-- Adapte ton langage au niveau 5ème (11-12 ans).
-
-Format de réponse :
-1. Valide ou reformule ce que l'élève semble chercher (1 phrase).
-2. Pose une question socratique qui l'aide à progresser.
-3. Si pertinent, indique une piste (sans donner la solution)."""
-
-
-def embed_query(query: str) -> list[float]:
-    from mistralai import Mistral
-
-    client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
-    response = client.embeddings.create(model="mistral-embed", inputs=[query])
-    return response.data[0].embedding
-
-
-def retrieve(
-    query_vector: list[float], collection: str, top_k: int, matiere: str | None
-) -> list[dict]:
-    from qdrant_client import QdrantClient
-    from qdrant_client.models import FieldCondition, Filter, MatchValue
-
-    client = QdrantClient(
-        url=os.environ["QDRANT_URL"],
-        api_key=os.environ.get("QDRANT_API_KEY"),
-    )
-
-    query_filter = None
-    if matiere:
-        query_filter = Filter(must=[FieldCondition(key="matiere", match=MatchValue(value=matiere))])
-
-    results = client.query_points(
-        collection_name=collection,
-        query=query_vector,
-        query_filter=query_filter,
-        limit=top_k,
-        with_payload=True,
-    )
-
-    return [
-        {"text": r.payload["text"], "matiere": r.payload["matiere"], "score": r.score}
-        for r in results.points
-    ]
-
-
-def generate_response(query: str, context_chunks: list[dict]) -> str:
-    from mistralai import Mistral
-
-    client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
-
-    context = "\n\n---\n\n".join(f"[{c['matiere']}] {c['text']}" for c in context_chunks)
-
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {
-            "role": "user",
-            "content": (
-                f"Contexte du programme officiel :\n{context}\n\nQuestion de l'élève : {query}"
-            ),
-        },
-    ]
-
-    response = client.chat.complete(
-        model="mistral-large-latest",
-        messages=messages,
-        temperature=0.3,
-        max_tokens=400,
-    )
-
-    return response.choices[0].message.content
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("query", nargs="?", help="Question à poser")
-    parser.add_argument("--matiere", help="Filtre sur une matière")
-    parser.add_argument("--top-k", type=int, default=3, help="Nombre de chunks récupérés")
+    parser.add_argument("query", nargs="?", help="Question / mots-clés")
+    parser.add_argument("--matiere", help="Filtre matière (ex: mathematiques)")
+    parser.add_argument("--niveau", help="Filtre niveau (ex: cinquieme)")
+    parser.add_argument("--cycle", help="Filtre cycle (ex: cycle4)")
     parser.add_argument(
-        "--no-llm", action="store_true", help="Affiche seulement les chunks (sans LLM)"
+        "--top-k",
+        type=int,
+        default=DEFAULT_TOP_K,
+        help=f"Nombre de chunks retournés (défaut {DEFAULT_TOP_K})",
+    )
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Affiche le texte complet de chaque chunk (sinon tronqué à 250 chars)",
     )
     args = parser.parse_args()
 
@@ -114,28 +52,33 @@ def main() -> None:
         parser.print_help()
         sys.exit(0)
 
-    collection = os.environ.get("QDRANT_COLLECTION", "tomai_educational")
-
     print(f"Requête : {args.query}")
-    print("Embedding…", end=" ", flush=True)
-    vector = embed_query(args.query)
-    print("OK")
+    filters = []
+    if args.matiere:
+        filters.append(f"matiere={args.matiere}")
+    if args.niveau:
+        filters.append(f"niveau={args.niveau}")
+    if args.cycle:
+        filters.append(f"cycle={args.cycle}")
+    if filters:
+        print(f"Filtres : {' & '.join(filters)}")
 
-    print(f"Retrieval (top-{args.top_k})…", end=" ", flush=True)
-    chunks = retrieve(vector, collection, args.top_k, args.matiere)
-    print(f"{len(chunks)} chunks")
+    print(f"Hybrid search (top-{args.top_k})…", end=" ", flush=True)
+    chunks = hybrid_search(
+        args.query,
+        top_k=args.top_k,
+        matiere=args.matiere,
+        niveau=args.niveau,
+        cycle=args.cycle,
+    )
+    print(f"{len(chunks)} chunks\n")
 
-    print("\n── Contexte récupéré ──────────────────────────")
     for i, c in enumerate(chunks, 1):
-        print(f"[{i}] [{c['matiere']}] score={c['score']:.3f}")
-        print(f"    {c['text'][:200]}…")
-
-    if args.no_llm:
-        return
-
-    print("\n── Réponse TomAI ──────────────────────────────")
-    response = generate_response(args.query, chunks)
-    print(response)
+        print(f"[{i}] [{c.matiere} | {c.niveau} | {c.section}] score={c.score:.4f}")
+        if args.full:
+            print(f"    {c.text}\n")
+        else:
+            print(f"    {c.text[:250]}{'…' if len(c.text) > 250 else ''}\n")
 
 
 if __name__ == "__main__":
