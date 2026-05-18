@@ -131,7 +131,8 @@ def check_datagouv(state: dict, force: bool) -> list[dict]:
     for res in resources:
         url = res.get("url", "")
         title = res.get("title", "")
-        checksum = res.get("checksum", {}).get("value", "") or _sha256_url(url)
+        checksum_obj = res.get("checksum") or {}
+        checksum = checksum_obj.get("value", "") or _sha256_url(url)
         res_id = res.get("id", _sha256_url(url))
 
         if res_id in known and known[res_id] == checksum and not force:
@@ -162,15 +163,18 @@ def check_datagouv(state: dict, force: bool) -> list[dict]:
 
 def check_legifrance(state: dict) -> list[dict]:
     """
-    Détecte les nouveaux arrêtés MENE* via l'API Légifrance PISTE.
+    Détecte les arrêtés programme Education dans les JOs récents via PISTE.
+
+    Approche validée (mai 2026) :
+      1. lastNJo  → liste des N derniers journaux officiels
+      2. jorfCont → structure hiérarchique de chaque JO (tms → liensTxt)
+      3. Filtre : sections "Éducation" + "programme" dans le titre du texte
+
+    L'endpoint /search retourne 400 pour fond=JORF — contournement confirmé.
 
     Nécessite :
       PISTE_CLIENT_ID     → variable d'environnement ou secret GitHub
       PISTE_CLIENT_SECRET → variable d'environnement ou secret GitHub
-
-    Documentation officielle : https://piste.gouv.fr/
-    Endpoint auth   : https://oauth.piste.gouv.fr/api/oauth/token
-    Endpoint search : https://api.piste.gouv.fr/dila/legifrance/lf-engine-app/search
     """
     client_id = os.environ.get("PISTE_CLIENT_ID", "")
     client_secret = os.environ.get("PISTE_CLIENT_SECRET", "")
@@ -193,6 +197,8 @@ def check_legifrance(state: dict) -> list[dict]:
             "-s",
             "--max-time",
             "15",
+            "-H",
+            "Content-Type: application/x-www-form-urlencoded",
             "-X",
             "POST",
             "https://oauth.piste.gouv.fr/api/oauth/token",
@@ -206,8 +212,7 @@ def check_legifrance(state: dict) -> list[dict]:
         return []
 
     try:
-        token_data = json.loads(token_result.stdout)
-        token = token_data.get("access_token", "")
+        token = json.loads(token_result.stdout).get("access_token", "")
     except Exception:
         print("  ✗ Réponse auth PISTE invalide")
         return []
@@ -216,79 +221,93 @@ def check_legifrance(state: dict) -> list[dict]:
         print("  ✗ Token PISTE vide")
         return []
 
-    # Recherche arrêtés récents avec code NOR MENE* contenant "programme"
-    last_check = state.get("legifrance_last_check") or "2025-01-01"
-    search_payload = json.dumps(
-        {
-            "recherche": {
-                "champs": [
-                    {
-                        "typeChamp": "NOR",
-                        "criteres": [{"typeRecherche": "CONTIENT", "valeur": "MENE"}],
-                    },
-                    {
-                        "typeChamp": "TITRE",
-                        "criteres": [{"typeRecherche": "CONTIENT", "valeur": "programme"}],
-                    },
-                ],
-                "filtres": [
-                    {"facette": "DATE_VERSION", "valeur": last_check, "operateur": "GREATER"},
-                    {"facette": "NATURE", "valeur": "ARRETE"},
-                ],
-                "pageNumber": 1,
-                "pageSize": 20,
-                "sort": "PERTINENCE",
-                "typePagination": "DEFAUT",
-            }
-        }
-    )
+    def _post_legifrance(endpoint: str, payload: dict) -> dict | None:
+        import tempfile as _tmp
 
-    search_result = subprocess.run(
-        [
-            "curl",
-            "-s",
-            "--max-time",
-            "20",
-            "-X",
-            "POST",
-            "https://api.piste.gouv.fr/dila/legifrance/lf-engine-app/search",
-            "-H",
-            f"Authorization: Bearer {token}",
-            "-H",
-            "Content-Type: application/json",
-            "-d",
-            search_payload,
-        ],
-        capture_output=True,
-    )
+        with _tmp.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
+            json.dump(payload, f)
+            tmp = f.name
+        result = subprocess.run(
+            [
+                "curl",
+                "-s",
+                "--max-time",
+                "20",
+                "-H",
+                f"Authorization: Bearer {token}",
+                "-H",
+                "Content-Type: application/json",
+                "-H",
+                "Accept: application/json",
+                "-X",
+                "POST",
+                "--data",
+                f"@{tmp}",
+                f"https://api.piste.gouv.fr/dila/legifrance/lf-engine-app/{endpoint}",
+            ],
+            capture_output=True,
+        )
+        import os as _os
 
-    try:
-        data = json.loads(search_result.stdout)
-        results = data.get("results", [])
-    except Exception:
-        print("  ✗ Réponse recherche PISTE invalide")
+        _os.unlink(tmp)
+        try:
+            return json.loads(result.stdout)
+        except Exception:
+            return None
+
+    def _find_programme_texts(tms_list: list, in_education: bool = False) -> list[dict]:
+        found = []
+        for node in tms_list:
+            titre_node = node.get("titre", "")
+            is_edu = (
+                in_education or "ducation" in titre_node or "enseignement" in titre_node.lower()
+            )
+            for lien in node.get("liensTxt", []):
+                t = lien.get("titre", "")
+                if is_edu and "programme" in t.lower():
+                    found.append({"id": lien.get("id", ""), "titre": t})
+            found.extend(_find_programme_texts(node.get("tms", []), is_edu))
+        return found
+
+    # Identifiants déjà vus pour éviter les doublons
+    seen_ids: set[str] = set(state.get("legifrance_seen_jorftext_ids", []))
+
+    # Étape 1 : récupère les 30 derniers JOs
+    last_jos = _post_legifrance("consult/lastNJo", {"nbElement": 30})
+    if not last_jos:
+        print("  ✗ Impossible de récupérer les JOs récents")
         return []
 
-    state["legifrance_last_check"] = datetime.now(UTC).strftime("%Y-%m-%d")
+    containers = last_jos.get("containers", [])
+    print(f"  → {len(containers)} JOs récents récupérés")
 
-    changes = []
-    for item in results:
-        nor = item.get("nor", "")
-        titre = item.get("titre", "")
-        date_pub = item.get("datePublicationJO", "")
-        lien = f"https://www.legifrance.gouv.fr/jorf/id/{item.get('id', '')}"
-        changes.append(
-            {
-                "source": "legifrance",
-                "type": "arrete",
-                "nor": nor,
-                "titre": titre,
-                "date_publication": date_pub,
-                "url_legifrance": lien,
-            }
+    changes: list[dict] = []
+    for c in containers:
+        cont_data = _post_legifrance(
+            "consult/jorfCont",
+            {"highlightActivated": False, "id": c["id"], "pageNumber": 1, "pageSize": 500},
         )
+        if not cont_data:
+            continue
+        for item in cont_data.get("items", []):
+            structure = item.get("joCont", {}).get("structure", {}).get("tms", [])
+            for text in _find_programme_texts(structure):
+                if text["id"] not in seen_ids:
+                    seen_ids.add(text["id"])
+                    changes.append(
+                        {
+                            "source": "legifrance",
+                            "type": "jorf_programme",
+                            "jorftext_id": text["id"],
+                            "titre": text["titre"],
+                            "jo_titre": c["titre"],
+                            "url_legifrance": f"https://www.legifrance.gouv.fr/jorf/id/{text['id']}",
+                        }
+                    )
 
-    print(f"  → {len(changes)} arrêté(s) MENE* 'programme' trouvé(s) depuis {last_check}")
+    state["legifrance_seen_jorftext_ids"] = list(seen_ids)
+    state["legifrance_last_check"] = datetime.now(UTC).strftime("%Y-%m-%d")
+    print(f"  → {len(changes)} arrêté(s) programme Education nouveau(x)")
     return changes
 
 
@@ -358,8 +377,8 @@ def main() -> None:
                 print(f"  [data.gouv.fr] {c['title'] or '(sans titre)'}")
                 print(f"    URL : {c['url']}")
             else:
-                print(f"  [Légifrance] {c['nor']} — {c['titre']}")
-                print(f"    Publié : {c['date_publication']} | {c['url_legifrance']}")
+                print(f"  [Légifrance] {c.get('jo_titre', '')} | {c['titre'][:70]}")
+                print(f"    ID: {c.get('jorftext_id', '?')} | {c['url_legifrance']}")
     else:
         print("✓ Aucun changement détecté.")
 

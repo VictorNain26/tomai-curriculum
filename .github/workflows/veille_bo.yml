@@ -87,8 +87,9 @@ jobs:
                 body += `- **Dataset mis à jour** : ${c.dataset_last_modified}\n`;
                 if (c.local_txt) body += `- **Extrait localement** : \`${c.local_txt.split('/').pop()}\`\n`;
               } else {
-                body += `### [Légifrance] ${c.nor} — ${c.titre}\n`;
-                body += `- **Publié** : ${c.date_publication}\n`;
+                body += `### [Légifrance] ${c.titre}\n`;
+                body += `- **JO** : ${c.jo_titre || '?'}\n`;
+                body += `- **ID** : \`${c.jorftext_id || '?'}\`\n`;
                 body += `- **Légifrance** : ${c.url_legifrance}\n`;
               }
               body += '\n';
