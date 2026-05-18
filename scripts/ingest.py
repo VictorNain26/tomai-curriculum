@@ -73,6 +73,9 @@ SOURCES: list[dict] = [
         "section_name": "Italien",
     },
     # Sections du fichier cycle4 complet
+    # blank_line_after_header=True : ignore les entrées de la TOC interne qui listent
+    # les sujets sans ligne vide entre eux. Les vraies sections ont toujours une ligne
+    # vide après le titre avant le contenu pédagogique.
     {
         "file": "programme_cycle4_BO2020",
         "matiere": "francais",
@@ -81,23 +84,26 @@ SOURCES: list[dict] = [
             r"^Langues vivantes|^Histoire|^Physique"
             r"|^Sciences de la vie|^Technologie|^Mathématiques|^Enseignement moral"
         ),
+        "blank_line_after_header": True,
         "section_name": "Français",
     },
     {
         "file": "programme_cycle4_BO2020",
         "matiere": "histoire_geo",
-        "section_pattern": r"^Histoire\s*$|^Histoire et géographie",
+        "section_pattern": r"^Histoire\s*$",
         "section_end": (
             r"^Physique|^Sciences de la vie|^Technologie"
             r"|^Mathématiques|^Enseignement moral|^Langues"
         ),
+        "blank_line_after_header": True,
         "section_name": "Histoire-Géographie",
     },
     {
         "file": "programme_cycle4_BO2020",
         "matiere": "physique_chimie",
-        "section_pattern": r"^Physique.chimie|^Physique-Chimie",
+        "section_pattern": r"^Physique-Chimie",
         "section_end": r"^Sciences de la vie|^Technologie|^Mathématiques|^Enseignement moral",
+        "blank_line_after_header": True,
         "section_name": "Physique-Chimie",
     },
     {
@@ -105,6 +111,7 @@ SOURCES: list[dict] = [
         "matiere": "svt",
         "section_pattern": r"^Sciences de la vie et de la Terre",
         "section_end": r"^Technologie|^Mathématiques|^Enseignement moral",
+        "blank_line_after_header": True,
         "section_name": "SVT",
     },
     {
@@ -112,24 +119,48 @@ SOURCES: list[dict] = [
         "matiere": "emc",
         "section_pattern": r"^Enseignement moral et civique",
         "section_end": r"^Histoire|^Physique|^Sciences|^Technologie|^Mathématiques|^Français",
+        "blank_line_after_header": True,
         "section_name": "EMC",
     },
 ]
 
 
-def extract_section(text: str, start_pattern: str, end_pattern: str | None) -> str:
-    """Extrait une section du texte entre start_pattern et end_pattern."""
+def extract_section(
+    text: str,
+    start_pattern: str,
+    end_pattern: str | None,
+    blank_line_after_header: bool = False,
+) -> str:
+    """
+    Extrait une section du texte entre start_pattern et end_pattern.
+
+    Utilise lstrip('\\x0c').rstrip() au lieu de strip() :
+    - Retire les form feeds (\\x0c) pdftotext sans toucher les espaces de début
+    - Les faux positifs indentés dans les tableaux ne matchent plus (ex:
+      "         Histoire" dans une colonne ne matche pas r"^Histoire")
+
+    blank_line_after_header=True : ignore les occurrences du start_pattern qui
+    ne sont PAS suivies d'une ligne vide (= entrées de table des matières).
+    Dans le programme cycle 4, la TOC liste les sujets sans ligne vide entre
+    eux, tandis que les vraies sections ont toujours une ligne vide après le
+    titre avant le contenu.
+    """
     lines = text.split("\n")
     in_section = False
     section_lines: list[str] = []
 
-    for line in lines:
+    for i, line in enumerate(lines):
+        check = line.lstrip("\x0c").rstrip()
         if not in_section:
-            if re.match(start_pattern, line.strip()):
+            if re.match(start_pattern, check):
+                if blank_line_after_header:
+                    next_check = lines[i + 1].strip() if i + 1 < len(lines) else ""
+                    if next_check:
+                        continue  # ligne suivante non vide → entrée de TOC, ignorer
                 in_section = True
                 section_lines.append(line)
         else:
-            if end_pattern and re.match(end_pattern, line.strip()):
+            if end_pattern and re.match(end_pattern, check):
                 break
             section_lines.append(line)
 
@@ -142,13 +173,15 @@ def load_source_text(source: dict) -> str:
     if not path.exists():
         raise FileNotFoundError(f"Fichier source manquant : {path}")
 
-    text = path.read_text(encoding="utf-8")
+    # errors='replace' : pdftotext peut produire des octets invalides en UTF-8 (\xed…)
+    text = path.read_text(encoding="utf-8", errors="replace")
 
     if source.get("section_pattern"):
         extracted = extract_section(
             text,
             source["section_pattern"],
             source.get("section_end"),
+            blank_line_after_header=source.get("blank_line_after_header", False),
         )
         if len(extracted.strip()) < 200:
             raise ValueError(

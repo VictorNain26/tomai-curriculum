@@ -40,7 +40,7 @@ CHANGES_FILE = RAW / ".veille_changes.json"
 DATAGOUV_DATASET_ID = "programmes-denseignement-du-second-degre"
 DATAGOUV_API = f"https://www.data.gouv.fr/api/1/datasets/{DATAGOUV_DATASET_ID}/"
 
-# Niveaux qui nous intéressent (collège + lycée complet pour Phase H)
+# Niveaux suivis — collège MVP (actif) + lycée (futur)
 TARGET_NIVEAUX = {
     "Cycle 3",
     "Cycle 4",

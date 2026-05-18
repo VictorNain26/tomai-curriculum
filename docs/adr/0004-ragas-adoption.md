@@ -1,8 +1,7 @@
 # ADR-0004 — Adoption de RAGAS pour l'évaluation RAG (vs code custom)
 
 - **Date** : 2026-05-11
-- **Statut** : accepté, implémentation Phase B
-- **Spec source** : [`docs/specs/2026-05-11-mvp-rebuild-plan.md`](../specs/2026-05-11-mvp-rebuild-plan.md)
+- **Statut** : implémenté — `scripts/evaluate.py` avec RAGAS 0.4+ + Mistral LangChain wrapper
 
 ## Contexte
 

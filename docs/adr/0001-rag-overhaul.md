@@ -1,8 +1,8 @@
 # ADR-0001 — Refonte de la chaîne RAG (curriculum + server)
 
 - **Date** : 2026-05-09
-- **Statut** : accepté, implémenté (mergé 2026-05-11)
-- **Spec source** : [`docs/specs/2026-05-09-rag-overhaul-design.md`](../specs/2026-05-09-rag-overhaul-design.md)
+- **Statut** : superseded par ADR-0006 (refonte v2 — pipeline .txt→Qdrant, mai 2026)
+- **Note** : spec source supprimée (architecture entièrement remplacée en mai 2026)
 
 ## Contexte
 
