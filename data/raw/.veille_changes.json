@@ -1,0 +1,107 @@
+[
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.csv",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/csv?use_labels=true",
+    "checksum": "d534ee71666cf116",
+    "resource_id": "c2475bca-b67f-46a3-9d25-6d6540a321e4",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.json",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/json",
+    "checksum": "bd5fdafcc7dc040a",
+    "resource_id": "f9b89263-0a73-4d81-bed2-387f7696f6ff",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.jsonl",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/jsonl",
+    "checksum": "2cd2fd905ef1b13d",
+    "resource_id": "4df8e45f-9a8e-4440-ba47-ceac59a6703d",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.parquet",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/parquet",
+    "checksum": "9c817a343ea4a7f8",
+    "resource_id": "7518a7b3-a4b6-4a5b-a360-47250342e448",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.rdf",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/rdfxml",
+    "checksum": "cf15a11ca46deb13",
+    "resource_id": "7093dcc5-c93c-4325-8122-a67d56c8d799",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.jsonld",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/jsonld",
+    "checksum": "0eac3c9ec2656d63",
+    "resource_id": "a698e34d-bc95-48f6-87d7-9c786564f447",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.ttl",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/turtle",
+    "checksum": "96ca7fdc425ddeae",
+    "resource_id": "13c70ab2-974c-499d-8033-d8dafc4abc59",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.n3",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/n3",
+    "checksum": "8d512058277de3c9",
+    "resource_id": "dc4fba96-544b-4099-9baa-d662d05058fe",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "datagouv",
+    "type": "dataset_resource",
+    "title": "fr-en-programmes-enseignement-2nd-degre.xlsx",
+    "url": "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-programmes-enseignement-2nd-degre/exports/xlsx?use_labels=true",
+    "checksum": "a583867b6c9323df",
+    "resource_id": "10d06bdc-f3db-4eec-88d7-6b76278d4205",
+    "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00"
+  },
+  {
+    "source": "legifrance",
+    "type": "jorf_programme",
+    "jorftext_id": "JORFTEXT000054048160",
+    "titre": "Arrêté du 22 avril 2026 fixant les programmes d'enseignement d'éducation physique et sportive et d'histoire-géographie du cycle des apprentissages fondamentaux (cycle 2) et du cycle de consolidation (cycle 3)",
+    "jo_titre": "JORF n°0108 du 8 mai 2026",
+    "url_legifrance": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054048160"
+  },
+  {
+    "source": "legifrance",
+    "type": "jorf_programme",
+    "jorftext_id": "JORFTEXT000054048169",
+    "titre": "Arrêté du 23 avril 2026 fixant les programmes d'enseignement communs et optionnels de langues vivantes régionales pour les classes de collège et de lycée général et technologique",
+    "jo_titre": "JORF n°0108 du 8 mai 2026",
+    "url_legifrance": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054048169"
+  },
+  {
+    "source": "legifrance",
+    "type": "jorf_programme",
+    "jorftext_id": "JORFTEXT000054037379",
+    "titre": "Arrêté du 16 avril 2026 fixant le programme d'enseignement de l'école maternelle (cycle 1)",
+    "jo_titre": "JORF n°0106 du 6 mai 2026",
+    "url_legifrance": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054037379"
+  }
+]

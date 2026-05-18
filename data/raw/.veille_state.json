@@ -1,0 +1,21 @@
+{
+  "last_check": "2026-05-18T10:10:52.295618+00:00",
+  "dataset_last_modified": "2026-02-02T17:03:39.965000+00:00",
+  "known_resource_hashes": {
+    "c2475bca-b67f-46a3-9d25-6d6540a321e4": "d534ee71666cf116",
+    "f9b89263-0a73-4d81-bed2-387f7696f6ff": "bd5fdafcc7dc040a",
+    "4df8e45f-9a8e-4440-ba47-ceac59a6703d": "2cd2fd905ef1b13d",
+    "7518a7b3-a4b6-4a5b-a360-47250342e448": "9c817a343ea4a7f8",
+    "7093dcc5-c93c-4325-8122-a67d56c8d799": "cf15a11ca46deb13",
+    "a698e34d-bc95-48f6-87d7-9c786564f447": "0eac3c9ec2656d63",
+    "13c70ab2-974c-499d-8033-d8dafc4abc59": "96ca7fdc425ddeae",
+    "dc4fba96-544b-4099-9baa-d662d05058fe": "8d512058277de3c9",
+    "10d06bdc-f3db-4eec-88d7-6b76278d4205": "a583867b6c9323df"
+  },
+  "legifrance_seen_jorftext_ids": [
+    "JORFTEXT000054048160",
+    "JORFTEXT000054048169",
+    "JORFTEXT000054037379"
+  ],
+  "legifrance_last_check": "2026-05-18"
+}
