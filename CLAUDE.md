@@ -1,116 +1,151 @@
-﻿# CLAUDE.md — tomai-curriculum
+# CLAUDE.md — tomai-curriculum
 
-Pipeline RAG educatif : programmes officiels Eduscol 5eme → Qdrant EU.
-Stack 100% EU-souverain : Mistral (embed + LLM) + Qdrant Cloud EU.
+Repo Python qui gère **uniquement l'index RAG** des programmes officiels Éduscol
+(PDF → markdown → chunks → Qdrant). La couche LLM (chat, prompting,
+hallucination eval) appartient EXCLUSIVEMENT au backend
+`tomai-monorepo/apps/server`.
 
-## Setup
+## Périmètre
 
-```bash
-cp .env.example .env   # remplir les 3 cles obligatoires
-uv sync                # installe les dependances
-uv sync --all-extras   # + dev (ruff, pytest) + eval (ragas)
-```
+Couvert ici :
+- Extraction PDF → markdown (`scripts/extract_pdfs.py`)
+- Chunking + embeddings + sparse vectors → Qdrant (`scripts/ingest.py`)
+- Création/migration collection (`scripts/migrate_collection.py`)
+- Audit coverage % titres BO + diagnostic missing (`scripts/audit_coverage.py`)
+- Eval retrieval déterministe — Recall@k, MRR (`scripts/evaluate.py`)
+- Veille BO automatique (`scripts/veille_programmes.py`)
+- Test interactif retrieval (`scripts/query.py`)
 
-Variables obligatoires dans `.env` :
-- `MISTRAL_API_KEY` — api.mistral.ai
-- `QDRANT_URL` — cluster Qdrant Cloud EU
-- `QDRANT_API_KEY` — cle Qdrant
+**Pas dans ce repo** :
+- Génération de réponses (chat LLM, prompt socratique, prompt cache)
+- Choix de modèle large/medium/small
+- RAGAS LLM-judge (Faithfulness, hallucination)
+- Logique tutorat élève (mémoire, personnalisation)
+
+## Règles générales
+
+- **Souveraineté EU stricte** — Mistral (embeddings) + Qdrant Cloud (fr-par).
+  Aucun SaaS hors UE. Pas d'OpenAI, Cohere, Anthropic, Google, Voyage.
+- **Pas d'invention** — source de vérité = `data/raw/*.txt|md` (programmes
+  officiels Éduscol). Aucun contenu généré par LLM dans le dataset.
+- **Idempotence** — `uuid5(NAMESPACE_URL, sha256(f"{matiere}:{niveau}:{text}"))`
+  garantit qu'un re-ingest ne crée pas de doublons et que les textes
+  partagés entre matières (préambules langues) ne se piétinent pas.
+- **Validation stricte** — chaque chunk passe par `Chunk` Pydantic avant
+  upsert. Erreur explicite si section regex échoue (pas de silence).
+- **DRY** — accès Mistral/Qdrant centralisé dans `schema/retrieval.py`.
+  Pas de duplication entre scripts.
+- **Pas de scripts jetables** — si tu as besoin d'une fonction diagnostique,
+  l'intégrer comme sous-commande du script permanent existant (ex:
+  `audit_coverage.py --list-missing`).
 
 ## Commandes
 
 ```bash
-# Ingestion (chunk + embed + upsert Qdrant)
-uv run python scripts/ingest.py --dry-run          # verifier chunks sans upserter
-uv run python scripts/ingest.py                    # ingestion complete (11 matieres)
-uv run python scripts/ingest.py --matiere=mathematiques
-uv run python scripts/ingest.py --status           # etat collection Qdrant
+# Setup
+cp .env.example .env       # MISTRAL_API_KEY, QDRANT_URL, QDRANT_API_KEY
+uv sync --all-extras
 
-# Requete socratique
-uv run python scripts/query.py "Qu est-ce qu un angle droit ?"
-uv run python scripts/query.py --matiere=mathematiques --top-k=5 "Pythagore"
-uv run python scripts/query.py --no-llm "SVT respiration"   # chunks seuls
+# Pipeline complet
+uv run python scripts/extract_pdfs.py              # PDF → .md (pymupdf4llm)
+uv run python scripts/migrate_collection.py        # crée v2 (named vectors + indexes)
+uv run python scripts/ingest.py                    # chunk + embed + upsert
+uv run python scripts/migrate_collection.py --swap-alias  # swap alias prod → v2
 
-# Evaluation RAGAS (necessite uv sync --all-extras + dep eval)
-uv run python scripts/evaluate.py
-uv run python scripts/evaluate.py --questions=data/golden/questions.json
+# Diagnostic
+uv run python scripts/audit_coverage.py            # % titres BO indexés
+uv run python scripts/audit_coverage.py --list-missing  # debug coverage <100%
+uv run python scripts/evaluate.py --by-matiere     # retrieval Recall@k / MRR
+uv run python scripts/query.py "Pythagore" --matiere=mathematiques --niveau=quatrieme
 
-# Audit couverture vs referentiel officiel
-uv run python scripts/audit_coverage.py
-uv run python scripts/audit_coverage.py --output=docs/audits/rapport.md
+# Veille
+uv run python scripts/veille_programmes.py         # check changements BO
 
-# Veille programmes Eduscol (hebdomadaire via GitHub Action)
-uv run python scripts/veille_programmes.py
-uv run python scripts/veille_programmes.py --force
-
-# Qualite
-uv run ruff check .
-uv run ruff format .
-uv run pytest
+# Qualité
+uv run ruff check schema/ scripts/ tests/
+uv run ruff format schema/ scripts/ tests/
+RUN_MISTRAL_TOKENIZER_TESTS=1 uv run pytest tests/
 ```
 
 ## Architecture
 
 ```
-schema/
-└── document.py         # Chunk (Pydantic) : text, source_file, matiere, niveau, section
-                        # + enums : Matiere, Niveau, Cycle, cycle_from_niveau()
+schema/                    Bibliothèque partagée (importée par tous les scripts)
+├── document.py            Pydantic Chunk + derive_niveaux_from_file + MATIERE_LABELS
+├── bm25.py                Tokenizer FR + FNV-1a (parité stricte avec backend TS)
+├── contextual.py          Préfixe contextuel hiérarchique (sans LLM)
+└── retrieval.py           Accès Mistral/Qdrant : embed, hybrid_search, L2 normalize
 
-scripts/
-├── ingest.py           # data/raw/*.txt → SentenceChunker → mistral-embed → Qdrant
-├── query.py            # embed question → retrieval Qdrant → reponse socratique Mistral
-├── evaluate.py         # RAGAS avec Mistral natif (faithfulness, answer_relevancy, context_precision)
-├── audit_coverage.py   # Gap analysis PROGRAMME_5EME.md vs chapitres dans les sources
-└── veille_programmes.py # data.gouv.fr + Legifrance PISTE → detecte nouveaux programmes
+scripts/                   CLI permanents (jamais de _tmp_*.py jetable)
+├── extract_pdfs.py        PDF → markdown (pymupdf4llm — préserve les H2)
+├── ingest.py              .md → chunk → embed → sparse BM25 → upsert Qdrant
+├── migrate_collection.py  create v2 / status / swap-alias / drop-v1
+├── query.py               Retrieval interactif (chunks bruts, pas de LLM)
+├── evaluate.py            Recall@k, MRR (déterministe, sans LLM judge)
+├── audit_coverage.py      % titres BO + --list-missing diagnostic
+└── veille_programmes.py   data.gouv + Légifrance → détecte nouveaux BO
 
 data/
-├── raw/                # Sources officielles extraites (*.txt) + veille state
-│   ├── programme_maths_cycle4_BO2026.txt
-│   ├── programme_technologie_cycle4_BO2024.txt
-│   ├── programme_cycle4_BO2020.txt        # Francais, Hist-Geo, PC, SVT, EMC
-│   ├── programme_cycle3_BO2020.txt
-│   ├── programme_*_college_BO2025.txt     # Anglais, Espagnol, Allemand, Italien
-│   └── sources_officielles.md             # URLs + procedure regeneration PDFs
-├── processed/          # Vide (MVP sans JSONL pre-generes, chunks directs depuis .txt)
-└── golden/             # Questions de test + resultats RAGAS
+├── raw/                   PDFs + .md (générés) + manifest data.gouv
+├── golden/questions.json  Golden set pour evaluate.py
+└── golden/retrieval_eval.json  Résultats eval (versionnés en CI)
 
-docs/
-├── adr/                # Decisions architecturales (0001-0005)
-├── programmes/
-│   ├── PROGRAMME_5EME.md       # Referentiel chapitres (maths verifie vs BO 2026)
-│   └── CALENDRIER_REFORMES.md  # Reformes Eduscol a anticiper
-└── specs/              # Plans et specs techniques
-
-.github/workflows/
-├── ci.yml              # Lint + tests sur PR/push main
-└── veille_bo.yml       # Veille hebdomadaire (lundi 8h UTC) → GitHub Issue si changement
+docs/adr/                  Décisions architecturales (0001-0007)
+docs/audits/               Rapports coverage horodatés
 ```
 
-## Pipeline ingest (detail)
+## Pipeline ingest (détail)
 
 ```
-data/raw/*.txt
-  └─ load_source_text()       # extrait section par matiere via regex
-      └─ chunk_text()          # SentenceChunker 1600 chars (≈400 tokens)
-          └─ validate_chunks() # Pydantic Chunk → to_qdrant_payload()
-              └─ embed_chunks() # mistral-embed batch 50, 1024D
-                  └─ upsert_to_qdrant() # uuid5(sha256(text)) → idempotent
+data/raw/*.pdf
+  └─ extract_pdfs.py        pymupdf4llm → .md (titres ## **...** fiables)
+data/raw/*.md
+  └─ load_source_text()     préfère .md sinon .txt
+  └─ extract_section()      regex `^## \*\*Matière\*\*` pour fichiers multi-matières
+  └─ chunk_text()           chonkie RecursiveChunker + tokenizer Mistral vrais tokens
+  └─ expand_for_niveaux()   duplique 1 chunk × N niveaux du cycle
+  └─ validate_chunks()      Pydantic Chunk → payload + aliases backend
+  └─ embed_batch()          mistral-embed batch 50 + normalisation L2 (déduplique textes)
+  └─ upsert_to_qdrant()     named {dense, bm25} + uuid5(matiere+niveau+text) idempotent
 ```
 
-## Sources officielles des programmes
+Collection cible : `tomai_educational_v2` (alias `tomai_educational` après swap).
+- `dense` (1024D cosine, mistral-embed) + sparse `bm25` (Modifier.IDF natif)
+- Scalar int8 quantization always_ram (4× compression, <1 % perte recall)
+- Payload indexes KEYWORD : `niveau`, `matiere`, `cycle`, `source_file`
 
-| Matiere | Fichier source | BO de reference |
-|---------|---------------|-----------------|
-| Mathematiques | programme_maths_cycle4_BO2026.txt | BO 5 mars 2026 |
-| Technologie | programme_technologie_cycle4_BO2024.txt | BO 29 fev 2024 |
-| Francais, Hist-Geo, PC, SVT, EMC | programme_cycle4_BO2020.txt | BO 30 juil 2020 |
-| Anglais/Espagnol/Allemand/Italien | programme_*_college_BO2025.txt | BO 29 mai 2025 |
+## Conventions de code
 
-Voir `data/raw/sources_officielles.md` pour les URLs et la procedure de regeneration.
+- **TypeScript-like strict** côté Python : type hints partout, pas de `Any` sauf
+  bordure SDK externe (qdrant-client, mistralai)
+- **400 lignes max** par fichier (cf `Tom/CLAUDE.md` racine)
+- **Zéro warning ruff** en CI (line-length 100)
+- **Tests systématiques** : unitaires + intégration (`@pytest.mark.integration`)
+- **Idempotence** garantie sur tous les scripts d'ingestion / migration
+- **`check_compatibility=True`** sur tous les `QdrantClient` (évite drift version
+  client/server silencieux)
 
-## Regles
+## Sources officielles
 
-- **EU-souverain strict** : Mistral + Qdrant EU uniquement. Jamais OpenAI/Cohere/Anthropic.
-- **Pas d invention** : source de verite = data/raw/*.txt (programmes officiels).
-- **Idempotence** : ID chunk = uuid5(sha256(text)), ingest rejouable sans doublons.
-- **Erreurs explicites** : section introuvable = exception, pas de silence.
-- **Validation systematique** : tout chunk passe par Pydantic avant upsert Qdrant.
+| Matière / niveau | Fichier source | BO |
+|---|---|---|
+| Cycle 3 (6e) — toutes matières | `programme_cycle3_BO2020.md` | 30/07/2020 |
+| Cycle 4 BO 2020 — FR/HG/PC/SVT/EMC/Arts/Musique/EPS/HDA | `programme_cycle4_BO2020.md` | 30/07/2020 |
+| Maths cycle 4 (à jour) | `programme_maths_cycle4_BO2026.md` | 05/03/2026 |
+| Technologie cycle 4 (à jour) | `programme_technologie_cycle4_BO2024.md` | 29/02/2024 |
+| Langues vivantes collège | `programme_{anglais,espagnol,allemand,italien}_college_BO2025.md` | 29/05/2025 |
+
+URLs + procédure de régénération : `data/raw/sources_officielles.md`.
+
+## Frontière avec le backend
+
+Le backend (`tomai-monorepo/apps/server`) consomme l'index Qdrant produit ici
+via une couche `qdrant.service.ts` + `rag.service.ts`. **Contrats critiques** :
+
+- Le **payload** Qdrant doit rester stable : `text, section, matiere, niveau,
+  cycle, source_file, chunk_index` (+ aliases `title`, `content` pour compat).
+- Le **tokenizer BM25** (FNV-1a 32-bit + regex FR) doit rester strictement
+  identique entre `schema/bm25.py` ici et `rag.service.ts:172-193` côté backend.
+  Toute divergence casse l'IDF Qdrant silencieusement.
+- Le nom de collection / alias se gère par variable d'env partagée
+  (`QDRANT_COLLECTION`).

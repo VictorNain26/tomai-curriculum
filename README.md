@@ -1,96 +1,102 @@
-# TomAI Curriculum Dataset
+# TomAI Curriculum — Index RAG souverain EU
 
-Dataset éducatif français pour le tutorat IA, basé sur les **programmes officiels Éduscol**.
+Pipeline d'indexation des **programmes officiels Éduscol** (collège 6e → 3e)
+pour le RAG du tuteur TomAI.
 
-Pipeline RAG souverain EU : **Mistral embeddings 1024D** ingéré dans **Qdrant Cloud** (région EU). Évaluation via **RAGAS** natif Mistral (Phase B).
+**Scope** : ce repo gère **UNIQUEMENT l'index** (PDF → markdown → chunks →
+Qdrant). La couche LLM (chat socratique, prompting, hallucination eval) est
+la responsabilité du backend `tomai-monorepo/apps/server`. Voir
+[ADR-0007](docs/adr/0007-rag-irreprochable.md).
 
-## Scope MVP (2026-05-11)
+**Souveraineté EU stricte** : Mistral (embeddings) + Qdrant Cloud (fr-par).
+Aucun SaaS hors UE.
 
-**5ème uniquement** : 288 documents Pydantic-valides, 11 matières du tronc commun collège (math, français, hist-géo, PC, SVT, EMC, anglais, allemand, espagnol, italien, technologie).
+## État (mai 2026)
 
-Les autres niveaux (6ème, 4ème, 3ème, lycée) sont **archivés** via tag git `archive/v1.0-pre-mvp` et branche `archive/pre-mvp-refonte`. Restaurés en Phase H après validation du MVP. Voir `docs/specs/2026-05-11-mvp-rebuild-plan.md`.
+| Indicateur | Valeur |
+|---|---|
+| Collection Qdrant | `tomai_educational_v2` (5238 points uniques) |
+| Niveaux couverts | 6e, 5e, 4e, 3e (collège complet) |
+| Matières | 16 (tronc commun + LV + arts + EPS + sciences-techno) |
+| Coverage sections BO | **100 %** sur toutes les matières (audit vérifié, sans faux positif) |
+| Retrieval Recall@5 | 0.75 / MRR 0.90 sur golden 69 questions |
+| Tests | 64 pass · ruff clean |
 
-## Structure
+## Architecture
 
 ```
+schema/
+├── document.py        Pydantic Chunk + dérivation niveaux + MATIERE_LABELS
+├── bm25.py            Tokenizer FR + FNV-1a (parité stricte avec backend)
+├── contextual.py      Préfixe contextuel hiérarchique (gratuit, sans LLM)
+└── retrieval.py       Accès Mistral/Qdrant partagé (embed, hybrid_search, L2 normalize)
+
+scripts/
+├── extract_pdfs.py        PDF → markdown via pymupdf4llm (vrais H2)
+├── ingest.py              .md → chunks → embeddings L2 → sparse BM25 → upsert
+├── migrate_collection.py  Création v2 (named vectors + indexes) + alias swap
+├── query.py               Test interactif retrieval (chunks bruts, pas de LLM)
+├── evaluate.py            Métriques retrieval déterministes (Recall@k, MRR)
+├── audit_coverage.py      % titres BO indexés + `--list-missing` debug
+└── veille_programmes.py   Détecte changements BO (data.gouv + Légifrance)
+
 data/
-├── raw/
-│   └── sources_officielles.md         # Liens Éduscol et structure programmes
-└── processed/
-    └── college/cinquieme/<matiere>.jsonl
+├── raw/                   PDFs + markdowns sources + manifest data.gouv
+└── golden/                Questions de test + résultats eval (versionnés)
 
-docs/
-├── adr/                # Décisions architecturales versionnées (0001-0005)
-├── programmes/
-│   ├── PROGRAMME_5EME.md
-│   └── CALENDRIER_REFORMES.md
-├── specs/              # Specs design (mai 2026 RAG overhaul + MVP rebuild)
-└── audits/             # Rapports baseline (post Phase C)
+docs/adr/                  Décisions architecturales (0001-0007)
 ```
 
-## Format JSONL
-
-Chaque ligne est un document JSON validé Pydantic (`schema/document.py`) :
-
-```json
-{
-  "title": "Théorème de Pythagore - Énoncé",
-  "niveau": "cinquieme",
-  "matiere": "mathematiques",
-  "domaine": "Géométrie",
-  "sousdomaine": "Triangles",
-  "content_type": "theoreme",
-  "difficulty": "standard",
-  "content": "Dans un triangle rectangle...",
-  "keywords": ["pythagore", "triangle rectangle"],
-  "typical_questions": ["Comment calculer l'hypoténuse ?"],
-  "prerequis": ["Triangle rectangle"]
-}
-```
-
-## CLI
+## Quickstart
 
 ```bash
-# Validation et stats
-uv run python scripts/cli.py validate
-uv run python scripts/cli.py stats
+# 1. Setup
+cp .env.example .env       # MISTRAL_API_KEY, QDRANT_URL, QDRANT_API_KEY
+uv sync --all-extras
 
-# Ingestion Qdrant (3 phases idempotentes)
-uv run python scripts/ingest.py run
+# 2. Extraire les PDFs en markdown (idempotent)
+uv run python scripts/extract_pdfs.py
 
-# Gap analysis vs PROGRAMME_5EME.md
-uv run python scripts/audit_coverage.py
+# 3. Créer la collection Qdrant cible
+uv run python scripts/migrate_collection.py
+
+# 4. Ingérer (chunking + embeddings + upsert)
+uv run python scripts/ingest.py
+
+# 5. Tester le retrieval
+uv run python scripts/query.py "Théorème de Pythagore" --matiere=mathematiques --niveau=quatrieme
+
+# 6. Vérifier la qualité
+uv run python scripts/audit_coverage.py              # coverage par matière
+uv run python scripts/audit_coverage.py --list-missing  # titres BO non couverts
+uv run python scripts/evaluate.py --by-matiere       # retrieval Recall@k / MRR
+
+# 7. Veille BO
+uv run python scripts/veille_programmes.py
 ```
 
-Détails dans `CLAUDE.md`.
-
-## Souveraineté EU
-
-Aucun SaaS/SDK runtime hors UE. Pipeline 100% Mistral + Qdrant Cloud EU + Scaleway. RGPD-compatible.
-
-## Veille programmes Éduscol
-
-Les programmes changent régulièrement (réforme cycle 3 en 2025-2028). Stratégie de veille à 4 couches documentée dans `docs/adr/0005-eduscol-veille-strategy.md` et calendrier anticipé dans `docs/programmes/CALENDRIER_REFORMES.md`.
-
-## Récupération état pre-MVP
-
-L'état détaillé avant la refonte (1854 docs / 7 niveaux) reste accessible :
+## Qualité & CI
 
 ```bash
-# Browse l'état archivé
-git checkout archive/pre-mvp-refonte
-
-# Cherry-pick d'un fichier précis sans switch
-git checkout archive/pre-mvp-refonte -- data/processed/college/sixieme/
+uv run ruff check schema/ scripts/ tests/
+uv run ruff format schema/ scripts/ tests/
+RUN_MISTRAL_TOKENIZER_TESTS=1 uv run pytest tests/
 ```
 
-## Sources Officielles
+GitHub Actions :
+- `ci.yml` — lint + tests à chaque PR / push main
+- `veille_bo.yml` — veille Eduscol hebdomadaire (issue GitHub si changement)
 
-- **Éduscol** : https://eduscol.education.gouv.fr/
-- **Bulletin Officiel** : https://www.education.gouv.fr/le-bulletin-officiel-de-l-education-nationale-de-la-jeunesse-et-des-sports
-- **Légifrance API** (arrêtés MENE*) : https://api.gouv.fr/les-api/legifrance-api
-- BO en vigueur pour la 5ème : BO 30/07/2020 (commun), BO 13/06/2024 (EMC), BO 29/02/2024 (Technologie)
+## Sources officielles
+
+- **Éduscol** : <https://eduscol.education.gouv.fr/>
+- **Bulletin Officiel** : <https://www.education.gouv.fr/pid285/bulletin_officiel.html>
+- **Manifest data.gouv** : `data/raw/programmes_second_degre_datagouv.json`
+- **Légifrance PISTE** : <https://piste.gouv.fr> (option, pour veille temps réel)
+
+Inventaire détaillé des fichiers et URLs : `data/raw/sources_officielles.md`.
 
 ## License
 
-MIT — contenu pédagogique adapté des programmes officiels de l'Éducation Nationale française.
+MIT — contenu pédagogique extrait des programmes officiels (domaine public,
+Open Etalab pour les annexes Eduscol).
