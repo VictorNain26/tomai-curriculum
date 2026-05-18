@@ -1,11 +1,53 @@
-from .document import Chunk, Cycle, Matiere, Niveau, NiveauCollege, NiveauLycee, cycle_from_niveau
+from .bm25 import SparseVector, to_sparse_vector, tokenize_fr
+from .contextual import build_contextual_text
+from .document import (
+    MATIERE_LABELS,
+    Chunk,
+    Cycle,
+    Matiere,
+    Niveau,
+    NiveauCollege,
+    NiveauLycee,
+    cycle_from_niveau,
+    derive_niveaux_from_file,
+)
+from .retrieval import (
+    DEFAULT_TOP_K,
+    EMBEDDING_DIM,
+    EMBEDDING_MODEL,
+    HybridResult,
+    embed_batch,
+    embed_query,
+    get_collection_name,
+    get_mistral_client,
+    get_qdrant_client,
+    hybrid_search,
+    l2_normalize,
+)
 
 __all__ = [
+    "DEFAULT_TOP_K",
+    "EMBEDDING_DIM",
+    "EMBEDDING_MODEL",
+    "MATIERE_LABELS",
     "Chunk",
     "Cycle",
+    "HybridResult",
     "Matiere",
     "Niveau",
     "NiveauCollege",
     "NiveauLycee",
+    "SparseVector",
+    "build_contextual_text",
     "cycle_from_niveau",
+    "derive_niveaux_from_file",
+    "embed_batch",
+    "embed_query",
+    "get_collection_name",
+    "get_mistral_client",
+    "get_qdrant_client",
+    "hybrid_search",
+    "l2_normalize",
+    "to_sparse_vector",
+    "tokenize_fr",
 ]
