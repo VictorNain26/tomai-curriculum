@@ -1,0 +1,15 @@
+﻿Programme de mathématiques pour le cycle 4
+
+Nombres et calculs
+
+Les élèves approfondissent la connaissance des nombres rationnels positifs et négatifs.
+Ils étudient les puissances entières positives, négatives et nulles d'un nombre relatif.
+La notion de proportion et de pourcentage est approfondie et généralisée au cycle 4.
+Le calcul littéral est introduit pour exprimer des relations générales entre grandeurs.
+
+Espace et géométrie
+
+Les élèves étudient les triangles, les quadrilatères et les cercles dans le plan.
+Ils apprennent à calculer des aires et des volumes de solides usuels du cycle 4.
+La géométrie vectorielle est introduite progressivement en classe de quatrième et troisième.
+Les transformations géométriques incluent la translation, la rotation et la symétrie centrale.

@@ -1,185 +1,72 @@
-# Sources Officielles - Programmes Scolaires Français
+# Sources officielles des programmes scolaires
 
-## Contexte
+Fichiers `.txt` extraits avec `pdftotext -enc UTF-8 -layout`.  
+PDFs exclus du repo git (`.gitignore`), `.txt` seuls versionnés.  
+PDFs régénérables via les URLs ci-dessous.
 
-- **Programme en vigueur 2024-2025** : Bulletin Officiel du 30 juillet 2020
-- **Nouveaux programmes Cycle 4** : En consultation (application progressive 2026-2029)
-- **Niveau ciblé** : 5ème (Cycle 4 - première année)
+## Cycle 3 (CM1-CM2-6ème)
 
----
+| Fichier | Date BO | URL |
+|---------|---------|-----|
+| `programme_cycle3_BO2020.txt` | 30/07/2020 | `https://cache.media.education.gouv.fr/file/31/88/7/ensel714_annexe2_1312887.pdf` |
 
-## Matières Adaptées au Tutorat IA pour la 5ème
+## Cycle 4 (5ème-4ème-3ème)
 
-### 1. MATHÉMATIQUES ⭐⭐⭐ (Très adapté)
+| Fichier | Date BO | URL |
+|---------|---------|-----|
+| `programme_cycle4_BO2020.txt` | 30/07/2020 | `https://cache.media.education.gouv.fr/file/31/89/1/ensel714_annexe3_1312891.pdf` |
+| `programme_maths_cycle4_BO2026.txt` | 05/03/2026 | `https://www.education.gouv.fr/sites/default/files/document/Annexe%202%20%E2%80%93%20Programme%20de%20math%C3%A9matiques%20pour%20le%20cycle%204-480716.pdf` |
+| `programme_technologie_cycle4_BO2024.txt` | 29/02/2024 | `https://www.education.gouv.fr/sites/default/files/document/Annexe%20%E2%80%94%20Programme%20de%20technologie%20du%20cycle%204-368016.pdf` |
 
-**Sources officielles :**
-- Eduscol Maths Cycle 4 : https://eduscol.education.fr/280/mathematiques-cycle-4
-- Attendus fin 5ème : https://eduscol.education.fr/document/14044/download
-- Repères progression : https://eduscol.education.fr/document/14080/download
+## Langues vivantes — Collège (BO n°22 du 29 mai 2025)
 
-**Domaines du programme :**
+Arrêté du 5 mai 2025, NOR MENE2504621A. Applicable 5e à rentrée 2026-2027.  
+Source : mirror reforme.education (education.gouv.fr bloque curl via Cloudflare).
 
-#### Nombres et Calculs
-- Enchaînement d'opérations (priorités opératoires)
-- Nombres relatifs (introduction, addition, soustraction)
-- Fractions (comparaison, addition, soustraction avec dénominateurs multiples)
-- Division euclidienne et divisibilité
-- Multiples et diviseurs
-- Calcul littéral (expressions, distributivité simple)
+| Fichier | Langue | URL |
+|---------|--------|-----|
+| `programme_anglais_college_BO2025.txt` | Anglais | `https://reforme.education/app/uploads/2025/05/prog-college-anglais.pdf` |
+| `programme_espagnol_college_BO2025.txt` | Espagnol | `https://reforme.education/app/uploads/2025/05/prog-college-espagnol.pdf` |
+| `programme_allemand_college_BO2025.txt` | Allemand | `https://reforme.education/app/uploads/2025/05/prog-college-allemand.pdf` |
+| `programme_italien_college_BO2025.txt` | Italien | `https://reforme.education/app/uploads/2025/05/prog-college-italien.pdf` |
 
-#### Géométrie
-- Triangles (inégalité triangulaire, somme des angles, hauteurs, médiatrices)
-- Symétrie axiale (rappels)
-- Symétrie centrale (nouvelle notion)
-- Parallélogrammes (définition, propriétés)
-- Angles et parallélisme
+## Dataset data.gouv.fr
 
-#### Grandeurs et Mesures
-- Périmètres et aires
-- Prisme droit et cylindre (patrons, volumes)
+| Fichier | URL | Mis à jour |
+|---------|-----|------------|
+| `programmes_second_degre_datagouv.json` | `https://www.data.gouv.fr/api/1/datasets/programmes-denseignement-du-second-degre/` | 02/02/2026 |
 
-#### Organisation et Gestion de Données
-- Proportionnalité (coefficient, règle de trois)
-- Pourcentages
-- Statistiques (moyenne, effectifs)
+## Veille automatique (Légifrance PISTE)
 
-#### Algorithmique
-- Programmation Scratch
+Générés par `scripts/veille_programmes.py` (GitHub Action hebdomadaire) :
+- `.veille_state.json` : IDs JOs déjà vus, date dernier check
+- `.veille_changes.json` : arrêtés programme détectés au dernier run
 
----
+Credentials → GitHub Secrets `PISTE_CLIENT_ID` / `PISTE_CLIENT_SECRET`.
 
-### 2. FRANÇAIS ⭐⭐⭐ (Très adapté)
+## Régénération des PDFs
 
-**Sources officielles :**
-- Eduscol Français Cycle 4 : https://eduscol.education.fr/3866/francais-cycle-4
-- Étude de la langue : https://eduscol.education.fr/328/francais-au-cycle-4-etude-de-la-langue
+```bash
+# Cycle 3/4 (cache.media, pas de Cloudflare)
+curl -L -o data/raw/programme_cycle3_BO2020.pdf \
+  "https://cache.media.education.gouv.fr/file/31/88/7/ensel714_annexe2_1312887.pdf"
+curl -L -o data/raw/programme_cycle4_BO2020.pdf \
+  "https://cache.media.education.gouv.fr/file/31/89/1/ensel714_annexe3_1312891.pdf"
 
-**Domaines du programme :**
+# Maths/Techno (education.gouv.fr/sites)
+curl -L -o data/raw/programme_maths_cycle4_BO2026.pdf \
+  "https://www.education.gouv.fr/sites/default/files/document/Annexe%202%20%E2%80%93%20Programme%20de%20math%C3%A9matiques%20pour%20le%20cycle%204-480716.pdf"
+curl -L -o data/raw/programme_technologie_cycle4_BO2024.pdf \
+  "https://www.education.gouv.fr/sites/default/files/document/Annexe%20%E2%80%94%20Programme%20de%20technologie%20du%20cycle%204-368016.pdf"
 
-#### Thèmes littéraires
-1. **Se chercher, se construire** : "Le voyage et l'aventure"
-   - Récits de voyage
-   - Romans d'aventure
+# LVE (mirror)
+for lang in anglais espagnol allemand italien; do
+  curl -L -o "data/raw/programme_${lang}_college_BO2025.pdf" \
+    "https://reforme.education/app/uploads/2025/05/prog-college-${lang}.pdf"
+done
 
-2. **Vivre en société** : "Avec autrui : familles, amis, réseaux"
-   - Récits d'apprentissage
-   - Comédie du XVIIe siècle
-
-3. **Regarder le monde** : "Imaginer des univers nouveaux"
-   - Contes merveilleux
-   - Utopies
-
-4. **Agir sur le monde** : "Héros, héroïnes, héroïsmes"
-   - Romans de chevalerie
-   - Héros mythologiques
-
-#### Grammaire
-- Phrase (constituants, types, formes)
-- Fonctions (sujet, compléments, attribut)
-- Classes de mots (verbe, nom, déterminants, adjectifs, pronoms)
-
-#### Conjugaison
-- Indicatif (présent, futur, imparfait, passé simple)
-- Conditionnel présent
-- Impératif
-- Subjonctif présent
-- Temps composés
-
-#### Orthographe
-- Accords (sujet-verbe, dans le GN)
-- Homophones grammaticaux
-
----
-
-### 3. PHYSIQUE-CHIMIE ⭐⭐ (Adapté)
-
-**Sources officielles :**
-- Eduscol PC Cycle 4 : https://eduscol.education.fr/296/physique-chimie-cycle-4
-- Projet programme 2025 : https://www.education.gouv.fr/media/228616/download
-
-**Domaines du programme (spécifiques 5ème) :**
-
-#### L'eau dans notre environnement
-- L'eau dans l'environnement
-- Mélanges homogènes et corps purs
-- Changements d'état de l'eau
-- L'eau solvant
-
-#### Les circuits électriques
-- Circuit électrique simple
-- Circuit en série
-- Circuit avec dérivation
-
-#### La lumière
-- Sources lumineuses
-- Propagation rectiligne de la lumière
-
----
-
-### 4. SVT ⭐⭐ (Adapté)
-
-**Sources officielles :**
-- Eduscol SVT Cycle 4 : https://eduscol.education.fr/293/sciences-de-la-vie-et-de-la-terre-cycle-4
-- Projet programme 2025 : https://www.education.gouv.fr/media/228618/download
-
-**Domaines du programme (spécifiques 5ème) :**
-
-#### La planète Terre
-- Atmosphère terrestre
-- Cycle de l'eau
-- Météo et climat
-
-#### Le vivant et son évolution
-- Unicellulaires vs pluricellulaires
-- Métabolisme respiratoire
-
-#### Corps humain et santé
-- Activité physique et effort
-- Système nerveux (introduction)
-- Vaccination (introduction)
-
----
-
-### 5. ANGLAIS ⭐⭐ (Adapté)
-
-**Sources officielles :**
-- Eduscol LV Cycles 2-3-4 : https://eduscol.education.fr/164/langues-vivantes-cycles-2-3-et-4
-- Programme cycle 4 : BO n°31 du 30 juillet 2020
-
-**Niveau visé : A2 (minimum) vers B1**
-
-#### Grammaire
-- Temps du présent (simple, continu)
-- Passé simple (preterit)
-- Present perfect (introduction)
-- Futur (will, going to)
-- Modaux (can, must, should)
-
-#### Thématiques culturelles
-- École et vie quotidienne
-- Voyages et découvertes
-- Société et relations
-
----
-
-## Matières Moins Adaptées au Tutorat IA
-
-### Histoire-Géographie ⭐
-- Nécessite beaucoup de mémorisation factuelle
-- Moins de "problèmes" à résoudre
-- Utile pour quiz/révisions mais moins pour tutorat socratique
-
-### Éducation Musicale / Arts Plastiques
-- Pratique artistique difficile via IA
-
-### EPS
-- Activité physique non simulable
-
----
-
-## Notes Méthodologiques
-
-1. **Priorité** : Maths > Français > Physique-Chimie > SVT > Anglais
-2. **Format RAG** : Privilégier les notions/méthodes sur les exercices
-3. **Granularité** : 1 document = 1 notion autonome (~200-500 tokens)
-4. **Validation** : Croiser avec plusieurs sources avant création JSONL
+# Extraction texte
+for pdf in data/raw/*.pdf; do
+  pdftotext -enc UTF-8 -layout "$pdf" "${pdf%.pdf}.txt"
+done
+```

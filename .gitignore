@@ -74,5 +74,8 @@ data/golden/*_smoke_test.json
 # Cache embeddings (régénérable)
 data/embeddings_cache/
 
+# PDFs sources programmes (régénérables via veille_programmes.py + URLs dans sources_officielles.md)
+data/raw/*.pdf
+
 # Eval runs historiques (résultats horodatés)
 eval_runs/

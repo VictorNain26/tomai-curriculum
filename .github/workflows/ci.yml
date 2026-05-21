@@ -44,4 +44,8 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Tests (pytest)
+        env:
+          # Active le test chunk_text qui charge le tokenizer Mistral (~500 MB).
+          # Coût CI tolérable car le tokenizer reste en cache uv cross-run.
+          RUN_MISTRAL_TOKENIZER_TESTS: "1"
         run: uv run pytest tests/ -q

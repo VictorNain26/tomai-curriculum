@@ -1,403 +1,617 @@
 #!/usr/bin/env python3
 """
-Pipeline d'ingestion Qdrant pour le dataset TomAI — 3 phases découplées.
+Pipeline RAG — ingestion des programmes officiels Eduscol dans Qdrant v2.
 
-Architecture refactor B (mai 2026) :
-- `embed` : charge JSONL, calcule content_hash, génère embeddings Mistral
-  par batch=50, cache localement par (model_version, content_hash).
-- `upsert` : lit le cache, upsert vers Qdrant. ID = uuid5(content_hash).
-  Si le point existe déjà avec le même content_hash, set_payload sans
-  recompute du vecteur (gain coût Mistral).
-- `prune` : supprime de Qdrant les points dont (niveau, matiere, title) n'existe
-  plus dans les JSONL locaux (orphelins).
-- `run` : orchestrateur embed → upsert → prune.
-- `status` : statistiques de la collection.
+Flux :
+  data/raw/*.txt
+    → load_source_text()       # extraction section matière par regex
+    → chunk_text()              # RecursiveChunker rules markdown + tokenizer Mistral
+    → expand_for_niveaux()      # 1 chunk × N niveaux du cycle (duplication payload)
+    → validate_chunks()         # Pydantic Chunk → payload Qdrant
+    → embed_chunks()            # mistral-embed batch 50 + normalisation L2
+    → build_sparse_vectors()    # BM25 indices/values (parité backend rag.service.ts)
+    → upsert_to_qdrant()        # named vectors {dense, bm25} + uuid5 idempotent
 
-Les helpers (hashing, cache, payload, Qdrant ops) sont dans `ingest_lib.py`
-pour respecter la limite 400 lignes/fichier du monorepo Tom.
-
-Sources :
-- https://docs.mistral.ai/api (embeddings, prompt_cache_key)
-- https://qdrant.tech/articles/sparse-vectors (hybrid search Qdrant)
-- https://qdrant.tech/documentation/concepts/indexing/ (payload indexes)
+Usage :
+  uv run python scripts/ingest.py                    # ingestion complète
+  uv run python scripts/ingest.py --dry-run          # affiche chunks sans upserter
+  uv run python scripts/ingest.py --matiere=mathematiques
+  uv run python scripts/ingest.py --status           # état collection
 """
 
-import sys
-from pathlib import Path
-from typing import Annotated
+from __future__ import annotations
 
-# Forcer stdout/stderr en UTF-8 sur Windows (cp1252 par défaut ne supporte pas ✓ → etc.)
+import argparse
+import hashlib
+import os
+import re
+import sys
+import time
+import uuid as _uuid
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+from schema import (
+    Chunk,
+    Matiere,
+    NiveauCollege,
+    NiveauLycee,
+    build_contextual_text,
+    derive_niveaux_from_file,
+    embed_batch,
+    get_qdrant_client,
+    to_sparse_vector,
+)
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
-if hasattr(sys.stderr, "reconfigure"):
-    sys.stderr.reconfigure(encoding="utf-8")
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-import typer  # noqa: E402
-from dotenv import load_dotenv  # noqa: E402
-from mistralai import Mistral  # noqa: E402
-from qdrant_client import QdrantClient  # noqa: E402
-from qdrant_client.models import (  # noqa: E402
-    FieldCondition,
-    Filter,
-    HasIdCondition,
-    MatchValue,
-    PointStruct,
-)
-from rich import print as rprint  # noqa: E402
-from rich.console import Console  # noqa: E402
-from rich.progress import Progress, SpinnerColumn, TextColumn  # noqa: E402
-
-from schema.document import Matiere, NiveauCollege, NiveauLycee  # noqa: E402
-from scripts.ingest_lib import (  # noqa: E402
-    COLLECTION_DEFAULT,
-    EMBEDDING_BATCH_SIZE,
-    EMBEDDING_MODEL,
-    _cache_path,
-    append_to_cache,
-    compute_content_hash,
-    create_embedding_text,
-    create_payload,
-    doc_id_from_hash,
-    fetch_existing_hashes,
-    find_orphans,
-    generate_embeddings_batch,
-    load_documents,
-    load_embedding_cache,
-    normalize_vector,
-)
-from scripts.utils import get_all_jsonl_files  # noqa: E402
-
-# Re-exports pour les tests qui importent depuis scripts.ingest.
-__all__ = [
-    "app",
-    "compute_content_hash",
-    "doc_id_from_hash",
-    "normalize_vector",
-    "load_documents",
-    "load_embedding_cache",
-    "append_to_cache",
-    "create_embedding_text",
-    "generate_embeddings_batch",
-    "create_payload",
-    "fetch_existing_hashes",
-    "find_orphans",
-]
 
 load_dotenv()
 
-app = typer.Typer(name="ingest", help="Pipeline d'ingestion Qdrant 3 phases")
-console = Console()
+BASE = Path(__file__).parent.parent
+RAW = BASE / "data" / "raw"
+
+COLLECTION = os.environ.get("QDRANT_COLLECTION", "tomai_educational")
+
+# Batch d'upsert : Qdrant Cloud peut timeout sur des payloads >20 MB en une
+# seule requête. 200 points × ~5 KB ≈ 1 MB par batch — confortable.
+UPSERT_BATCH_SIZE = 200
+
+# ── Sources : fichier → matière + extraction section ─────────────────────────
 
 
-# =============================================================================
-# Commands : embed
-# =============================================================================
-
-
-@app.command()
-def embed(
-    niveau: Annotated[str | None, typer.Option(help="Filtrer par niveau")] = None,
-    matiere: Annotated[str | None, typer.Option(help="Filtrer par matière")] = None,
-    mistral_api_key: Annotated[str | None, typer.Option(envvar="MISTRAL_API_KEY")] = None,
-    force: Annotated[
-        bool, typer.Option("--force", help="Ignorer le cache (re-embed tout)")
-    ] = False,
-):
+def _markdown_matiere_sources(
+    file: str,
+    document_order: list[tuple[Matiere | None, str]],
+    *,
+    exclude: set[Matiere] | None = None,
+) -> list[dict]:
     """
-    Phase 1 : génère les embeddings et les écrit dans le cache local.
+    Génère les SOURCES pour un fichier markdown multi-matières.
 
-    Idempotent : un document déjà en cache (même content_hash) n'est pas
-    re-embeddé. Coût Mistral épargné sur les re-runs.
+    Chaque entrée extrait la section comprise entre `## **Matière**` et le
+    `## **MatièreSuivante**` (calculé depuis l'ORDRE RÉEL du document, pour
+    que section_end pointe sur la bonne frontière même si une matière est
+    exclue de l'extraction).
+
+    Args
+    ----
+    file : nom du fichier source (sans extension).
+    document_order : [(Matiere | None, label), ...] dans l'ordre exact des
+        `## **Titre**` markdown. Une matière=None marque une section présente
+        dans le doc mais qu'on ne veut pas indexer (sentinelle pour section_end
+        seulement).
+    exclude : matières listées dans document_order à NE PAS matérialiser
+        (typique : version BO obsolète remplacée par un fichier dédié plus
+        récent). Conservées dans document_order pour calculer section_end.
     """
-    if not mistral_api_key:
-        rprint("[red]MISTRAL_API_KEY requis[/red]")
-        raise typer.Exit(1)
+    exclude = exclude or set()
+    sources = []
+    for i, (matiere, label) in enumerate(document_order):
+        if matiere is None or matiere in exclude:
+            continue
+        start = rf"^## \*\*{re.escape(label)}\*\*"
+        # section_end = la prochaine entrée du document_order (peu importe
+        # qu'elle soit exclue ou non — on veut juste savoir où s'arrête la
+        # section courante dans le PDF).
+        if i + 1 < len(document_order):
+            next_labels = [re.escape(lbl) for _, lbl in document_order[i + 1 :]]
+            end: str | None = r"^## \*\*(?:" + "|".join(next_labels) + r")\*\*"
+        else:
+            end = None
+        sources.append(
+            {
+                "file": file,
+                "matiere": matiere,
+                "section_pattern": start,
+                "section_end": end,
+                "blank_line_after_header": False,  # markdown H2 = pas d'ambiguïté TOC
+                "section_name": label,
+            }
+        )
+    return sources
 
-    rprint("\n[bold cyan]Phase 1 : embeddings[/bold cyan]")
-    files = get_all_jsonl_files(niveau, matiere)
-    if not files:
-        rprint("[yellow]Aucun fichier JSONL trouvé.[/yellow]")
-        raise typer.Exit(0)
 
-    documents = load_documents(files)
-    rprint(f"   {len(documents)} documents chargés")
+# Matières du programme cycle 3 BO 2020 — ordre des `## **Titre**` dans le .md
+_CYCLE3_DOCUMENT_ORDER: list[tuple[Matiere | None, str]] = [
+    (Matiere.FRANCAIS, "Français"),
+    (Matiere.LANGUES_VIVANTES, "Langues vivantes (étrangères ou régionales)"),
+    (Matiere.ARTS_PLASTIQUES, "Arts plastiques"),
+    (Matiere.EDUCATION_MUSICALE, "Éducation musicale"),
+    (Matiere.HISTOIRE_DES_ARTS, "Histoire des arts"),
+    (Matiere.EDUCATION_PHYSIQUE_SPORTIVE, "Éducation physique et sportive"),
+    (Matiere.EMC, "Enseignement moral et civique"),
+    (Matiere.HISTOIRE_GEO, "Histoire et géographie"),
+    (Matiere.SCIENCES_TECHNOLOGIE, "Sciences et technologie"),
+    (Matiere.MATHEMATIQUES, "Mathématiques"),
+]
 
-    cache = {} if force else load_embedding_cache()
-    if cache:
-        rprint(f"   [dim]{len(cache)} vecteurs déjà en cache[/dim]")
+# Matières du programme cycle 4 BO 2020 — ordre EXACT du document .md
+# (utilisé pour calculer section_end). Maths & Techno présents dans la liste
+# mais exclus de l'extraction (superseded par programme_maths_cycle4_BO2026 et
+# programme_technologie_cycle4_BO2024 — sinon doublon).
+_CYCLE4_DOCUMENT_ORDER: list[tuple[Matiere | None, str]] = [
+    (Matiere.FRANCAIS, "Français"),
+    (Matiere.LANGUES_VIVANTES, "Langues vivantes (étrangères ou régionales)"),
+    (Matiere.ARTS_PLASTIQUES, "Arts plastiques"),
+    (Matiere.EDUCATION_MUSICALE, "Éducation musicale"),
+    (Matiere.HISTOIRE_DES_ARTS, "Histoire des arts"),
+    (Matiere.EDUCATION_PHYSIQUE_SPORTIVE, "Éducation physique et sportive"),
+    (Matiere.EMC, "Enseignement moral et civique"),
+    (Matiere.HISTOIRE_GEO, "Histoire et géographie"),
+    (Matiere.PHYSIQUE_CHIMIE, "Physique-Chimie"),
+    (Matiere.SVT, "Sciences de la vie et de la Terre"),
+    (Matiere.TECHNOLOGIE, "Technologie"),  # exclu, sentinelle section_end
+    (Matiere.MATHEMATIQUES, "Mathématiques"),  # exclu, sentinelle section_end
+]
+_CYCLE4_EXCLUDE: set[Matiere] = {Matiere.TECHNOLOGIE, Matiere.MATHEMATIQUES}
 
-    to_embed = [d for d in documents if d["content_hash"] not in cache]
-    if not to_embed:
-        rprint("   [green]✓ Tous les vecteurs sont déjà en cache, rien à faire[/green]")
+
+SOURCES: list[dict] = [
+    # ── Fichiers mono-matière (tout le fichier — .md préféré au .txt) ──
+    {
+        "file": "programme_maths_cycle4_BO2026",
+        "matiere": Matiere.MATHEMATIQUES,
+        "section_pattern": None,
+        "section_name": "Mathématiques",
+    },
+    {
+        "file": "programme_technologie_cycle4_BO2024",
+        "matiere": Matiere.TECHNOLOGIE,
+        "section_pattern": None,
+        "section_name": "Technologie",
+    },
+    {
+        "file": "programme_anglais_college_BO2025",
+        "matiere": Matiere.ANGLAIS,
+        "section_pattern": None,
+        "section_name": "Anglais",
+    },
+    {
+        "file": "programme_espagnol_college_BO2025",
+        "matiere": Matiere.ESPAGNOL,
+        "section_pattern": None,
+        "section_name": "Espagnol",
+    },
+    {
+        "file": "programme_allemand_college_BO2025",
+        "matiere": Matiere.ALLEMAND,
+        "section_pattern": None,
+        "section_name": "Allemand",
+    },
+    {
+        "file": "programme_italien_college_BO2025",
+        "matiere": Matiere.ITALIEN,
+        "section_pattern": None,
+        "section_name": "Italien",
+    },
+    # ── Programmes BO 2020 multi-matières (extraction par H2 markdown) ──
+    *_markdown_matiere_sources(
+        "programme_cycle4_BO2020",
+        _CYCLE4_DOCUMENT_ORDER,
+        exclude=_CYCLE4_EXCLUDE,
+    ),
+    *_markdown_matiere_sources("programme_cycle3_BO2020", _CYCLE3_DOCUMENT_ORDER),
+]
+
+
+# ── Extraction texte ─────────────────────────────────────────────────────────
+
+
+def extract_section(
+    text: str,
+    start_pattern: str,
+    end_pattern: str | None,
+    blank_line_after_header: bool = False,
+) -> str:
+    """
+    Extrait une section entre start_pattern et end_pattern.
+
+    lstrip('\\x0c').rstrip() au lieu de strip() :
+    - Retire les form feeds (\\x0c) pdftotext sans toucher les espaces de début
+    - Les faux positifs indentés dans les tableaux ne matchent plus
+      (ex: "         Histoire" dans une colonne ne matche pas r"^Histoire")
+
+    blank_line_after_header=True : ignore les occurrences du start_pattern qui
+    ne sont PAS suivies d'une ligne vide (= entrées de table des matières).
+    """
+    lines = text.split("\n")
+    in_section = False
+    section_lines: list[str] = []
+
+    for i, line in enumerate(lines):
+        check = line.lstrip("\x0c").rstrip()
+        if not in_section:
+            if re.match(start_pattern, check):
+                if blank_line_after_header:
+                    next_check = lines[i + 1].strip() if i + 1 < len(lines) else ""
+                    if next_check:
+                        continue  # ligne suivante non vide → entrée de TOC
+                in_section = True
+                section_lines.append(line)
+        else:
+            if end_pattern and re.match(end_pattern, check):
+                break
+            section_lines.append(line)
+
+    return "\n".join(section_lines)
+
+
+def load_source_text(source: dict) -> str:
+    """
+    Charge et extrait le texte d'une source. Préfère .md (pymupdf4llm — vraies
+    sections H2) à .txt (pdftotext — flat). Lève une erreur si section
+    introuvable.
+    """
+    md_path = RAW / f"{source['file']}.md"
+    txt_path = RAW / f"{source['file']}.txt"
+    if md_path.exists():
+        path = md_path
+    elif txt_path.exists():
+        path = txt_path
+    else:
+        raise FileNotFoundError(
+            f"Aucun fichier source pour {source['file']} (cherché .md puis .txt dans {RAW})"
+        )
+
+    # errors='replace' : pdftotext peut produire des octets invalides en UTF-8
+    text = path.read_text(encoding="utf-8", errors="replace")
+
+    if source.get("section_pattern"):
+        extracted = extract_section(
+            text,
+            source["section_pattern"],
+            source.get("section_end"),
+            blank_line_after_header=source.get("blank_line_after_header", False),
+        )
+        if len(extracted.strip()) < 200:
+            raise ValueError(
+                f"Section '{source['section_name']}' introuvable dans {path.name} "
+                f"(pattern: {source['section_pattern']}). "
+                f"Vérifier le formatage du fichier source."
+            )
+        return extracted.strip()
+
+    return text.strip()
+
+
+# ── Chunking : RecursiveChunker avec tokenizer Mistral ───────────────────────
+
+
+_MISTRAL_TOKENIZER = None
+
+
+def _get_mistral_token_counter():
+    """
+    Retourne un callable `str -> int` qui compte les vrais tokens Mistral.
+
+    Lazy import + lazy init : mistral_common charge ~500MB de tokenizer state,
+    on ne le charge qu'au premier appel du chunker.
+    """
+    global _MISTRAL_TOKENIZER
+    if _MISTRAL_TOKENIZER is None:
+        from mistral_common.tokens.tokenizers.mistral import MistralTokenizer
+
+        _MISTRAL_TOKENIZER = MistralTokenizer.v3()
+
+    def counter(text: str) -> int:
+        return len(
+            _MISTRAL_TOKENIZER.instruct_tokenizer.tokenizer.encode(text, bos=False, eos=False)
+        )
+
+    return counter
+
+
+def chunk_text(text: str, source: dict) -> list[dict]:
+    """
+    Découpe le texte en chunks avec chonkie RecursiveChunker.
+
+    Règles de découpe en cascade (Chonkie RecursiveRules) :
+    1. Titres markdown (`\\n## `, `\\n### `) → garde le titre AVANT le chunk suivant
+    2. Paragraphes (`\\n\\n`) → garde la fin du paragraphe à la fin du chunk
+    3. Phrases (`. `, `! `, `? `) → fin de phrase à la fin du chunk
+    4. Mots (whitespace) → fallback ultime
+
+    chunk_size=400 = 400 tokens Mistral vrais (et non 400 caractères comme avant).
+    """
+    from chonkie import RecursiveChunker, RecursiveLevel, RecursiveRules
+
+    rules = RecursiveRules(
+        levels=[
+            RecursiveLevel(delimiters=["\n## ", "\n### "], include_delim="next"),
+            RecursiveLevel(delimiters=["\n\n"], include_delim="prev"),
+            RecursiveLevel(delimiters=[". ", "! ", "? "], include_delim="prev"),
+            RecursiveLevel(whitespace=True),
+        ]
+    )
+
+    chunker = RecursiveChunker(
+        # Chonkie 1.6 : `tokenizer` accepte un Callable[[str], int] via
+        # CallableAutoTokenizer. Sûr ici car nos `rules` couvrent tous les niveaux
+        # avec delimiters/whitespace — le fallback encode/decode (non implémenté
+        # pour callables) n'est jamais déclenché.
+        tokenizer=_get_mistral_token_counter(),
+        chunk_size=400,  # tokens Mistral vrais
+        rules=rules,
+        min_characters_per_chunk=100,
+    )
+
+    raw_chunks = chunker(text)
+    result = []
+    for i, c in enumerate(raw_chunks):
+        chunk_text_val = c.text.strip()
+        if len(chunk_text_val) < 50:
+            continue
+        result.append(
+            {
+                "text": chunk_text_val,
+                "source_file": source["file"],
+                "matiere": source["matiere"].value,
+                "section": source["section_name"],
+                "chunk_index": i,
+            }
+        )
+    return result
+
+
+# ── Expansion multi-niveaux ──────────────────────────────────────────────────
+
+
+def expand_for_niveaux(chunks: list[dict]) -> list[dict]:
+    """
+    Pour chaque chunk : duplique 1× par niveau du cycle dérivé du fichier source.
+
+    Un même texte (même embed) → N payloads distincts avec niveau différent.
+    L'ID Qdrant inclut le niveau pour garantir l'unicité de point.
+
+    Le préfixe contextuel n'inclut PAS le niveau → un seul embed par texte,
+    réutilisé pour toutes les variantes de niveau.
+    """
+    expanded = []
+    for chunk in chunks:
+        _cycle, niveaux = derive_niveaux_from_file(chunk["source_file"])
+        for niveau in niveaux:
+            new = dict(chunk)
+            new["niveau"] = niveau.value
+            expanded.append(new)
+    return expanded
+
+
+# ── Validation Pydantic ──────────────────────────────────────────────────────
+
+
+def validate_chunks(chunks: list[dict]) -> list[dict]:
+    """
+    Valide les chunks via Chunk Pydantic, retourne les payloads Qdrant.
+
+    Lève ValidationError au premier échec (pas de silence sur les bugs schema).
+    """
+    validated = []
+    for c in chunks:
+        # Cast niveau str → enum (NiveauCollege ou NiveauLycee selon valeur)
+        niveau_str = c["niveau"]
+        try:
+            niveau = NiveauCollege(niveau_str)
+        except ValueError:
+            niveau = NiveauLycee(niveau_str)
+
+        chunk = Chunk(
+            text=c["text"],
+            source_file=c["source_file"],
+            matiere=Matiere(c["matiere"]),
+            niveau=niveau,
+            section=c["section"],
+            chunk_index=c["chunk_index"],
+        )
+        validated.append(chunk.to_qdrant_payload())
+    return validated
+
+
+# ── Upsert Qdrant (named vectors + sparse BM25) ──────────────────────────────
+
+
+def upsert_to_qdrant(payloads: list[dict], dense_vectors: list[list[float]]) -> int:
+    """
+    Upsert dans la collection v2 (named vectors `dense` + sparse `bm25`).
+
+    - ID stable : uuid5(NAMESPACE_URL, sha256(text + ":" + niveau))
+      → idempotent : re-run = pas de doublons, modif text = nouveau point.
+    - Sparse vector calculé à partir du texte BRUT (chunk["text"]).
+      Doit utiliser la MÊME tokenisation que rag.service.ts:172-193 — d'où
+      `schema/bm25.py:to_sparse_vector` partagé.
+    """
+    from qdrant_client import models
+
+    client = get_qdrant_client()
+
+    existing = {c.name for c in client.get_collections().collections}
+    if COLLECTION not in existing:
+        raise RuntimeError(
+            f"Collection '{COLLECTION}' absente. "
+            f"Exécuter d'abord : uv run python scripts/migrate_collection.py"
+        )
+
+    points = []
+    for payload, dense_vec in zip(payloads, dense_vectors, strict=True):
+        text = payload["text"]
+        niveau = payload["niveau"]
+        matiere = payload["matiere"]
+
+        # ID stable incluant matière + niveau pour distinguer :
+        # - les duplications cycle (même texte × N niveaux du cycle)
+        # - les textes COMMUNS entre matières (préambules pédagogiques langues
+        #   college sont identiques entre EN/ES/DE/IT — sans matière dans
+        #   le seed, le dernier upsert écraserait les précédents et seul
+        #   le filtre matière=italien retrouverait ces chunks).
+        id_seed = f"{matiere}:{niveau}:{text}"
+        text_hash = hashlib.sha256(id_seed.encode("utf-8")).hexdigest()
+        point_id = str(_uuid.uuid5(_uuid.NAMESPACE_URL, text_hash))
+
+        # Sparse BM25 calculé sur le texte BRUT (cohérent avec query côté backend)
+        sparse = to_sparse_vector(text)
+        sparse_vec = models.SparseVector(
+            indices=sparse.indices,
+            values=sparse.values,
+        )
+
+        points.append(
+            models.PointStruct(
+                id=point_id,
+                vector={
+                    "dense": dense_vec,
+                    "bm25": sparse_vec,
+                },
+                payload=payload,
+            )
+        )
+
+    # Batch upsert par chunks de UPSERT_BATCH_SIZE points. Sans batching,
+    # un payload >20 MB peut faire timeout sur Qdrant Cloud (write op).
+    # uuid5 garantit l'idempotence : retry sans craindre les doublons.
+    upserted = 0
+    for i in range(0, len(points), UPSERT_BATCH_SIZE):
+        batch = points[i : i + UPSERT_BATCH_SIZE]
+        for attempt in range(3):
+            try:
+                client.upsert(collection_name=COLLECTION, points=batch, wait=True)
+                upserted += len(batch)
+                break
+            except Exception as e:
+                if attempt == 2:
+                    raise
+                wait = 5 * (2**attempt)  # 5, 10 s
+                print(
+                    f"  ⚠ upsert batch {i // UPSERT_BATCH_SIZE + 1} fail "
+                    f"(essai {attempt + 1}/3) : {e}, retry dans {wait}s"
+                )
+                time.sleep(wait)
+    return upserted
+
+
+def show_status() -> None:
+    """Affiche les statistiques de la collection v2."""
+    client = get_qdrant_client()
+    try:
+        info = client.get_collection(COLLECTION)
+        counts = client.count(collection_name=COLLECTION)
+        print(f"Collection : {COLLECTION}")
+        print(f"  Points   : {counts.count}")
+        print(f"  Status   : {info.status}")
+        print(f"  Vectors  : {info.config.params.vectors}")
+        sparse = getattr(info.config.params, "sparse_vectors", None)
+        if sparse:
+            print(f"  Sparse   : {sparse}")
+    except Exception as e:
+        print(f"Collection '{COLLECTION}' introuvable : {e}")
+
+
+# ── Pipeline principal ───────────────────────────────────────────────────────
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dry-run", action="store_true", help="Affiche chunks sans upserter")
+    parser.add_argument("--matiere", help="Filtre sur une matière (ex: mathematiques)")
+    parser.add_argument("--status", action="store_true", help="État collection Qdrant")
+    args = parser.parse_args()
+
+    if args.status:
+        show_status()
         return
 
-    rprint(f"   {len(to_embed)} documents à embedder (batch={EMBEDDING_BATCH_SIZE})")
+    sources = SOURCES
+    if args.matiere:
+        sources = [s for s in SOURCES if s["matiere"].value == args.matiere]
+        if not sources:
+            available = sorted({s["matiere"].value for s in SOURCES})
+            print(f"Matière '{args.matiere}' inconnue. Disponibles : {available}")
+            sys.exit(1)
 
-    client = Mistral(api_key=mistral_api_key)
-    total_batches = (len(to_embed) + EMBEDDING_BATCH_SIZE - 1) // EMBEDDING_BATCH_SIZE
+    total_points = 0
+    errors: list[str] = []
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        transient=True,
-    ) as progress:
-        task = progress.add_task("Embedding...", total=total_batches)
-
-        for batch_idx in range(0, len(to_embed), EMBEDDING_BATCH_SIZE):
-            batch = to_embed[batch_idx : batch_idx + EMBEDDING_BATCH_SIZE]
-            batch_num = batch_idx // EMBEDDING_BATCH_SIZE + 1
-            progress.update(
-                task, description=f"[Batch {batch_num}/{total_batches}] {len(batch)} docs..."
-            )
-
-            texts = [create_embedding_text(d) for d in batch]
-            vectors = generate_embeddings_batch(client, texts)
-
-            items = [(d["content_hash"], v) for d, v in zip(batch, vectors, strict=True)]
-            append_to_cache(items)
-            progress.advance(task)
-
-    rprint(f"\n[green]✓ Embeddings écrits dans {_cache_path(EMBEDDING_MODEL)}[/green]")
-
-
-# =============================================================================
-# Commands : upsert
-# =============================================================================
-
-
-@app.command()
-def upsert(
-    niveau: Annotated[str | None, typer.Option(help="Filtrer par niveau")] = None,
-    matiere: Annotated[str | None, typer.Option(help="Filtrer par matière")] = None,
-    qdrant_url: Annotated[str | None, typer.Option(envvar="QDRANT_URL")] = None,
-    qdrant_api_key: Annotated[str | None, typer.Option(envvar="QDRANT_API_KEY")] = None,
-    collection: Annotated[str, typer.Option(envvar="QDRANT_COLLECTION")] = COLLECTION_DEFAULT,
-    batch_size: Annotated[int, typer.Option(help="Taille des batches d'upsert")] = 100,
-):
-    """
-    Phase 2 : upsert vers Qdrant depuis le cache embeddings.
-
-    Pour chaque document, si un point Qdrant existe déjà avec le même
-    content_hash dans le payload, on fait set_payload sans toucher au vecteur
-    (économie de bande passante, pas de re-build d'index inutile).
-
-    Pré-requis : la collection doit déjà exister (`migrate_collection.py`).
-    """
-    if not qdrant_url or not qdrant_api_key:
-        rprint("[red]QDRANT_URL et QDRANT_API_KEY requis[/red]")
-        raise typer.Exit(1)
-
-    rprint(f"\n[bold cyan]Phase 2 : upsert vers Qdrant ({collection})[/bold cyan]")
-    files = get_all_jsonl_files(niveau, matiere)
-    if not files:
-        rprint("[yellow]Aucun fichier JSONL trouvé.[/yellow]")
-        raise typer.Exit(0)
-
-    documents = load_documents(files)
-    cache = load_embedding_cache()
-
-    missing = [d for d in documents if d["content_hash"] not in cache]
-    if missing:
-        rprint(
-            f"[red]✗ {len(missing)} documents sans embedding en cache. "
-            f"Lancer `ingest embed` d'abord.[/red]"
-        )
-        raise typer.Exit(1)
-
-    client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
-    if not client.collection_exists(collection):
-        rprint(
-            f"[red]✗ Collection {collection!r} introuvable. "
-            f"Lancer `migrate_collection.py` d'abord.[/red]"
-        )
-        raise typer.Exit(1)
-
-    existing_hashes = fetch_existing_hashes(client, collection, [d["id"] for d in documents])
-
-    upserted = 0
-    payload_only_updated = 0
-    points_to_upsert: list[PointStruct] = []
-
-    for doc_data in documents:
-        point_id = doc_data["id"]
-        payload = create_payload(doc_data)
-
-        if existing_hashes.get(point_id) == doc_data["content_hash"]:
-            client.set_payload(
-                collection_name=collection,
-                payload=payload,
-                points=[point_id],
-            )
-            payload_only_updated += 1
+    for source in sources:
+        print(f"\n▶ {source['section_name']} ({source['matiere'].value})")
+        try:
+            text = load_source_text(source)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"  ✗ {e}", file=sys.stderr)
+            errors.append(source["matiere"].value)
             continue
 
-        vector = cache[doc_data["content_hash"]]
-        points_to_upsert.append(PointStruct(id=point_id, vector=vector, payload=payload))
-        upserted += 1
+        chunks = chunk_text(text, source)
+        print(f"  {len(chunks)} chunks bruts")
 
-        if len(points_to_upsert) >= batch_size:
-            client.upsert(collection_name=collection, points=points_to_upsert)
-            points_to_upsert = []
+        expanded = expand_for_niveaux(chunks)
+        print(f"  {len(expanded)} chunks après expansion multi-niveaux")
 
-    if points_to_upsert:
-        client.upsert(collection_name=collection, points=points_to_upsert)
+        if args.dry_run:
+            for c in expanded[:3]:
+                contextual = build_contextual_text(
+                    Chunk(
+                        text=c["text"],
+                        source_file=c["source_file"],
+                        matiere=Matiere(c["matiere"]),
+                        niveau=NiveauCollege(c["niveau"])
+                        if c["niveau"] in {n.value for n in NiveauCollege}
+                        else NiveauLycee(c["niveau"]),
+                        section=c["section"],
+                        chunk_index=c["chunk_index"],
+                    )
+                )
+                print(f"  [{c['chunk_index']}|{c['niveau']}] {contextual[:200]}…")
+            continue
 
-    rprint(f"   [green]✓ {upserted} points upsertés (vector + payload)[/green]")
-    rprint(f"   [dim]{payload_only_updated} payloads mis à jour (vector inchangé)[/dim]")
+        if not expanded:
+            errors.append(source["matiere"].value)
+            continue
 
+        print("  Validation…", end=" ", flush=True)
+        payloads = validate_chunks(expanded)
+        print(f"{len(payloads)} valides")
 
-# =============================================================================
-# Commands : prune
-# =============================================================================
+        # Optimisation : embedder UNE fois chaque texte unique, puis broadcaster
+        # aux duplications de niveau.
+        unique_texts: dict[str, int] = {}
+        embed_inputs: list[str] = []
+        for p in payloads:
+            text = p["text"]
+            if text not in unique_texts:
+                # Préfixe contextuel SANS niveau (cf. schema/contextual.py)
+                chunk_for_prefix = Chunk(
+                    text=text,
+                    source_file=p["source_file"],
+                    matiere=Matiere(p["matiere"]),
+                    niveau=NiveauCollege(p["niveau"])
+                    if p["niveau"] in {n.value for n in NiveauCollege}
+                    else NiveauLycee(p["niveau"]),
+                    section=p["section"],
+                    chunk_index=p["chunk_index"],
+                )
+                unique_texts[text] = len(embed_inputs)
+                embed_inputs.append(build_contextual_text(chunk_for_prefix))
 
+        print(f"  Embedding ({len(embed_inputs)} textes uniques)…", end=" ", flush=True)
+        unique_vectors = embed_batch(embed_inputs)
+        print(f"{len(unique_vectors)} vecteurs")
 
-@app.command()
-def prune(
-    qdrant_url: Annotated[str | None, typer.Option(envvar="QDRANT_URL")] = None,
-    qdrant_api_key: Annotated[str | None, typer.Option(envvar="QDRANT_API_KEY")] = None,
-    collection: Annotated[str, typer.Option(envvar="QDRANT_COLLECTION")] = COLLECTION_DEFAULT,
-    dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Lister les orphelins sans supprimer")
-    ] = False,
-):
-    """
-    Phase 3 : supprime de Qdrant les points dont (niveau, matiere, title) n'existe
-    plus dans les JSONL locaux.
+        # Broadcast : chaque payload récupère le vecteur de son texte
+        dense_vectors = [unique_vectors[unique_texts[p["text"]]] for p in payloads]
 
-    Sécurité : opère uniquement sur les points dont le payload comporte
-    niveau ET matiere ET title — ne touche pas aux points "hors curriculum".
-    """
-    if not qdrant_url or not qdrant_api_key:
-        rprint("[red]QDRANT_URL et QDRANT_API_KEY requis[/red]")
-        raise typer.Exit(1)
+        print(f"  Upsert {len(payloads)} points…", end=" ", flush=True)
+        n = upsert_to_qdrant(payloads, dense_vectors)
+        print(f"✓ ({n} points dans '{COLLECTION}')")
+        total_points += n
 
-    rprint(f"\n[bold cyan]Phase 3 : prune orphelins Qdrant ({collection})[/bold cyan]")
+    if errors:
+        print(f"\n✗ {len(errors)} matière(s) en erreur : {errors}", file=sys.stderr)
+        sys.exit(1)
 
-    files = get_all_jsonl_files()
-    documents = load_documents(files)
-    current_ids = {d["id"] for d in documents}
-    rprint(f"   {len(current_ids)} points attendus dans Qdrant")
-
-    client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
-    if not client.collection_exists(collection):
-        rprint(f"[red]✗ Collection {collection!r} introuvable.[/red]")
-        raise typer.Exit(1)
-
-    orphans = find_orphans(client, collection, current_ids)
-    if not orphans:
-        rprint("   [green]✓ Aucun orphelin détecté[/green]")
-        return
-
-    rprint(f"   [yellow]{len(orphans)} orphelins à supprimer[/yellow]")
-    if dry_run:
-        for orphan in orphans[:10]:
-            rprint(f"     - {orphan}")
-        if len(orphans) > 10:
-            rprint(f"     ... et {len(orphans) - 10} autres")
-        rprint("\n[yellow]Mode dry-run : aucune suppression[/yellow]")
-        return
-
-    client.delete(
-        collection_name=collection,
-        points_selector=Filter(must=[HasIdCondition(has_id=orphans)]),
-    )
-    rprint(f"   [green]✓ {len(orphans)} orphelins supprimés[/green]")
-
-
-# =============================================================================
-# Commands : run (orchestrator) + status
-# =============================================================================
-
-
-@app.command()
-def run(
-    niveau: Annotated[str | None, typer.Option(help="Filtrer par niveau")] = None,
-    matiere: Annotated[str | None, typer.Option(help="Filtrer par matière")] = None,
-    qdrant_url: Annotated[str | None, typer.Option(envvar="QDRANT_URL")] = None,
-    qdrant_api_key: Annotated[str | None, typer.Option(envvar="QDRANT_API_KEY")] = None,
-    mistral_api_key: Annotated[str | None, typer.Option(envvar="MISTRAL_API_KEY")] = None,
-    collection: Annotated[str, typer.Option(envvar="QDRANT_COLLECTION")] = COLLECTION_DEFAULT,
-    skip_prune: Annotated[
-        bool, typer.Option("--skip-prune", help="Ne pas pruner les orphelins")
-    ] = False,
-):
-    """Orchestrateur : embed -> upsert -> prune (sequentiel, idempotent)."""
-    embed(
-        niveau=niveau,
-        matiere=matiere,
-        mistral_api_key=mistral_api_key,
-        force=False,
-    )
-    upsert(
-        niveau=niveau,
-        matiere=matiere,
-        qdrant_url=qdrant_url,
-        qdrant_api_key=qdrant_api_key,
-        collection=collection,
-        batch_size=100,
-    )
-    if not skip_prune and not niveau and not matiere:
-        # Prune uniquement quand on traite TOUT le dataset (sinon ça supprime
-        # à tort les points hors du filtre actuel)
-        prune(
-            qdrant_url=qdrant_url,
-            qdrant_api_key=qdrant_api_key,
-            collection=collection,
-            dry_run=False,
-        )
-
-
-@app.command()
-def status(
-    qdrant_url: Annotated[str | None, typer.Option(envvar="QDRANT_URL")] = None,
-    qdrant_api_key: Annotated[str | None, typer.Option(envvar="QDRANT_API_KEY")] = None,
-    collection: Annotated[str, typer.Option(envvar="QDRANT_COLLECTION")] = COLLECTION_DEFAULT,
-):
-    """Affiche le statut de la collection Qdrant : points, répartition niveau/matière."""
-    if not qdrant_url or not qdrant_api_key:
-        rprint("[red]QDRANT_URL et QDRANT_API_KEY requis[/red]")
-        raise typer.Exit(1)
-
-    client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
-
-    if not client.collection_exists(collection):
-        rprint(f"[yellow]Collection {collection!r} n'existe pas[/yellow]")
-        return
-
-    info = client.get_collection(collection_name=collection)
-    rprint(f"\n[bold]Collection: {collection}[/bold]")
-    rprint(f"  Points: {info.points_count}")
-    rprint(f"  Indexed vectors: {info.indexed_vectors_count}")
-    rprint(f"  Status: {info.status}")
-
-    # Listes dérivées des enums du schema (source de vérité unique).
-    niveaux = [n.value for n in NiveauCollege] + [n.value for n in NiveauLycee]
-    matieres = [m.value for m in Matiere]
-
-    rprint("\n[bold]Répartition par niveau:[/bold]")
-    for niveau in niveaux:
-        count = client.count(
-            collection_name=collection,
-            count_filter=Filter(
-                must=[FieldCondition(key="niveau", match=MatchValue(value=niveau))]
-            ),
-        ).count
-        if count > 0:
-            rprint(f"  {niveau}: {count} points")
-
-    rprint("\n[bold]Répartition par matière:[/bold]")
-    for matiere in matieres:
-        count = client.count(
-            collection_name=collection,
-            count_filter=Filter(
-                must=[FieldCondition(key="matiere", match=MatchValue(value=matiere))]
-            ),
-        ).count
-        if count > 0:
-            rprint(f"  {matiere}: {count} points")
+    if not args.dry_run:
+        print(f"\nTotal : {total_points} points upsertés")
+        show_status()
 
 
 if __name__ == "__main__":
-    app()
+    main()

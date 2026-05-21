@@ -1,444 +1,487 @@
 #!/usr/bin/env python3
 """
-Audit de couverture du curriculum : compare les chapitres attendus (extraits
-des PROGRAMME_*.md sous docs/programmes/, qui font office de référentiel cible
-Eduscol) avec les titres présents dans les JSONL.
+Audit de couverture du RAG : vérifie que les programmes officiels
+(data/raw/*.txt, téléchargés depuis data.gouv.fr / cache.media.education.gouv.fr)
+sont bien représentés dans la collection Qdrant.
 
-Sous-projet D du chantier RAG overhaul mai 2026.
+Source de vérité : data/raw/*.txt (annexes officielles BO)
+Cible mesurée   : chunks indexés dans Qdrant
 
-Pourquoi pas un YAML séparé `data/reference/curriculum_targets.yaml` ?
-Les PROGRAMME_*.md sont déjà la source de vérité curatée à la main, lisible,
-versionnée avec git, et utilisable directement. Pas de duplication.
+Deux métriques par matière :
+  1. Couverture texte : (chars indexés / chars source) — détecte les pertes silencieuses
+  2. Couverture sections : % des titres de sections du BO présents dans au moins un chunk
 
 Usage :
-    uv run python scripts/audit_coverage.py                       # rapport stdout
-    uv run python scripts/audit_coverage.py --output rapport.md   # écrit aussi un MD
+    uv run python scripts/audit_coverage.py
+    uv run python scripts/audit_coverage.py --output docs/audits/rapport.md
+    uv run python scripts/audit_coverage.py --matiere=mathematiques
 """
 
+from __future__ import annotations
+
 import argparse
-import json
+import os
 import re
 import sys
-from collections import defaultdict
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from io import StringIO
 from pathlib import Path
 
-# Force UTF-8 output (cp1252 sur Windows par défaut)
+from dotenv import load_dotenv
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
+load_dotenv()
 
-def extract_titles_from_jsonl(jsonl_path: Path) -> list[str]:
-    """Extract all titles from a JSONL file."""
-    titles = []
-    if jsonl_path.exists():
-        with open(jsonl_path, encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    doc = json.loads(line)
-                    titles.append(doc.get("title", "").lower())
-    return titles
+BASE = Path(__file__).parent.parent
+RAW = BASE / "data" / "raw"
 
 
-def extract_chapters_from_programme(md_path: Path) -> dict[str, list[str]]:
+# ── Extraction des titres de sections depuis les .txt officiels ───────────────
+
+
+_MARKDOWN_TITLE_RE = re.compile(r"^#{2,4}\s+(.+?)\s*$")
+"""Markdown H2-H4 : `## Titre`, `### Sous-titre`, etc."""
+
+_MARKDOWN_BOLD_RE = re.compile(r"\*\*(.+?)\*\*|__(.+?)__|\*(.+?)\*|_(.+?)_")
+"""Wrapping gras/italique markdown autour d'un titre — à stripper."""
+
+_PDF_BULLET_CHARS = "•▪●"
+"""Caractères puces graphiques pdftotext (Private Use Area + bullets unicode)."""
+
+
+def _strip_markdown_wrapping(s: str) -> str:
+    """Retire `## `, `**...**`, `_..._`, puces, espaces — pour normaliser un titre."""
+    # Retire le préfixe heading `## ` ou `### `
+    m = _MARKDOWN_TITLE_RE.match(s)
+    if m:
+        s = m.group(1)
+    # Retire les puces PDF et unicode
+    s = "".join(c for c in s if c not in _PDF_BULLET_CHARS)
+    # Retire le gras/italique markdown (peut être imbriqué)
+    while True:
+        new = _MARKDOWN_BOLD_RE.sub(lambda m: next((g for g in m.groups() if g), ""), s)
+        if new == s:
+            break
+        s = new
+    return s.strip()
+
+
+def _looks_like_real_title(line: str) -> bool:
     """
-    Extract chapters from a PROGRAMME_*.md file, grouped by MATIÈRE.
+    Filtre anti-faux-positifs : élimine les lignes isolées qui ne sont PAS des titres.
 
-    Hiérarchie attendue :
-        ## Mathématiques (4h30/semaine)    <- matière (groupé ici)
-        ### Nombres et Calculs              <- sous-domaine (ignoré comme clé)
-        - [ ] Multiples et diviseurs        <- chapitre
-
-    Précédemment, chaque `### sous-domaine` écrasait current_subject, ce qui
-    faisait que les chapitres étaient regroupés par sous-domaine et que les
-    matières du SUBJECT_MAPPING (mathematiques, francais, etc.) ne matchaient
-    jamais. Maintenant on garde la matière `##` comme clé stable jusqu'au
-    prochain `##`.
+    Faux positifs identifiés dans les programmes Eduscol :
+    - Bullets de liste (`- foo`, `* foo`, `• foo`)
+    - Lignes de tableaux markdown (`|6e|A1|A2|`)
+    - Lignes très courtes ou se terminant par ponctuation de phrase (`:`, `;`, `.` final)
+    - Lignes contenant trop de séparateurs `|`
     """
-    chapters: dict[str, list[str]] = defaultdict(list)
-    current_matiere: str | None = None
+    s = line.strip()
+    if not s:
+        return False
+    # Bullet
+    if s[:2] in ("- ", "* ", "• ", "→ ", "→ "):
+        return False
+    # Ligne de tableau markdown
+    if s.startswith("|") or s.count("|") >= 3:
+        return False
+    # Finit par ponctuation de phrase = c'est une phrase, pas un titre
+    if s.rstrip().endswith((".", ":", ";", ",")) and not s.startswith("#"):
+        return False
+    return True
 
-    if not md_path.exists():
-        return chapters
 
-    with open(md_path, encoding="utf-8") as f:
-        content = f.read()
+@dataclass(frozen=True, slots=True)
+class ExtractedTitle:
+    """Titre extrait du source + provenance (markdown H2 fiable vs heuristique pdftotext)."""
 
-    for line in content.split("\n"):
-        if line.startswith("## ") and not line.startswith("### "):
-            subject = line.lstrip("#").strip()
-            subject = re.sub(r"\s*\([^)]*\)", "", subject).strip()  # Remove (Xh/semaine)
-            is_meta = subject.startswith("Thème") or subject.startswith("Récapitulatif")
-            current_matiere = subject if subject and not is_meta else None
+    text: str
+    source: str  # "markdown" | "heuristic"
+
+
+def extract_section_titles(text: str) -> list[ExtractedTitle]:
+    """
+    Extrait les titres de sections d'un texte issu de pdftotext OU pymupdf4llm.
+
+    Deux sources :
+    1. Markdown H2-H4 (`## **Titre**`) → source="markdown", signal fiable
+    2. Heuristique pdftotext (lignes MAJUSCULES, lignes isolées) → source="heuristic"
+
+    Tous les titres extraits sont NORMALISÉS (wrapping markdown retiré).
+    Faux positifs typiques filtrés en amont (bullets, lignes de tableau, etc.).
+
+    Le champ `source` permet à `title_covered` d'appliquer un seuil de matching
+    différent : 1 occurrence suffit pour les markdown (signal fiable), seuil
+    plus élevé pour l'heuristique (faux positifs résiduels possibles).
+    """
+    lines = text.split("\n")
+    titles: list[ExtractedTitle] = []
+
+    for i, raw_line in enumerate(lines):
+        line = raw_line.lstrip("\x0c").rstrip()
+        if not _looks_like_real_title(line):
             continue
 
-        # Les `###` sous-domaines sont ignorés comme groupes — leurs `- [ ]`
-        # s'attachent à la matière `##` parente.
-
-        # Detect checkbox items (chapters)
-        if line.strip().startswith("- [ ]") and current_matiere:
-            chapter = line.strip()[5:].strip()
-            if chapter:
-                chapters[current_matiere].append(chapter)
-
-    return chapters
-
-
-def normalize_for_comparison(text: str) -> str:
-    """Normalize text for fuzzy comparison."""
-    text = text.lower()
-    text = re.sub(r"[^a-zàâäéèêëïîôùûüç0-9\s]", "", text)
-    text = " ".join(text.split())
-    return text
-
-
-# Minimum significatif de mots dans un chapitre pour autoriser le fuzzy overlap.
-# En dessous (titres courts type "Fractions décimales", 2 mots), on n'utilise
-# que le containment strict pour éviter les faux positifs symétriques.
-# Exemple bloqué : "Fractions" et "Fractions décimales" matchent en 60% overlap
-# alors que ce sont deux chapitres distincts.
-_FUZZY_OVERLAP_MIN_WORDS = 3
-_FUZZY_OVERLAP_THRESHOLD = 0.6
-
-
-def check_coverage(chapter: str, titles: list[str]) -> bool:
-    """
-    Check if a chapter is covered in the titles (fuzzy match).
-
-    Stratégie : containment direct toujours autorisé. Overlap de mots autorisé
-    UNIQUEMENT si le chapitre a >= 3 mots distincts (sinon trop de faux positifs
-    sur les titres courts à vocabulaire commun).
-    """
-    chapter_norm = normalize_for_comparison(chapter)
-    chapter_words = set(chapter_norm.split())
-
-    for title in titles:
-        title_norm = normalize_for_comparison(title)
-        # Containment strict : toujours autorisé
-        if chapter_norm in title_norm or title_norm in chapter_norm:
-            return True
-
-        # Overlap de mots : uniquement si chapitre suffisamment spécifique
-        if len(chapter_words) < _FUZZY_OVERLAP_MIN_WORDS:
+        # 1. Markdown heading — source fiable
+        if _MARKDOWN_TITLE_RE.match(line):
+            t = _strip_markdown_wrapping(line)
+            if 3 <= len(t) <= 100:
+                titles.append(ExtractedTitle(text=t, source="markdown"))
             continue
-        title_words = set(title_norm.split())
-        overlap = len(chapter_words & title_words)
-        if overlap >= len(chapter_words) * _FUZZY_OVERLAP_THRESHOLD:
-            return True
 
+        # 2. Heuristique pdftotext
+        if not (5 <= len(line) <= 80):
+            continue
+        letters = [c for c in line if c.isalpha()]
+        is_upper = bool(letters) and sum(c.isupper() for c in letters) / len(letters) >= 0.6
+        prev_blank = (i == 0) or not lines[i - 1].strip()
+        next_blank = (i == len(lines) - 1) or not lines[i + 1].strip()
+        if is_upper or (prev_blank and next_blank):
+            t = _strip_markdown_wrapping(line)
+            if 3 <= len(t):
+                titles.append(ExtractedTitle(text=t, source="heuristic"))
+
+    # Déduplication ordre-préservante (par texte, garde la 1ʳᵉ provenance)
+    seen: set[str] = set()
+    unique: list[ExtractedTitle] = []
+    for t in titles:
+        key = t.text.lower()
+        if key not in seen:
+            seen.add(key)
+            unique.append(t)
+    return unique
+
+
+# ── Matching fuzzy ────────────────────────────────────────────────────────────
+
+_ACCENTS = str.maketrans("àâäéèêëïîôùûüç", "aaaeeeeiioouuc")
+
+
+def _normalize(text: str) -> str:
+    text = text.lower().translate(_ACCENTS)
+    text = re.sub(r"[^a-z0-9\s]", "", text)
+    return " ".join(text.split())
+
+
+_MONOWORD_OCCURRENCE_THRESHOLD_HEURISTIC = 3
+"""
+Seuil pour un titre mono-mot extrait par HEURISTIQUE (pdftotext). Plus élevé
+pour filtrer les faux positifs (lignes isolées qui ne sont pas vraiment des
+titres). Ex: maths cycle 4 BO 2026 a "Puissances", "Angles", "Triangles" qui
+apparaissent 30-80× — passent largement le seuil.
+"""
+
+_MONOWORD_OCCURRENCE_THRESHOLD_MARKDOWN = 1
+"""
+Seuil pour un titre mono-mot extrait depuis un `## **Titre**` MARKDOWN
+(pymupdf4llm). Source fiable (vrai H2 du PDF), 1 occurrence suffit. Cas réel :
+"CM1-CM2" présent 2× mais c'est bien un titre H2 du programme cycle 3.
+"""
+
+
+def title_covered(title, chunk_texts: list[str]) -> bool:
+    """
+    Vérifie si un titre de section apparaît dans au moins un chunk.
+
+    Accepte soit un `ExtractedTitle` (avec source markdown/heuristic) soit un
+    `str` (legacy, traité comme heuristique = seuil mono-mot plus strict).
+
+    Logique :
+    - Titres multi-mots : sous-chaîne exacte OU overlap ≥70 % si ≥3 mots
+    - Titres mono-mots : seuil d'occurrences variable selon source
+      (1 pour markdown fiable, 3 pour heuristique pdftotext)
+    """
+    if isinstance(title, ExtractedTitle):
+        title_text = title.text
+        source = title.source
+    else:
+        title_text = title
+        source = "heuristic"
+
+    t = _normalize(title_text)
+    t_words = set(t.split())
+
+    if len(t_words) == 1:
+        threshold = (
+            _MONOWORD_OCCURRENCE_THRESHOLD_MARKDOWN
+            if source == "markdown"
+            else _MONOWORD_OCCURRENCE_THRESHOLD_HEURISTIC
+        )
+        occurrences = sum(_normalize(chunk).count(t) for chunk in chunk_texts)
+        return occurrences >= threshold
+
+    for chunk in chunk_texts:
+        c = _normalize(chunk)
+        if t in c:
+            return True
+        if len(t_words) >= 3:
+            c_words = set(c.split())
+            overlap = len(t_words & c_words)
+            if overlap >= len(t_words) * 0.7:
+                return True
     return False
 
 
-SUBJECT_MAPPING = {
-    # Mapping from PROGRAMME subjects to JSONL filenames
-    "mathématiques": ["mathematiques"],
-    "français": ["francais"],
-    "histoire": ["histoire_geo"],
-    "histoire-géographie": ["histoire_geo"],
-    "géographie": ["histoire_geo"],
-    "emc": ["emc"],
-    "enseignement moral et civique": ["emc"],
-    "physique-chimie": ["physique_chimie"],
-    "svt": ["svt"],
-    "sciences de la vie et de la terre": ["svt"],
-    "sciences et technologie": ["sciences_technologie"],
-    "technologie": ["technologie"],
-    "anglais": ["anglais"],
-    "lva - anglais": ["anglais"],
-    "lv1 - anglais": ["anglais"],
-    "lvb": ["espagnol", "allemand", "italien"],
-    "lv2": ["espagnol", "allemand", "italien"],
-    "langues vivantes": ["anglais", "espagnol", "allemand", "italien"],
-    "espagnol": ["espagnol"],
-    "allemand": ["allemand"],
-    "italien": ["italien"],
-    "snt": ["snt"],
-    "sciences numériques et technologie": ["snt"],
-    "enseignement scientifique": ["enseignement_scientifique"],
-    "philosophie": ["philosophie"],
-    "ses": ["ses"],
-    "sciences économiques et sociales": ["ses"],
-    "hggsp": ["hggsp"],
-    "histoire-géographie, géopolitique et sciences politiques": ["hggsp"],
-    "hlp": ["hlp"],
-    "humanités, littérature et philosophie": ["hlp"],
-    "nsi": ["nsi"],
-    "numérique et sciences informatiques": ["nsi"],
-    "llce": ["llcer_anglais"],
-    "langues, littératures et cultures étrangères": ["llcer_anglais"],
-}
+# ── Chargement Qdrant ─────────────────────────────────────────────────────────
 
 
-def find_jsonl_files(subject: str, data_paths: dict[str, Path]) -> list[Path]:
-    """Find JSONL files matching a subject using mapping."""
-    subject_lower = subject.lower()
+def load_chunks_from_qdrant(
+    collection: str, matiere_filter: str | None = None
+) -> dict[str, list[str]]:
+    """
+    Scrolle tous les points Qdrant. Retourne dict matiere -> [textes chunks].
+    Source API : qdrant.tech/documentation/concepts/points/#scroll-points
+    """
+    from qdrant_client.models import FieldCondition, Filter, MatchValue
 
-    # Try direct mapping first
-    for key, files in SUBJECT_MAPPING.items():
-        if key in subject_lower or subject_lower in key:
-            return [data_paths[f] for f in files if f in data_paths]
+    from schema import get_qdrant_client
 
-    # Fallback to fuzzy matching
-    for key, path in data_paths.items():
-        if key in subject_lower or subject_lower in key:
-            return [path]
+    client = get_qdrant_client()
 
-    return []
+    scroll_filter = None
+    if matiere_filter:
+        scroll_filter = Filter(
+            must=[FieldCondition(key="matiere", match=MatchValue(value=matiere_filter))]
+        )
+
+    result: dict[str, list[str]] = {}
+    offset = None
+
+    while True:
+        points, next_offset = client.scroll(
+            collection_name=collection,
+            scroll_filter=scroll_filter,
+            limit=250,
+            with_payload=True,
+            with_vectors=False,
+            offset=offset,
+        )
+        for p in points:
+            if not p.payload:
+                continue
+            mat = p.payload.get("matiere", "inconnu")
+            text = p.payload.get("text", "")
+            if text:
+                result.setdefault(mat, []).append(text)
+        if next_offset is None:
+            break
+        offset = next_offset
+
+    return result
 
 
-def audit_level(level_name: str, programme_path: Path, data_paths: dict[str, Path]) -> dict:
-    """Audit a single level's coverage."""
-    results = {
-        "level": level_name,
-        "subjects": {},
-        "total_expected": 0,
-        "total_covered": 0,
-        "coverage_percent": 0,
-    }
+# ── Audit par matière ─────────────────────────────────────────────────────────
 
-    expected = extract_chapters_from_programme(programme_path)
 
-    # Combine all JSONL files into one pool of titles for the level
-    all_titles = []
-    for path in data_paths.values():
-        all_titles.extend(extract_titles_from_jsonl(path))
+def audit_source(source: dict, chunks: list[str]) -> dict:
+    """
+    Audite une matière :
+    - Charge le texte officiel (data/raw/*.txt)
+    - Compare longueur texte source vs. chars indexés
+    - Extrait les titres de sections du BO et vérifie leur présence dans les chunks
+    """
+    from scripts.ingest import load_source_text
 
-    for subject, chapters in expected.items():
-        # Find matching JSONL files
-        jsonl_paths = find_jsonl_files(subject, data_paths)
-
-        titles = []
-        for path in jsonl_paths:
-            titles.extend(extract_titles_from_jsonl(path))
-
-        # Fallback : si aucun JSONL ne matche, on N'utilise PAS le pool global.
-        # Précédemment on basculait sur all_titles, ce qui produisait des chiffres
-        # de couverture trompeurs (un chapitre de "SES" pouvait matcher contre un
-        # doc de "mathematiques" du même niveau). Maintenant on marque
-        # explicitement N/A pour signaler la matière non-mappée.
-        unmapped = not jsonl_paths
-        if unmapped:
-            print(
-                f"  [WARN] Subject {subject!r} ({level_name}) non mappé dans "
-                f"SUBJECT_MAPPING — couverture marquée N/A",
-                flush=True,
-            )
-
-        covered = []
-        missing = list(chapters) if unmapped else []
-
-        if not unmapped:
-            for chapter in chapters:
-                if check_coverage(chapter, titles):
-                    covered.append(chapter)
-                else:
-                    missing.append(chapter)
-
-        results["subjects"][subject] = {
-            "expected": len(chapters),
-            "covered": len(covered),
-            "missing": missing,
-            "coverage_percent": (len(covered) / len(chapters) * 100) if chapters else 0,
-            "jsonl_docs": len(titles),
-            "matched_files": [p.name for p in jsonl_paths],
-            "unmapped": unmapped,
+    try:
+        source_text = load_source_text(source)
+    except (FileNotFoundError, ValueError) as e:
+        return {
+            "error": str(e),
+            "source_chars": 0,
+            "indexed_chars": 0,
+            "text_coverage_pct": 0.0,
+            "section_titles": [],
+            "titles_covered": 0,
+            "titles_total": 0,
+            "section_coverage_pct": 0.0,
         }
 
-        # Les matières non-mappées ne sont PAS comptées dans le total global :
-        # elles biaiseraient la moyenne vers 0% alors qu'on n'a juste pas vérifié.
-        if not unmapped:
-            results["total_expected"] += len(chapters)
-            results["total_covered"] += len(covered)
+    source_chars = len(source_text)
+    indexed_chars = sum(len(c) for c in chunks)
+    text_coverage = min(indexed_chars / source_chars * 100, 100.0) if source_chars else 0.0
 
-    if results["total_expected"] > 0:
-        results["coverage_percent"] = results["total_covered"] / results["total_expected"] * 100
+    titles = extract_section_titles(source_text)
+    covered = [t for t in titles if title_covered(t, chunks)]
+    section_pct = len(covered) / len(titles) * 100 if titles else 0.0
 
-    return results
+    # Expose le texte des titres manquants (str) pour rétro-compat avec le rapport.
+    missing_texts = [t.text for t in titles if t not in covered]
+
+    return {
+        "error": None,
+        "source_chars": source_chars,
+        "indexed_chars": indexed_chars,
+        "text_coverage_pct": round(text_coverage, 1),
+        "section_titles": [t.text for t in titles],
+        "titles_covered": len(covered),
+        "titles_total": len(titles),
+        "section_coverage_pct": round(section_pct, 1),
+        "missing_titles": missing_texts,
+    }
+
+
+# ── Rapport ───────────────────────────────────────────────────────────────────
+
+
+def emit_report(
+    results: list[dict],
+    output,
+    markdown: bool = False,
+) -> None:
+    def w(s: str = "") -> None:
+        print(s, file=output)
+
+    ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
+
+    if markdown:
+        w("# Audit couverture RAG — programmes officiels BO")
+        w()
+        w(f"_Généré le {ts}_")
+        w()
+        w(
+            "**Source de vérité** : `data/raw/*.txt` (annexes officielles téléchargées"
+            " depuis cache.media.education.gouv.fr / data.gouv.fr)"
+        )
+        w()
+        w("| Matière | Texte indexé | Sections BO couvertes |")
+        w("|---------|-------------|----------------------|")
+    else:
+        w("=" * 70)
+        w(f"AUDIT COUVERTURE RAG — PROGRAMMES OFFICIELS BO — {ts}")
+        w("=" * 70)
+        w("Source de vérité : data/raw/*.txt (annexes officielles BO)")
+        w()
+
+    for r in results:
+        name = r["section_name"]
+        mat = r["matiere"]
+        if r.get("error"):
+            if markdown:
+                w(f"| {name} | ❌ {r['error'][:50]} | — |")
+            else:
+                w(f"  [XX] {name} ({mat}): ERREUR — {r['error']}")
+            continue
+
+        txt_pct = r["text_coverage_pct"]
+        sec_pct = r["section_coverage_pct"]
+        chunks_n = r["chunk_count"]
+
+        if markdown:
+            txt_icon = "✅" if txt_pct >= 80 else "⚠️"
+            sec_icon = "✅" if sec_pct >= 70 else "⚠️" if sec_pct >= 50 else "❌"
+            txt_stat = (
+                f"{txt_icon} {txt_pct:.0f}% "
+                f"({r['indexed_chars']:,}/{r['source_chars']:,} chars, {chunks_n} chunks)"
+            )
+            sec_stat = f"{sec_icon} {sec_pct:.0f}% ({r['titles_covered']}/{r['titles_total']})"
+            w(f"| {name} | {txt_stat} | {sec_stat} |")
+        else:
+            txt_tag = "[OK]" if txt_pct >= 80 else "[!!]"
+            sec_tag = "[OK]" if sec_pct >= 70 else "[!!]" if sec_pct >= 50 else "[XX]"
+            w(f"  {name} ({mat})")
+            txt_chars = f"{r['indexed_chars']:,}/{r['source_chars']:,} chars ({chunks_n} chunks)"
+            sec_count = f"{r['titles_covered']}/{r['titles_total']} titres BO couverts"
+            w(f"    Texte   : {txt_tag} {txt_pct:.0f}% — {txt_chars}")
+            w(f"    Sections: {sec_tag} {sec_pct:.0f}% — {sec_count}")
+            if r.get("missing_titles") and sec_pct < 70:
+                for t in r["missing_titles"][:4]:
+                    w(f"       - {t}")
+                if len(r["missing_titles"]) > 4:
+                    w(f"       … et {len(r['missing_titles']) - 4} autres")
+            w()
+
+    if markdown:
+        w()
+        w("---")
+        w()
+        w("## Titres de sections BO non couverts")
+        w()
+        for r in results:
+            if r.get("error") or not r.get("missing_titles"):
+                continue
+            if r["section_coverage_pct"] < 70:
+                w(f"### {r['section_name']}")
+                w()
+                for t in r["missing_titles"]:
+                    w(f"- `{t}`")
+                w()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=None, help="Rapport Markdown")
+    parser.add_argument("--matiere", default=None, help="Filtre sur une matière")
     parser.add_argument(
-        "--output",
-        type=Path,
-        default=None,
-        help="Si fourni, écrit aussi le rapport au format Markdown vers ce chemin",
+        "--list-missing",
+        action="store_true",
+        help="Liste exhaustive des titres BO non couverts (debug coverage <100%%)",
     )
     args = parser.parse_args()
 
-    base_path = Path(__file__).parent.parent
-    data_path = base_path / "data" / "processed"
-    programmes_dir = base_path / "docs" / "programmes"
+    collection = os.environ.get("QDRANT_COLLECTION", "tomai_educational")
 
-    levels = {
-        "6ème": {
-            "programme": programmes_dir / "PROGRAMME_6EME.md",
-            "data_dir": data_path / "college" / "sixieme",
-        },
-        "5ème": {
-            "programme": programmes_dir / "PROGRAMME_5EME.md",
-            "data_dir": data_path / "college" / "cinquieme",
-        },
-        "4ème": {
-            "programme": programmes_dir / "PROGRAMME_4EME.md",
-            "data_dir": data_path / "college" / "quatrieme",
-        },
-        "3ème": {
-            "programme": programmes_dir / "PROGRAMME_3EME.md",
-            "data_dir": data_path / "college" / "troisieme",
-        },
-        "Seconde": {
-            "programme": programmes_dir / "PROGRAMME_SECONDE.md",
-            "data_dir": data_path / "lycee" / "seconde",
-        },
-        "Première": {
-            "programme": programmes_dir / "PROGRAMME_PREMIERE.md",
-            "data_dir": data_path / "lycee" / "premiere",
-        },
-        "Terminale": {
-            "programme": programmes_dir / "PROGRAMME_TERMINALE.md",
-            "data_dir": data_path / "lycee" / "terminale",
-        },
-    }
+    # Importation des SOURCES depuis ingest.py (liste des matières + fichiers source)
+    from scripts.ingest import SOURCES
 
-    all_results = []
-    for level_name, config in levels.items():
-        data_dir = config["data_dir"]
-        data_paths: dict[str, Path] = {}
-        if data_dir.exists():
-            for jsonl in data_dir.glob("*.jsonl"):
-                data_paths[jsonl.stem.lower()] = jsonl
+    print(f"Chargement des chunks depuis Qdrant ({collection})…", flush=True)
 
-        results = audit_level(level_name, config["programme"], data_paths)
-        all_results.append(results)
+    # Comparaison Matiere enum vs string CLI (ADR-0007 : SOURCES utilise des enums)
+    def _matiere_value(s: dict) -> str:
+        m = s["matiere"]
+        return m.value if hasattr(m, "value") else str(m)
 
-    _emit_report(all_results, output=sys.stdout)
+    sources_to_audit = [s for s in SOURCES if not args.matiere or _matiere_value(s) == args.matiere]
+    matieres = [_matiere_value(s) for s in sources_to_audit]
+    chunks_by_matiere = load_chunks_from_qdrant(
+        collection,
+        matiere_filter=args.matiere if len(matieres) == 1 else None,
+    )
+    total = sum(len(v) for v in chunks_by_matiere.values())
+    print(f"  {total} chunks chargés ({len(chunks_by_matiere)} matières)\n")
+
+    results = []
+    for source in sources_to_audit:
+        mat = _matiere_value(source)
+        chunks = chunks_by_matiere.get(mat, [])
+        print(f"  Audit {source['section_name']}… ({len(chunks)} chunks)", flush=True)
+        r = audit_source(source, chunks)
+        r["matiere"] = mat
+        r["section_name"] = source["section_name"]
+        r["chunk_count"] = len(chunks)
+        results.append(r)
+
+    print()
+
+    if args.list_missing:
+        # Diagnostic exhaustif : pour chaque matière <100 %, liste les titres BO
+        # non couverts. Permet d'investiguer (faux positif heuristique ?
+        # faux négatif matching ? vrai trou ?) sans script jetable.
+        any_missing = False
+        for r in results:
+            if r.get("error"):
+                continue
+            if r["section_coverage_pct"] < 100.0:
+                any_missing = True
+                cov = f"{r['section_coverage_pct']:.0f}%"
+                count = f"{r['titles_covered']}/{r['titles_total']}"
+                print(f"\n── {r['section_name']} ({r['matiere']}) = {cov} ({count}) ──")
+                for t in r.get("missing_titles", []):
+                    print(f"  - {t!r}")
+        if not any_missing:
+            print("✓ Toutes les matières à 100 % de couverture sections BO.")
+        return
+
+    emit_report(results, sys.stdout)
 
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         buf = StringIO()
-        _emit_report(all_results, output=buf, markdown=True)
+        emit_report(results, buf, markdown=True)
         args.output.write_text(buf.getvalue(), encoding="utf-8")
         print(f"\nRapport Markdown écrit : {args.output}")
-
-
-def _emit_report(all_results: list[dict], output, markdown: bool = False) -> None:
-    """Écrit le rapport (texte ou markdown) vers output (stdout ou StringIO)."""
-
-    def line(s: str = "") -> None:
-        print(s, file=output)
-
-    if markdown:
-        line("# Rapport d'audit — couverture du curriculum")
-        line()
-        line(f"_Généré le {datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}_")
-        line()
-        line(
-            "Compare les chapitres attendus (extraits des PROGRAMME_*.md sous "
-            "`docs/programmes/`) avec les titres présents dans les JSONL "
-            "`data/processed/`. Match fuzzy (chevauchement de mots), peut produire "
-            "des faux positifs/négatifs sur les chapitres au titre court."
-        )
-        line()
-    else:
-        line("=" * 80)
-        line("RAPPORT D'AUDIT - COUVERTURE DU CURRICULUM")
-        line("=" * 80)
-        line()
-
-    total_expected = 0
-    total_covered = 0
-
-    for result in all_results:
-        if markdown:
-            line(f"## Niveau : {result['level']}")
-            line()
-            line(
-                f"**Couverture globale : {result['coverage_percent']:.1f}%** "
-                f"({result['total_covered']}/{result['total_expected']} chapitres)"
-            )
-            line()
-            line("| Statut | Matière | Couverture | Docs JSONL |")
-            line("|--------|---------|------------|------------|")
-        else:
-            line(f"\n{'=' * 60}")
-            line(f"NIVEAU: {result['level']}")
-            line(f"{'=' * 60}")
-            line(
-                f"Couverture globale: {result['coverage_percent']:.1f}% "
-                f"({result['total_covered']}/{result['total_expected']} chapitres)"
-            )
-            line()
-
-        subjects_sorted = sorted(result["subjects"].items(), key=lambda x: x[1]["coverage_percent"])
-
-        for subject, data in subjects_sorted:
-            pct = data["coverage_percent"]
-            if markdown:
-                status = "✅" if pct >= 80 else "⚠️" if pct >= 50 else "❌"
-                line(
-                    f"| {status} | {subject} | {pct:.0f}% ({data['covered']}/{data['expected']}) "
-                    f"| {data['jsonl_docs']} |"
-                )
-            else:
-                status = "[OK]" if pct >= 80 else "[!!]" if pct >= 50 else "[XX]"
-                line(
-                    f"  {status} {subject}: {pct:.0f}% "
-                    f"({data['covered']}/{data['expected']}) - {data['jsonl_docs']} docs"
-                )
-                if data["missing"] and pct < 80:
-                    line(f"      Manquants ({len(data['missing'])}):")
-                    for chapter in data["missing"][:5]:
-                        line(f"        - {chapter}")
-                    if len(data["missing"]) > 5:
-                        line(f"        ... et {len(data['missing']) - 5} autres")
-
-        if markdown:
-            line()
-            # Détail des manques par matière, après la table
-            for subject, data in subjects_sorted:
-                if data["missing"] and data["coverage_percent"] < 80:
-                    line(f"### Manques en {subject} ({len(data['missing'])})")
-                    line()
-                    for chapter in data["missing"]:
-                        line(f"- [ ] {chapter}")
-                    line()
-
-        total_expected += result["total_expected"]
-        total_covered += result["total_covered"]
-
-    global_pct = (total_covered / total_expected * 100) if total_expected > 0 else 0
-    if markdown:
-        line("---")
-        line()
-        line("## Résumé global")
-        line()
-        line(
-            f"**Couverture totale : {global_pct:.1f}%** "
-            f"({total_covered}/{total_expected} chapitres)"
-        )
-        line()
-        line("### Lacunes critiques (< 50% couverture, > 3 chapitres attendus)")
-        line()
-        line("| Niveau | Matière | Couverture |")
-        line("|--------|---------|------------|")
-    else:
-        line()
-        line("=" * 80)
-        line("RÉSUMÉ GLOBAL")
-        line("=" * 80)
-        line(f"Couverture totale: {global_pct:.1f}% ({total_covered}/{total_expected} chapitres)")
-        line()
-        line("LACUNES CRITIQUES (< 50% couverture):")
-
-    for result in all_results:
-        for subject, data in result["subjects"].items():
-            if data["coverage_percent"] < 50 and data["expected"] > 3:
-                if markdown:
-                    line(f"| {result['level']} | {subject} | {data['coverage_percent']:.0f}% |")
-                else:
-                    line(f"  - {result['level']} / {subject}: {data['coverage_percent']:.0f}%")
 
 
 if __name__ == "__main__":

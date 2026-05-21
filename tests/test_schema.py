@@ -1,150 +1,155 @@
-"""
-Tests pour schema/document.py.
+"""Tests du schéma Chunk + dérivation niveaux + labels matières."""
 
-Couvre :
-- Validation des champs niveau / matiere (ajoutés Phase 5)
-- Helper cycle_from_niveau
-- Validation token_estimate
-"""
-
-import sys
-from pathlib import Path
+from __future__ import annotations
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from schema import (  # noqa: E402
-    ContentType,
+from schema import (
+    MATIERE_LABELS,
+    Chunk,
     Cycle,
-    Difficulty,
-    Document,
     Matiere,
     NiveauCollege,
     NiveauLycee,
     cycle_from_niveau,
+    derive_niveaux_from_file,
 )
 
-# ---------------------------------------------------------------------------
-# cycle_from_niveau
-# ---------------------------------------------------------------------------
+# ── Chunk Pydantic ───────────────────────────────────────────────────────────
 
 
-def test_cycle_from_niveau_sixieme_is_cycle3():
-    assert cycle_from_niveau(NiveauCollege.SIXIEME) is Cycle.CYCLE3
+def test_chunk_minimal():
+    c = Chunk(
+        text="Les nombres relatifs permettent de représenter des valeurs positives et négatives.",
+        source_file="programme_maths_cycle4_BO2026",
+        matiere=Matiere.MATHEMATIQUES,
+        niveau=NiveauCollege.CINQUIEME,
+        section="Nombres relatifs",
+        chunk_index=0,
+    )
+    assert c.cycle == Cycle.CYCLE4
+    assert c.matiere_label == "Mathématiques"
+
+
+def test_chunk_text_too_short_fails():
+    with pytest.raises(Exception):
+        Chunk(
+            text="court",
+            source_file="prog",
+            matiere=Matiere.FRANCAIS,
+            niveau=NiveauCollege.CINQUIEME,
+            section="test",
+            chunk_index=0,
+        )
+
+
+def test_chunk_niveau_is_required():
+    """niveau n'a plus de default — doit être fourni explicitement."""
+    with pytest.raises(Exception):
+        Chunk(
+            text="Texte assez long pour passer la validation min_length 50 caractères ici.",
+            source_file="prog",
+            matiere=Matiere.FRANCAIS,
+            section="test",
+            chunk_index=0,
+        )  # type: ignore[call-arg]
+
+
+def test_qdrant_payload_canonical_schema():
+    """to_qdrant_payload retourne le schema canonique pur — pas d'aliases compat."""
+    c = Chunk(
+        text="En géographie, le relief terrestre est étudié à travers différentes représentations.",
+        source_file="programme_cycle4_BO2020",
+        matiere=Matiere.HISTOIRE_GEO,
+        niveau=NiveauCollege.QUATRIEME,
+        section="Géographie",
+        chunk_index=3,
+    )
+    payload = c.to_qdrant_payload()
+
+    # Champs canoniques exacts (rien d'autre)
+    expected_keys = {"text", "source_file", "matiere", "niveau", "cycle", "section", "chunk_index"}
+    assert set(payload.keys()) == expected_keys
+
+    # Valeurs
+    assert payload["text"] == c.text
+    assert payload["section"] == "Géographie"
+    assert payload["matiere"] == "histoire_geo"
+    assert payload["niveau"] == "quatrieme"
+    assert payload["cycle"] == "cycle4"
+    assert payload["chunk_index"] == 3
+    assert payload["source_file"] == "programme_cycle4_BO2020"
+
+
+# ── cycle_from_niveau ────────────────────────────────────────────────────────
+
+
+def test_cycle_from_niveau():
+    assert cycle_from_niveau(NiveauCollege.CINQUIEME) == Cycle.CYCLE4
+    assert cycle_from_niveau(NiveauCollege.QUATRIEME) == Cycle.CYCLE4
+    assert cycle_from_niveau(NiveauCollege.TROISIEME) == Cycle.CYCLE4
+    assert cycle_from_niveau(NiveauCollege.SIXIEME) == Cycle.CYCLE3
+    assert cycle_from_niveau("terminale") == Cycle.LYCEE
+    assert cycle_from_niveau(NiveauLycee.SECONDE) == Cycle.LYCEE
+
+
+def test_cycle_from_niveau_raises_on_unknown():
+    with pytest.raises(ValueError, match="inconnu"):
+        cycle_from_niveau("CP")
+
+
+# ── derive_niveaux_from_file ─────────────────────────────────────────────────
 
 
 @pytest.mark.parametrize(
-    "niveau",
-    [NiveauCollege.CINQUIEME, NiveauCollege.QUATRIEME, NiveauCollege.TROISIEME],
+    "source_file, expected_cycle, expected_niveaux",
+    [
+        (
+            "programme_maths_cycle4_BO2026",
+            Cycle.CYCLE4,
+            ("cinquieme", "quatrieme", "troisieme"),
+        ),
+        (
+            "programme_cycle4_BO2020",
+            Cycle.CYCLE4,
+            ("cinquieme", "quatrieme", "troisieme"),
+        ),
+        (
+            "programme_anglais_college_BO2025",
+            Cycle.CYCLE4,
+            ("sixieme", "cinquieme", "quatrieme", "troisieme"),
+        ),
+        (
+            "programme_cycle3_BO2020",
+            Cycle.CYCLE3,
+            ("sixieme",),
+        ),
+    ],
 )
-def test_cycle_from_niveau_college_others_are_cycle4(niveau):
-    assert cycle_from_niveau(niveau) is Cycle.CYCLE4
+def test_derive_niveaux_from_file(source_file, expected_cycle, expected_niveaux):
+    cycle, niveaux = derive_niveaux_from_file(source_file)
+    assert cycle == expected_cycle
+    assert tuple(n.value for n in niveaux) == expected_niveaux
 
 
-@pytest.mark.parametrize(
-    "niveau", [NiveauLycee.SECONDE, NiveauLycee.PREMIERE, NiveauLycee.TERMINALE]
-)
-def test_cycle_from_niveau_lycee(niveau):
-    assert cycle_from_niveau(niveau) is Cycle.LYCEE
+def test_derive_niveaux_raises_on_unknown_filename():
+    with pytest.raises(ValueError, match="Impossible de dériver"):
+        derive_niveaux_from_file("fichier_sans_pattern_explicite")
 
 
-def test_cycle_from_niveau_accepts_string():
-    assert cycle_from_niveau("sixieme") is Cycle.CYCLE3
-    assert cycle_from_niveau("terminale") is Cycle.LYCEE
+# ── MATIERE_LABELS ───────────────────────────────────────────────────────────
 
 
-def test_cycle_from_niveau_unknown_raises():
-    with pytest.raises(ValueError, match="Niveau inconnu"):
-        cycle_from_niveau("cp")
+def test_matiere_labels_complete():
+    """Chaque Matiere a un label affichable."""
+    for m in Matiere:
+        assert m in MATIERE_LABELS
+        assert isinstance(MATIERE_LABELS[m], str)
+        assert len(MATIERE_LABELS[m]) > 0
 
 
-# ---------------------------------------------------------------------------
-# Document.niveau / matiere (nouveaux champs optionnels)
-# ---------------------------------------------------------------------------
-
-
-def _base_doc_kwargs() -> dict:
-    return {
-        "title": "Théorème de Pythagore",
-        "domaine": "Géométrie",
-        "content_type": ContentType.THEOREME,
-        "difficulty": Difficulty.STANDARD,
-        "content": "x" * 300,
-    }
-
-
-def test_document_accepts_typed_niveau():
-    doc = Document(**_base_doc_kwargs(), niveau=NiveauCollege.CINQUIEME)
-    assert doc.niveau == NiveauCollege.CINQUIEME
-
-
-def test_document_accepts_typed_matiere():
-    doc = Document(**_base_doc_kwargs(), matiere=Matiere.MATHEMATIQUES)
-    assert doc.matiere == Matiere.MATHEMATIQUES
-
-
-def test_document_accepts_string_niveau_and_coerces():
-    """Pydantic coerce les strings vers les enums NiveauCollege/Lycee."""
-    doc = Document(**_base_doc_kwargs(), niveau="cinquieme")
-    assert doc.niveau == NiveauCollege.CINQUIEME
-
-
-def test_document_accepts_string_matiere_and_coerces():
-    doc = Document(**_base_doc_kwargs(), matiere="mathematiques")
-    assert doc.matiere == Matiere.MATHEMATIQUES
-
-
-def test_document_rejects_unknown_niveau():
-    from pydantic import ValidationError
-
-    with pytest.raises(ValidationError):
-        Document(**_base_doc_kwargs(), niveau="cp")  # primaire hors scope
-
-
-def test_document_rejects_unknown_matiere():
-    from pydantic import ValidationError
-
-    with pytest.raises(ValidationError):
-        Document(**_base_doc_kwargs(), matiere="latin_grec")
-
-
-def test_document_niveau_and_matiere_default_to_none():
-    """Rétrocompat : un JSONL antérieur à la migration reste valide."""
-    doc = Document(**_base_doc_kwargs())
-    assert doc.niveau is None
-    assert doc.matiere is None
-
-
-# ---------------------------------------------------------------------------
-# Document.content — validation token_estimate
-# ---------------------------------------------------------------------------
-
-
-def test_document_rejects_content_too_short():
-    from pydantic import ValidationError
-
-    kwargs = _base_doc_kwargs()
-    kwargs["content"] = "x" * 100  # ~25 tokens, sous le min 50
-    with pytest.raises(ValidationError):
-        Document(**kwargs)
-
-
-def test_document_rejects_content_too_long():
-    from pydantic import ValidationError
-
-    kwargs = _base_doc_kwargs()
-    kwargs["content"] = "x" * 3000  # ~750 tokens, au-dessus du max 600
-    with pytest.raises(ValidationError):
-        Document(**kwargs)
-
-
-def test_document_accepts_content_at_target():
-    kwargs = _base_doc_kwargs()
-    kwargs["content"] = "x" * 1400  # ~350 tokens, cible
-    doc = Document(**kwargs)
-    assert len(doc.content) == 1400
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_matiere_labels_accents_preserved():
+    """Les labels conservent les accents FR (Mathématiques, Français, …)."""
+    assert MATIERE_LABELS[Matiere.MATHEMATIQUES] == "Mathématiques"
+    assert MATIERE_LABELS[Matiere.FRANCAIS] == "Français"
+    assert MATIERE_LABELS[Matiere.HISTOIRE_GEO] == "Histoire-Géographie"

@@ -1,0 +1,115 @@
+name: Veille BO — programmes Éduscol
+
+on:
+  schedule:
+    # Chaque lundi à 8h UTC (après la publication du BO hebdomadaire du jeudi)
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Forcer la redetection (ignore état mémorisé)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # pour committer .veille_state.json
+  issues: write     # pour créer une issue si changement
+
+jobs:
+  veille:
+    name: Contrôle des programmes officiels
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python + dépendances
+        run: |
+          uv python install 3.12
+          uv sync
+
+      - name: Install pdftotext
+        run: sudo apt-get install -y poppler-utils
+
+      - name: Run veille_programmes.py
+        env:
+          PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
+          PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
+        run: |
+          FORCE_FLAG=""
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          uv run python scripts/veille_programmes.py $FORCE_FLAG
+
+      - name: Vérifie si des changements ont été détectés
+        id: check_changes
+        run: |
+          COUNT=$(python3 -c "
+          import json
+          data = json.load(open('data/raw/.veille_changes.json', encoding='utf-8'))
+          print(len(data))
+          ")
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          echo "Changements détectés : $COUNT"
+
+      - name: Sauvegarde l'état (commit .veille_state.json)
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/raw/.veille_state.json data/raw/.veille_changes.json || true
+          git diff --staged --quiet || git commit -m "chore(veille): mise à jour état veille BO $(date -u +%Y-%m-%d)"
+          git push || true
+
+      - name: Crée une GitHub Issue si changements détectés
+        if: steps.check_changes.outputs.count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const changes = JSON.parse(fs.readFileSync('data/raw/.veille_changes.json', 'utf8'));
+            const now = new Date().toISOString().split('T')[0];
+
+            let body = `## Nouveaux programmes détectés — ${now}\n\n`;
+            body += `**${changes.length} changement(s)** identifié(s) par la veille automatique.\n\n`;
+
+            for (const c of changes) {
+              if (c.source === 'datagouv') {
+                body += `### [data.gouv.fr] ${c.title || '(ressource sans titre)'}\n`;
+                body += `- **URL PDF** : ${c.url}\n`;
+                body += `- **Dataset mis à jour** : ${c.dataset_last_modified}\n`;
+                if (c.local_txt) body += `- **Extrait localement** : \`${c.local_txt.split('/').pop()}\`\n`;
+              } else {
+                body += `### [Légifrance] ${c.titre}\n`;
+                body += `- **JO** : ${c.jo_titre || '?'}\n`;
+                body += `- **ID** : \`${c.jorftext_id || '?'}\`\n`;
+                body += `- **Légifrance** : ${c.url_legifrance}\n`;
+              }
+              body += '\n';
+            }
+
+            body += `## Checklist de validation\n\n`;
+            body += `- [ ] Lire le(s) document(s) source(s)\n`;
+            body += `- [ ] Identifier la/les matière(s) et le/les niveau(x) impacté(s)\n`;
+            body += `- [ ] Comparer avec la section correspondante dans \`docs/programmes/PROGRAMME_*.md\`\n`;
+            body += `- [ ] Réécrire la section si nécessaire (méthode : pdftotext → audit → réécriture)\n`;
+            body += `- [ ] Mettre à jour le header \`<!-- last_verified -->\` dans le MD\n`;
+            body += `- [ ] Relancer \`uv run python scripts/audit_coverage.py\`\n`;
+            body += `- [ ] Mettre à jour \`docs/programmes/CALENDRIER_REFORMES.md\` si réforme planifiée\n`;
+            body += `- [ ] Commit + PR\n\n`;
+            body += `---\n*Généré automatiquement par \`.github/workflows/veille_bo.yml\`*\n`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Veille BO] ${changes.length} nouveau(x) programme(s) détecté(s) — ${now}`,
+              body,
+              labels: ['veille-bo', 'programmes'],
+            });

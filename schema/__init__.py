@@ -1,35 +1,53 @@
-"""Schema exports (v2.0)."""
-
+from .bm25 import SparseVector, to_sparse_vector, tokenize_fr
+from .contextual import build_contextual_text
 from .document import (
-    ContentType,
+    MATIERE_LABELS,
+    Chunk,
     Cycle,
-    DatasetMetadata,
-    Difficulty,
-    Document,
     Matiere,
     Niveau,
     NiveauCollege,
     NiveauLycee,
-    QualityMetrics,
-    ReviewStatus,
     cycle_from_niveau,
+    derive_niveaux_from_file,
+)
+from .retrieval import (
+    DEFAULT_TOP_K,
+    EMBEDDING_DIM,
+    EMBEDDING_MODEL,
+    HybridResult,
+    embed_batch,
+    embed_query,
+    get_collection_name,
+    get_mistral_client,
+    get_qdrant_client,
+    hybrid_search,
+    l2_normalize,
 )
 
 __all__ = [
-    # Core types
-    "Document",
-    "DatasetMetadata",
-    # Enums
-    "ContentType",
+    "DEFAULT_TOP_K",
+    "EMBEDDING_DIM",
+    "EMBEDDING_MODEL",
+    "MATIERE_LABELS",
+    "Chunk",
     "Cycle",
-    "Difficulty",
+    "HybridResult",
     "Matiere",
     "Niveau",
     "NiveauCollege",
     "NiveauLycee",
-    "ReviewStatus",
-    # Auxiliary models
-    "QualityMetrics",
-    # Helpers
+    "SparseVector",
+    "build_contextual_text",
     "cycle_from_niveau",
+    "derive_niveaux_from_file",
+    "embed_batch",
+    "embed_query",
+    "get_collection_name",
+    "get_mistral_client",
+    "get_qdrant_client",
+    "hybrid_search",
+    "l2_normalize",
+    "to_sparse_vector",
+    "tokenize_fr",
 ]
