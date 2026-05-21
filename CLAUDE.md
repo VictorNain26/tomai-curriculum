@@ -26,8 +26,11 @@ Couvert ici :
 
 - **Souveraineté EU stricte** — Mistral (embeddings) + Qdrant Cloud (fr-par).
   Aucun SaaS hors UE. Pas d'OpenAI, Cohere, Anthropic, Google, Voyage.
-- **Pas d'invention** — source de vérité = `data/raw/*.txt|md` (programmes
-  officiels Éduscol). Aucun contenu généré par LLM dans le dataset.
+- **Pas d'invention dans le dataset** — source de vérité = `data/raw/*.txt|md`
+  (programmes officiels Éduscol). Aucun contenu généré par LLM dans
+  l'index Qdrant. Le golden set `data/golden/questions.json` est l'unique
+  artefact LLM-généré et c'est OFFLINE (script one-shot, pas runtime — voir
+  `scripts/generate_golden.py`).
 - **Idempotence** — `uuid5(NAMESPACE_URL, sha256(f"{matiere}:{niveau}:{text}"))`
   garantit qu'un re-ingest ne crée pas de doublons et que les textes
   partagés entre matières (préambules langues) ne se piétinent pas.
@@ -50,6 +53,7 @@ uv sync --all-extras
 uv run python scripts/extract_pdfs.py              # PDF → .md (pymupdf4llm)
 uv run python scripts/migrate_collection.py        # crée v2 (named vectors + indexes)
 uv run python scripts/ingest.py                    # chunk + embed + upsert
+uv run python scripts/generate_golden.py --target=300  # golden set document-grounded
 uv run python scripts/migrate_collection.py --swap-alias  # swap alias prod → v2
 
 # Diagnostic

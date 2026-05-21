@@ -159,6 +159,9 @@ class HybridResult:
     section: str
     score: float
     payload: dict[str, Any]
+    # ID Qdrant (UUID5 calculé à l'ingest). Permet à evaluate.py de
+    # mesurer recall@k sur chunk_id quand le golden set est document-grounded.
+    id: str | None = None
 
 
 def hybrid_search(
@@ -222,6 +225,7 @@ def hybrid_search(
             section=r.payload.get("section", ""),
             score=r.score,
             payload=r.payload,
+            id=str(r.id) if r.id is not None else None,
         )
         for r in response.points
     ]
