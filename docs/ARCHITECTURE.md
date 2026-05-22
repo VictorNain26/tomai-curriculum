@@ -298,12 +298,7 @@ migration :
    À retester avec golden élargi (≥30 q/matière) pour conclure.
 3. **Bump `pymupdf4llm`** à la dernière release ([github.com/pymupdf/pymupdf4llm/releases](https://github.com/pymupdf/pymupdf4llm/releases))
    pour gains perf et extras `[layout]`.
-4. **Mesure offline d'un reranker** dans `evaluate.py --rerank=...`. La seule
-   option EU Apache 2.0 production-ready en mai 2026 est
-   [`mxbai-rerank-large-v2`](https://www.mixedbread.com/docs/models/reranking/mxbai-rerank-large-v2)
-   (Mixedbread, Berlin, 1.5B, BEIR nDCG@10 57.49). Jina v3 = CC-BY-NC, BGE
-   = Chine, Cohere = US.
-5. **Embedder multilingue alternatif pour Allemand / Espagnol / Italien**.
+4. **Embedder multilingue alternatif pour Allemand / Espagnol / Italien**.
    Baseline mesurée (139 q document-grounded) : `cid_recall@5` à 0.50-0.56
    sur DE/ES/IT vs 0.83-1.00 sur FR et même 0.83 sur anglais. Confirme un
    déficit structurel de `mistral-embed` sur ces langues (modèle non
@@ -313,8 +308,32 @@ migration :
    US-origin weights). Décision produit nécessaire sur la définition de
    souveraineté (poids self-hostés ≠ origine EU).
 
-Le **branchement runtime** (rerank, alternatives) reste responsabilité
-backend. Côté curriculum, on **mesure** offline pour informer la décision.
+## Recommandations à traiter côté backend
+
+Le **runtime** (chemin emprunté à chaque question d'élève) appartient au
+backend. Les recommandations ci-dessous sont issues de la recherche état
+de l'art mai 2026 mais ne peuvent **pas** être benchmarkées utilement ici
+(la mesure offline en Python sur CPU local n'est ni représentative de la
+latence prod ni de l'implémentation TS finale).
+
+### Reranker de second étage
+
+Anthropic Contextual Retrieval mesure −67 % failure rate avec rerank
+contre −49 % sans (sur corpus non-structurés). Sur notre corpus structuré
+le gain attendu est probablement moindre mais reste significatif,
+notamment pour les matières LV où le retrieval bi-encoder est faible.
+
+**Candidat recommandé** :
+[`mxbai-rerank-large-v2`](https://www.mixedbread.com/docs/models/reranking/mxbai-rerank-large-v2)
+(Mixedbread, Berlin/EU). Apache 2.0, 1.5B params, 100+ langues incluant
+DE/ES/IT, BEIR nDCG@10 57.49.
+
+Alternatives écartées : Jina v3 = CC-BY-NC (licence commerciale Jina
+obligatoire), BGE = origine Chine (souveraineté discutable), Cohere = US.
+
+**À mesurer côté backend** : latence prod (cible <300 ms total avec
+hybrid_search + rerank), gain `chunk_id_recall@5` en conditions réelles,
+coût (self-host Scaleway H100 vs API Mixedbread EU).
 
 ## Références
 
