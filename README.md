@@ -19,13 +19,32 @@ Aucun SaaS hors UE.
 | Niveaux couverts | 6e, 5e, 4e, 3e (collège complet) |
 | Matières | 16 (tronc commun + LV + arts + EPS + sciences-techno) |
 | Coverage sections BO | **100 %** sur toutes les matières (audit 2026-05-18, sans faux positif) |
-| Retrieval baseline | `chunk_id_recall@5` à mesurer après régénération du golden document-grounded. Legacy seed (69 q) : `keyword_recall@5=0.76, MRR=0.90` — biaisé, à déprécier |
-| Tests | 64+ pass · ruff clean |
+| Retrieval baseline | `chunk_id_recall@5 = 0.813` / MRR=0.599 sur 139 questions document-grounded (sample stratifié matière × niveau) |
+| Tests | 80 pass · ruff clean |
 
-> **Note** : la métrique primaire est `chunk_id_recall@k` (document-grounded,
-> signal propre). La régénération du golden débloque cette métrique :
-> `uv run python scripts/generate_golden.py --target=300` puis
-> `uv run python scripts/evaluate.py --by-matiere`.
+### Baseline par matière (top-5)
+
+| Matière | n | cid_recall@5 | MRR |
+|---|---|---|---|
+| mathematiques, physique_chimie, sciences_technologie, svt | 26 | **1.000** | 0.74-0.93 |
+| eps | 11 | 0.909 | 0.758 |
+| histoire_geo, langues_vivantes | 16 | 0.875 | 0.625-0.729 |
+| francais, histoire_des_arts | 14 | 0.857 | 0.619-0.786 |
+| anglais, education_musicale | 24 | 0.833 | 0.736-0.785 |
+| technologie | 5 | 0.800 | 0.867 |
+| emc | 9 | 0.778 | 0.889 |
+| arts_plastiques | 8 | 0.750 | 0.604 |
+| **allemand, espagnol** | 18 | **0.556** | 0.546-0.559 |
+| **italien** | 8 | **0.500** | 0.425 |
+
+**Findings** :
+- Contenu FR (tronc commun cycle 4) atteint le plafond (cid_recall = 1.000)
+- **Anglais correct (0.83)** — mistral-embed gère bien l'anglais
+- **Allemand / espagnol / italien faibles (0.50-0.56)** — déficit structurel
+  probable de `mistral-embed` (modèle non officiellement multilingue selon
+  la doc Mistral). Candidats alternatifs self-host à benchmarker côté
+  curriculum : BGE-M3 (MIT, sparse natif), multilingual-e5-large-instruct
+  (MIT). Décision finale produit (souveraineté origine weights).
 
 ## Architecture
 

@@ -300,11 +300,15 @@ migration :
    [`mxbai-rerank-large-v2`](https://www.mixedbread.com/docs/models/reranking/mxbai-rerank-large-v2)
    (Mixedbread, Berlin, 1.5B, BEIR nDCG@10 57.49). Jina v3 = CC-BY-NC, BGE
    = Chine, Cohere = US.
-5. **Embedder multilingue alternatif** SI la baseline `chunk_id_recall`
-   confirme un déficit LV (Allemand/Espagnol/Italien). `mistral-embed`
-   n'est pas officiellement multilingue selon la doc Mistral. Candidats
-   self-host Scaleway : BGE-M3 (MIT, 1024D, sparse natif → simplifierait
-   le BM25), multilingual-e5-large-instruct (MIT, US-origin).
+5. **Embedder multilingue alternatif pour Allemand / Espagnol / Italien**.
+   Baseline mesurée (139 q document-grounded) : `cid_recall@5` à 0.50-0.56
+   sur DE/ES/IT vs 0.83-1.00 sur FR et même 0.83 sur anglais. Confirme un
+   déficit structurel de `mistral-embed` sur ces langues (modèle non
+   officiellement multilingue selon la doc Mistral). Candidats self-host
+   Scaleway à benchmarker dans `evaluate.py` : BGE-M3 (MIT, 1024D, sparse
+   natif → simplifierait le BM25), multilingual-e5-large-instruct (MIT,
+   US-origin weights). Décision produit nécessaire sur la définition de
+   souveraineté (poids self-hostés ≠ origine EU).
 
 Le **branchement runtime** (rerank, alternatives) reste responsabilité
 backend. Côté curriculum, on **mesure** offline pour informer la décision.
