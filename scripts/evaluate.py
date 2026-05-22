@@ -137,7 +137,13 @@ def _score_question(q: dict, chunks: list[Any]) -> dict:
     }
 
 
-def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> None:
+def run_evaluation(
+    questions_file: str | None,
+    top_k: int,
+    by_matiere: bool,
+    fusion: str = "rrf",
+    output_suffix: str = "",
+) -> None:
     if questions_file:
         path = Path(questions_file)
     else:
@@ -155,7 +161,8 @@ def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> 
         if "query" not in q and "question" in q:
             q["query"] = q["question"]
 
-    print(f"Top-k      : {top_k}\n")
+    print(f"Top-k      : {top_k}")
+    print(f"Fusion     : {fusion}\n")
 
     results = []
     skipped = 0
@@ -169,6 +176,7 @@ def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> 
             top_k=top_k,
             matiere=q.get("matiere"),
             niveau=q.get("niveau"),
+            fusion=fusion,
         )
         r = _score_question(q, chunks)
         results.append(r)
@@ -269,11 +277,13 @@ def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> 
             )
 
     GOLDEN_DIR.mkdir(parents=True, exist_ok=True)
-    out = GOLDEN_DIR / "retrieval_eval.json"
+    out_name = f"retrieval_eval{output_suffix}.json"
+    out = GOLDEN_DIR / out_name
     out.write_text(
         json.dumps(
             {
                 "top_k": top_k,
+                "fusion": fusion,
                 "n_total": len(results),
                 "n_scorable": len(scorable),
                 # [primary] chunk_id metrics first (document-grounded signal propre)
@@ -309,9 +319,27 @@ def main() -> None:
         action="store_true",
         help="Ventile les métriques par matière",
     )
+    parser.add_argument(
+        "--fusion",
+        choices=["rrf", "dbsf"],
+        default="rrf",
+        help="Méthode de fusion hybrid search (rrf par défaut, dbsf = "
+        "Distribution-Based Score Fusion Qdrant 1.11+).",
+    )
+    parser.add_argument(
+        "--output-suffix",
+        default="",
+        help="Suffixe pour le fichier de sortie (ex: '-dbsf' → retrieval_eval-dbsf.json)",
+    )
     args = parser.parse_args()
 
-    run_evaluation(args.questions, args.top_k, args.by_matiere)
+    run_evaluation(
+        args.questions,
+        args.top_k,
+        args.by_matiere,
+        fusion=args.fusion,
+        output_suffix=args.output_suffix,
+    )
 
 
 if __name__ == "__main__":

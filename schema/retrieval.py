@@ -165,10 +165,11 @@ def hybrid_search(
     cycle: str | None = None,
     collection: str | None = None,
     prefetch_multiplier: int = 4,
+    fusion: str = "rrf",
 ) -> list[HybridResult]:
     """
     Hybrid search : prefetch dense (mistral-embed) + sparse (BM25 IDF natif
-    Qdrant), fusion RRF côté server. Tous filtres combinables.
+    Qdrant), fusion server-side. Tous filtres combinables.
 
     Args
     ----
@@ -176,8 +177,11 @@ def hybrid_search(
     top_k : nombre de chunks retournés (5 par défaut).
     matiere/niveau/cycle : filtres payload exact-match (KEYWORD indexes).
     collection : override la collection cible (sinon `get_collection_name()`).
-    prefetch_multiplier : prefetch top_k × N candidats avant fusion RRF (4 par
+    prefetch_multiplier : prefetch top_k × N candidats avant fusion (4 par
         défaut, recommandation Qdrant).
+    fusion : "rrf" (Reciprocal Rank Fusion, défaut) ou "dbsf" (Distribution-
+        Based Score Fusion, Qdrant 1.11+). Ref :
+        https://qdrant.tech/documentation/search/hybrid-queries/
     """
     from qdrant_client import models
 
@@ -196,6 +200,10 @@ def hybrid_search(
 
     prefetch_limit = max(top_k * prefetch_multiplier, 20)
 
+    fusion_modes = {"rrf": models.Fusion.RRF, "dbsf": models.Fusion.DBSF}
+    if fusion not in fusion_modes:
+        raise ValueError(f"fusion must be one of {sorted(fusion_modes)} (got {fusion!r})")
+
     client = get_qdrant_client()
     response = client.query_points(
         collection_name=collection or get_collection_name(),
@@ -203,7 +211,7 @@ def hybrid_search(
             models.Prefetch(query=dense, using="dense", limit=prefetch_limit),
             models.Prefetch(query=sparse, using="bm25", limit=prefetch_limit),
         ],
-        query=models.FusionQuery(fusion=models.Fusion.RRF),
+        query=models.FusionQuery(fusion=fusion_modes[fusion]),
         query_filter=query_filter,
         limit=top_k,
         with_payload=True,

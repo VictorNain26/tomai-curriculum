@@ -291,8 +291,11 @@ migration :
 
 1. **`chunk_size` 400 → 512 tokens** — consensus 2025-2026 (Vecta, Firecrawl,
    PreMAI). Gain attendu ~2-5 %.
-2. **`Fusion.RRF` → `Fusion.DBSF`** (Qdrant 1.11+, [release notes](https://qdrant.tech/blog/qdrant-1.11.x/)).
-   Aucun bench public sur corpus FR éducatif — test trivial à faire.
+2. ~~**`Fusion.RRF` → `Fusion.DBSF`** (Qdrant 1.11+)~~ — **mesuré** :
+   inconclusif au défaut. DBSF aide DE/ES (+0.13/+0.14 cid_recall) et MRR
+   global (+0.057), mais régresse français (-0.125) et techno (-0.111).
+   `evaluate.py --fusion=dbsf` disponible comme option ; RRF reste défaut.
+   À retester avec golden élargi (≥30 q/matière) pour conclure.
 3. **Bump `pymupdf4llm`** à la dernière release ([github.com/pymupdf/pymupdf4llm/releases](https://github.com/pymupdf/pymupdf4llm/releases))
    pour gains perf et extras `[layout]`.
 4. **Mesure offline d'un reranker** dans `evaluate.py --rerank=...`. La seule
