@@ -26,8 +26,7 @@ EMBEDDING_DIM = 1024
 EMBEDDING_BATCH_SIZE = 50
 DEFAULT_TOP_K = 5
 
-DEFAULT_COLLECTION_ALIAS = "tomai_educational"
-DEFAULT_COLLECTION_V2 = f"{DEFAULT_COLLECTION_ALIAS}_v2"
+DEFAULT_COLLECTION = "tomai_educational"
 
 
 # ── Clients lazy singleton ───────────────────────────────────────────────────
@@ -65,15 +64,8 @@ def get_qdrant_client():
 
 
 def get_collection_name() -> str:
-    """
-    Nom de collection cible. Par convention :
-    - Lecture (query, eval, audit) : utilise QDRANT_COLLECTION (alias prod)
-    - Écriture (ingest, migrate) : utilise `{alias}_v2`
-
-    Cette fonction retourne ce que l'env demande, sans suffixe automatique
-    pour éviter le bug `tomai_educational_v2_v2`.
-    """
-    return os.environ.get("QDRANT_COLLECTION", DEFAULT_COLLECTION_ALIAS)
+    """Nom de collection cible (lecture + écriture). Override via QDRANT_COLLECTION."""
+    return os.environ.get("QDRANT_COLLECTION", DEFAULT_COLLECTION)
 
 
 # ── Helpers numériques ───────────────────────────────────────────────────────

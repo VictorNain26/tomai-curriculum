@@ -34,7 +34,7 @@ def test_contextual_prefix_does_not_include_niveau():
     """
     Le niveau est volontairement absent du préfixe : permet 1 seul embed par
     texte puis duplication payload pour 5e/4e/3e (économie 3× sur l'API).
-    Voir ADR-0007 §contextual prefix.
+    Voir docs/ARCHITECTURE.md §Contextual prefix.
     """
     out = build_contextual_text(_chunk(niveau=NiveauCollege.QUATRIEME))
     assert "quatrieme" not in out

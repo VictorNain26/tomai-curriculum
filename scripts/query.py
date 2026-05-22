@@ -5,7 +5,7 @@ Outil interactif : tester le retrieval hybrid sur la collection Qdrant.
 Affiche les chunks retournés (top-k) — RIEN de plus. Ce repo gère
 exclusivement l'INDEX, pas la couche LLM. Toute génération de réponse
 (tutorat socratique, chat) est la responsabilité du backend
-(tomai-monorepo/apps/server). Voir docs/adr/0007.
+(tomai-monorepo/apps/server). Voir docs/ARCHITECTURE.md.
 
 Usage :
   uv run python scripts/query.py "Comment calculer le PGCD ?"

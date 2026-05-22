@@ -4,10 +4,9 @@ Schéma Pydantic pour le pipeline RAG éducatif TomAI.
 Un Chunk = une unité textuelle extraite des programmes officiels Éduscol,
 chunkée, embedée, et stockée dans Qdrant.
 
-Source de vérité : data/raw/*.txt (programmes officiels extraits par pdftotext).
+Source de vérité : data/raw/*.md (préférée) ou *.txt (fallback).
 
-Voir ADR-0007 pour les décisions architecturales (payload simple + aliases backend,
-multi-niveau par duplication, contextual prefix sans niveau).
+Voir docs/ARCHITECTURE.md pour les décisions architecturales.
 """
 
 from __future__ import annotations
@@ -86,7 +85,7 @@ class Matiere(str, Enum):
     # programme cycle 3 BO 2020 qui ne spécifie pas la langue — le contenu est
     # méta-pédagogique commun à toutes les LV).
     LANGUES_VIVANTES = "langues_vivantes"
-    # Lycée — vocabulaire prêt (Phase 2)
+    # Lycée — vocabulaire prêt pour extension future
     SNT = "snt"
     ENSEIGNEMENT_SCIENTIFIQUE = "enseignement_scientifique"
     PHILOSOPHIE = "philosophie"
@@ -174,8 +173,8 @@ def derive_niveaux_from_file(
     Dérive (cycle, niveaux) depuis le nom du fichier source.
 
     Le pipeline duplique chaque chunk une fois par niveau retourné (même embed,
-    payload distinct) — voir ADR-0007 pour la justification du choix duplication
-    vs payload-multi-value.
+    payload distinct) — voir docs/ARCHITECTURE.md §Multi-niveau pour la
+    justification du choix duplication vs payload-multi-value.
 
     Lève ValueError si aucun pattern ne matche : la dérivation doit être explicite,
     pas silencieusement vide.
@@ -201,9 +200,9 @@ class Chunk(BaseModel):
     séparément par `schema/contextual.py:build_contextual_text(chunk)`.
 
     Payload stocké dans Qdrant : schema canonique pur (text, section, matiere,
-    niveau, cycle, source_file, chunk_index). Les aliases `title/content`
-    initialement prévus en Phase 1 (ADR-0007) ont été retirés une fois le
-    backend aligné côté `qdrant.service.ts` (Phase 2A).
+    niveau, cycle, source_file, chunk_index). Aucun champ alias (title/content)
+    ni champ LLM-generated (domaine/difficulty/content_type) — le dataset reste
+    strictement vérifiable contre les BO officiels.
     """
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -230,8 +229,8 @@ class Chunk(BaseModel):
         Payload Qdrant canonique — schema pur sans alias compat.
 
         Le backend (tomai-monorepo/apps/server/src/services/qdrant.service.ts)
-        lit directement ces champs. Pas de doublons title/content (l'ADR-0006
-        a explicitement retiré ces champs LLM-generated obsolètes).
+        lit directement ces champs. Pas de doublons title/content, ni de champs
+        LLM-generated (cf. docs/ARCHITECTURE.md §Schema Chunk).
         """
         return {
             "text": self.text,

@@ -1,5 +1,5 @@
 """
-Tests du pipeline d'ingestion RAG (refondu mai 2026, ADR-0006/0007).
+Tests du pipeline d'ingestion RAG.
 
 Structure :
 - Unitaires (pas d'I/O fichier, pas d'API) — rapides, toujours actifs
@@ -247,7 +247,7 @@ def test_validate_chunks_accepts_valid_chunk():
 
 
 def test_validate_chunks_payload_canonical_no_aliases():
-    """Payload Qdrant canonique pur — aliases title/content RETIRÉS (Phase 2A)."""
+    """Payload Qdrant canonique pur — aucun alias title/content."""
     from scripts.ingest import validate_chunks
 
     result = validate_chunks([_valid_chunk()])

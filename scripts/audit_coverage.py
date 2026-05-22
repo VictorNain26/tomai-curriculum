@@ -428,7 +428,7 @@ def main() -> None:
 
     print(f"Chargement des chunks depuis Qdrant ({collection})…", flush=True)
 
-    # Comparaison Matiere enum vs string CLI (ADR-0007 : SOURCES utilise des enums)
+    # Comparaison Matiere enum vs string CLI (SOURCES utilise des enums Matiere)
     def _matiere_value(s: dict) -> str:
         m = s["matiere"]
         return m.value if hasattr(m, "value") else str(m)

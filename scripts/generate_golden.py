@@ -22,8 +22,8 @@ compréhension des sections pédagogiques). Le script est OFFLINE one-shot,
 contre la règle "curriculum = index only / pas de LLM runtime" : c'est
 acceptable car la génération du golden set est un step de TEST AUTHORING
 (pas de runtime de tutorat), produit un artefact versionné (`data/golden/
-questions.json`), et la couche RAGAS-judge runtime reste explicitement
-côté backend (ADR-0007 D9).
+questions.json`), et la couche LLM-judge runtime reste explicitement
+côté backend (cf. docs/ARCHITECTURE.md).
 
 Usage :
   uv run python scripts/generate_golden.py                  # 200 questions

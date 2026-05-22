@@ -94,7 +94,7 @@ data/
 ├── golden/questions.json  Golden set pour evaluate.py
 └── golden/retrieval_eval.json  Résultats eval (versionnés en CI)
 
-docs/adr/                  Décisions architecturales (0001-0007)
+docs/ARCHITECTURE.md       Source de vérité unique sur l'architecture
 docs/audits/               Rapports coverage horodatés
 ```
 
@@ -108,12 +108,12 @@ data/raw/*.md
   └─ extract_section()      regex `^## \*\*Matière\*\*` pour fichiers multi-matières
   └─ chunk_text()           chonkie RecursiveChunker + tokenizer Mistral vrais tokens
   └─ expand_for_niveaux()   duplique 1 chunk × N niveaux du cycle
-  └─ validate_chunks()      Pydantic Chunk → payload + aliases backend
+  └─ validate_chunks()      Pydantic Chunk → payload Qdrant
   └─ embed_batch()          mistral-embed batch 50 + normalisation L2 (déduplique textes)
   └─ upsert_to_qdrant()     named {dense, bm25} + uuid5(matiere+niveau+text) idempotent
 ```
 
-Collection cible : `tomai_educational_v2` (alias `tomai_educational` après swap).
+Collection cible : `tomai_educational` (variable d'env `QDRANT_COLLECTION`).
 - `dense` (1024D cosine, mistral-embed) + sparse `bm25` (Modifier.IDF natif)
 - Scalar int8 quantization always_ram (4× compression, <1 % perte recall)
 - Payload indexes KEYWORD : `niveau`, `matiere`, `cycle`, `source_file`
