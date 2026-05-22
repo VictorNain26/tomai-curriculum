@@ -21,18 +21,26 @@ from .bm25 import to_sparse_vector
 
 # ── Constantes ───────────────────────────────────────────────────────────────
 
-EMBEDDING_MODEL = "mistral-embed"
+# Modèles d'embedding supportés. Tous produisent du 1024D pour rester compatibles
+# avec la config Qdrant (named vector "dense" 1024 COSINE).
+EMBEDDING_MODELS_1024D = ("mistral-embed", "BAAI/bge-m3")
+DEFAULT_EMBED_MODEL = "mistral-embed"
+
 EMBEDDING_DIM = 1024
 EMBEDDING_BATCH_SIZE = 50
 DEFAULT_TOP_K = 5
 
 DEFAULT_COLLECTION = "tomai_educational"
 
+# Alias rétro-compatibilité (anciens scripts).
+EMBEDDING_MODEL = DEFAULT_EMBED_MODEL
+
 
 # ── Clients lazy singleton ───────────────────────────────────────────────────
 
 _mistral_client = None
 _qdrant_client = None
+_st_models: dict[str, Any] = {}  # sentence-transformers models cache
 
 
 def get_mistral_client():
@@ -109,33 +117,68 @@ def _call_with_retry(fn, label: str, max_attempts: int = 5):
 # ── Embeddings (avec normalisation L2 systématique) ──────────────────────────
 
 
-def embed_query(query: str) -> list[float]:
-    """Embed une query (texte court). Retry + L2 normalize."""
-    client = get_mistral_client()
-    response = _call_with_retry(
-        lambda: client.embeddings.create(model=EMBEDDING_MODEL, inputs=[query]),
-        label="embed_query",
-    )
-    return l2_normalize(response.data[0].embedding)
+def _get_sentence_transformer(model_name: str):
+    """
+    Charge un modèle sentence-transformers (BGE-M3 etc.) en cache module.
+    Lib mature, normalize_embeddings=True applique L2 nativement.
+    Doc : https://www.sbert.net/
+    """
+    if model_name not in _st_models:
+        from sentence_transformers import SentenceTransformer
+
+        _st_models[model_name] = SentenceTransformer(model_name)
+    return _st_models[model_name]
 
 
-def embed_batch(texts: list[str]) -> list[list[float]]:
-    """
-    Embed une liste de textes en batches de EMBEDDING_BATCH_SIZE. Retry + L2.
-    Utilisé par ingest pour batch-embed les chunks.
-    """
-    if not texts:
-        return []
+def _embed_mistral(texts: list[str]) -> list[list[float]]:
+    """Backend Mistral API (mistral-embed). Retry + L2 normalize côté client."""
     client = get_mistral_client()
     vectors: list[list[float]] = []
     for i in range(0, len(texts), EMBEDDING_BATCH_SIZE):
         batch = texts[i : i + EMBEDDING_BATCH_SIZE]
         response = _call_with_retry(
-            lambda b=batch: client.embeddings.create(model=EMBEDDING_MODEL, inputs=b),
-            label=f"embed_batch[{i}:{i + len(batch)}]",
+            lambda b=batch: client.embeddings.create(model="mistral-embed", inputs=b),
+            label=f"embed_mistral[{i}:{i + len(batch)}]",
         )
         vectors.extend(l2_normalize(e.embedding) for e in response.data)
     return vectors
+
+
+def _embed_sentence_transformer(texts: list[str], model_name: str) -> list[list[float]]:
+    """Backend local via sentence-transformers (BGE-M3 etc.).
+    `normalize_embeddings=True` produit du L2 natif (équivalent à l2_normalize)."""
+    model = _get_sentence_transformer(model_name)
+    arr = model.encode(
+        texts,
+        batch_size=EMBEDDING_BATCH_SIZE,
+        normalize_embeddings=True,
+        show_progress_bar=False,
+        convert_to_numpy=True,
+    )
+    return arr.tolist()
+
+
+def embed_batch(texts: list[str], embed_model: str = DEFAULT_EMBED_MODEL) -> list[list[float]]:
+    """
+    Embed une liste de textes. Dispatcher entre Mistral API et
+    sentence-transformers selon `embed_model`. Tous les modèles produisent
+    du 1024D L2-normalisé pour rester compatibles avec la collection Qdrant.
+    """
+    if not texts:
+        return []
+    if embed_model == "mistral-embed":
+        return _embed_mistral(texts)
+    if embed_model in EMBEDDING_MODELS_1024D:
+        return _embed_sentence_transformer(texts, embed_model)
+    raise ValueError(
+        f"embed_model {embed_model!r} non supporté. "
+        f"Modèles 1024D acceptés : {EMBEDDING_MODELS_1024D}"
+    )
+
+
+def embed_query(query: str, embed_model: str = DEFAULT_EMBED_MODEL) -> list[float]:
+    """Embed une query (texte court). Délègue à embed_batch pour cohérence."""
+    return embed_batch([query], embed_model=embed_model)[0]
 
 
 # ── Hybrid search Qdrant ─────────────────────────────────────────────────────
@@ -166,6 +209,7 @@ def hybrid_search(
     collection: str | None = None,
     prefetch_multiplier: int = 4,
     fusion: str = "rrf",
+    embed_model: str = DEFAULT_EMBED_MODEL,
 ) -> list[HybridResult]:
     """
     Hybrid search : prefetch dense (mistral-embed) + sparse (BM25 IDF natif
@@ -185,7 +229,7 @@ def hybrid_search(
     """
     from qdrant_client import models
 
-    dense = embed_query(query)
+    dense = embed_query(query, embed_model=embed_model)
     sparse_data = to_sparse_vector(query)
     sparse = models.SparseVector(indices=sparse_data.indices, values=sparse_data.values)
 

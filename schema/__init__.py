@@ -13,9 +13,11 @@ from .document import (
 )
 from .golden import GoldenQuestion, GoldenSet
 from .retrieval import (
+    DEFAULT_EMBED_MODEL,
     DEFAULT_TOP_K,
     EMBEDDING_DIM,
     EMBEDDING_MODEL,
+    EMBEDDING_MODELS_1024D,
     HybridResult,
     embed_batch,
     embed_query,
@@ -27,9 +29,11 @@ from .retrieval import (
 )
 
 __all__ = [
+    "DEFAULT_EMBED_MODEL",
     "DEFAULT_TOP_K",
     "EMBEDDING_DIM",
     "EMBEDDING_MODEL",
+    "EMBEDDING_MODELS_1024D",
     "MATIERE_LABELS",
     "Chunk",
     "Cycle",

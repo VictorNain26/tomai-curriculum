@@ -45,7 +45,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from schema import DEFAULT_TOP_K, hybrid_search
+from schema import DEFAULT_EMBED_MODEL, DEFAULT_TOP_K, EMBEDDING_MODELS_1024D, hybrid_search
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -143,6 +143,8 @@ def run_evaluation(
     by_matiere: bool,
     fusion: str = "rrf",
     output_suffix: str = "",
+    embed_model: str = DEFAULT_EMBED_MODEL,
+    collection: str | None = None,
 ) -> None:
     if questions_file:
         path = Path(questions_file)
@@ -162,7 +164,11 @@ def run_evaluation(
             q["query"] = q["question"]
 
     print(f"Top-k      : {top_k}")
-    print(f"Fusion     : {fusion}\n")
+    print(f"Fusion     : {fusion}")
+    print(f"Embed      : {embed_model}")
+    if collection:
+        print(f"Collection : {collection}")
+    print()
 
     results = []
     skipped = 0
@@ -177,6 +183,8 @@ def run_evaluation(
             matiere=q.get("matiere"),
             niveau=q.get("niveau"),
             fusion=fusion,
+            embed_model=embed_model,
+            collection=collection,
         )
         r = _score_question(q, chunks)
         results.append(r)
@@ -284,6 +292,8 @@ def run_evaluation(
             {
                 "top_k": top_k,
                 "fusion": fusion,
+                "embed_model": embed_model,
+                "collection": collection,
                 "n_total": len(results),
                 "n_scorable": len(scorable),
                 # [primary] chunk_id metrics first (document-grounded signal propre)
@@ -331,6 +341,17 @@ def main() -> None:
         default="",
         help="Suffixe pour le fichier de sortie (ex: '-dbsf' → retrieval_eval-dbsf.json)",
     )
+    parser.add_argument(
+        "--embed-model",
+        default=DEFAULT_EMBED_MODEL,
+        choices=list(EMBEDDING_MODELS_1024D),
+        help=f"Modèle d'embedding pour la query (défaut {DEFAULT_EMBED_MODEL}).",
+    )
+    parser.add_argument(
+        "--collection",
+        default=None,
+        help="Override la collection Qdrant cible (sinon QDRANT_COLLECTION env).",
+    )
     args = parser.parse_args()
 
     run_evaluation(
@@ -339,6 +360,8 @@ def main() -> None:
         args.by_matiere,
         fusion=args.fusion,
         output_suffix=args.output_suffix,
+        embed_model=args.embed_model,
+        collection=args.collection,
     )
 
 

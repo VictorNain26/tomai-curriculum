@@ -510,11 +510,33 @@ def show_status() -> None:
 
 
 def main() -> None:
+    from schema import DEFAULT_EMBED_MODEL, EMBEDDING_MODELS_1024D
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Affiche chunks sans upserter")
     parser.add_argument("--matiere", help="Filtre sur une matière (ex: mathematiques)")
     parser.add_argument("--status", action="store_true", help="État collection Qdrant")
+    parser.add_argument(
+        "--embed-model",
+        default=DEFAULT_EMBED_MODEL,
+        choices=list(EMBEDDING_MODELS_1024D),
+        help=f"Modèle d'embedding (1024D). Défaut: {DEFAULT_EMBED_MODEL}.",
+    )
+    parser.add_argument(
+        "--collection",
+        default=None,
+        help=(
+            "Override la collection cible (sinon QDRANT_COLLECTION env ou "
+            "'tomai_educational'). Utile pour bench un embedder alternatif "
+            "dans une sandbox sans toucher l'index prod."
+        ),
+    )
     args = parser.parse_args()
+
+    # Override collection si demandé (avant que upsert_to_qdrant lise la globale)
+    global COLLECTION
+    if args.collection:
+        COLLECTION = args.collection
 
     if args.status:
         show_status()
@@ -592,8 +614,12 @@ def main() -> None:
                 unique_texts[text] = len(embed_inputs)
                 embed_inputs.append(build_contextual_text(chunk_for_prefix))
 
-        print(f"  Embedding ({len(embed_inputs)} textes uniques)…", end=" ", flush=True)
-        unique_vectors = embed_batch(embed_inputs)
+        print(
+            f"  Embedding ({len(embed_inputs)} textes uniques, {args.embed_model})…",
+            end=" ",
+            flush=True,
+        )
+        unique_vectors = embed_batch(embed_inputs, embed_model=args.embed_model)
         print(f"{len(unique_vectors)} vecteurs")
 
         # Broadcast : chaque payload récupère le vecteur de son texte
