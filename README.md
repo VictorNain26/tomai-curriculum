@@ -19,32 +19,35 @@ Aucun SaaS hors UE.
 | Niveaux couverts | 6e, 5e, 4e, 3e (collège complet) |
 | Matières | 16 (tronc commun + LV + arts + EPS + sciences-techno) |
 | Coverage sections BO | **100 %** sur toutes les matières (audit 2026-05-18, sans faux positif) |
-| Retrieval baseline | `chunk_id_recall@5 = 0.813` / MRR=0.599 sur 139 questions document-grounded (sample stratifié matière × niveau) |
-| Tests | 80 pass · ruff clean |
+| Retrieval baseline | `chunk_id_recall@5 = 0.810` / MRR=0.576 sur 189 questions document-grounded (sample stratifié matière × niveau, 61 strates) |
+| Tests | 83 pass · ruff clean |
 
-### Baseline par matière (top-5)
+### Baseline par matière (top-5, golden 189 questions)
 
 | Matière | n | cid_recall@5 | MRR |
 |---|---|---|---|
-| mathematiques, physique_chimie, sciences_technologie, svt | 26 | **1.000** | 0.74-0.93 |
-| eps | 11 | 0.909 | 0.758 |
-| histoire_geo, langues_vivantes | 16 | 0.875 | 0.625-0.729 |
-| francais, histoire_des_arts | 14 | 0.857 | 0.619-0.786 |
-| anglais, education_musicale | 24 | 0.833 | 0.736-0.785 |
-| technologie | 5 | 0.800 | 0.867 |
-| emc | 9 | 0.778 | 0.889 |
-| arts_plastiques | 8 | 0.750 | 0.604 |
-| **allemand, espagnol** | 18 | **0.556** | 0.546-0.559 |
-| **italien** | 8 | **0.500** | 0.425 |
+| eps, histoire_geo, physique_chimie | 36 | **1.000** | 0.73-0.94 |
+| mathematiques | 14 | 0.929 | 0.827 |
+| education_musicale, emc | 22 | 0.909 | 1.000 |
+| svt | 10 | 0.900 | 0.900 |
+| technologie | 9 | 0.889 | 0.796 |
+| francais | 16 | 0.875 | 0.736 |
+| anglais | 12 | 0.750 | 0.667 |
+| sciences_technologie | 4 | 0.750 | 1.000 |
+| arts_plastiques, histoire_des_arts | 26 | 0.692 | 0.718-0.872 |
+| italien | 8 | 0.625 | 0.542 |
+| **allemand, langues_vivantes** | 25 | **0.600** | 0.647-0.725 |
+| **espagnol** | 7 | **0.429** | 0.433 |
 
 **Findings** :
-- Contenu FR (tronc commun cycle 4) atteint le plafond (cid_recall = 1.000)
-- **Anglais correct (0.83)** — mistral-embed gère bien l'anglais
-- **Allemand / espagnol / italien faibles (0.50-0.56)** — déficit structurel
-  probable de `mistral-embed` (modèle non officiellement multilingue selon
-  la doc Mistral). Candidats alternatifs self-host à benchmarker côté
-  curriculum : BGE-M3 (MIT, sparse natif), multilingual-e5-large-instruct
-  (MIT). Décision finale produit (souveraineté origine weights).
+- Contenu FR sciences (cycle 4 + EPS + HG) atteint ou approche le plafond
+- **Anglais correct (0.75)** — mistral-embed gère bien l'anglais
+- **Allemand / espagnol / italien faibles (0.43-0.63)** — déficit structurel
+  de `mistral-embed` sur ces langues (modèle non officiellement multilingue
+  selon la doc Mistral). Candidats alternatifs self-host à benchmarker :
+  BGE-M3 (MIT, sparse natif), multilingual-e5-large-instruct (MIT).
+- Arts plastiques + histoire_des_arts à 0.69 = vocabulaire conceptuel
+  abstrait, à investiguer.
 
 ## Architecture
 
