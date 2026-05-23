@@ -17,7 +17,7 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from .bm25 import to_sparse_vector
+from .bm25 import SparseVector, to_sparse_vector
 
 # ── Constantes ───────────────────────────────────────────────────────────────
 
@@ -25,6 +25,14 @@ from .bm25 import to_sparse_vector
 # avec la config Qdrant (named vector "dense" 1024 COSINE).
 EMBEDDING_MODELS_1024D = ("mistral-embed", "BAAI/bge-m3")
 DEFAULT_EMBED_MODEL = "mistral-embed"
+
+# Méthodes sparse supportées :
+# - "bm25"        : tokenizer FNV-1a maison (schema/bm25.py), Qdrant IDF natif.
+#                   Parité stricte Python↔TS pour le backend.
+# - "BAAI/bge-m3" : learned sparse natif de BGE-M3 via FlagEmbedding.
+#                   Dense + sparse en un seul forward pass.
+SPARSE_METHODS = ("bm25", "BAAI/bge-m3")
+DEFAULT_SPARSE_METHOD = "bm25"
 
 EMBEDDING_DIM = 1024
 EMBEDDING_BATCH_SIZE = 50
@@ -41,6 +49,7 @@ EMBEDDING_MODEL = DEFAULT_EMBED_MODEL
 _mistral_client = None
 _qdrant_client = None
 _st_models: dict[str, Any] = {}  # sentence-transformers models cache
+_bge_m3_model: Any = None  # FlagEmbedding BGEM3FlagModel singleton (dense+sparse)
 
 
 def get_mistral_client():
@@ -181,6 +190,88 @@ def embed_query(query: str, embed_model: str = DEFAULT_EMBED_MODEL) -> list[floa
     return embed_batch([query], embed_model=embed_model)[0]
 
 
+# ── BGE-M3 dense + sparse natif (FlagEmbedding) ──────────────────────────────
+
+
+def _get_bge_m3_model():
+    """
+    Singleton lazy BGEM3FlagModel. Charge ~2.4 GB au premier appel puis cache.
+    Doc : https://huggingface.co/BAAI/bge-m3 (lib FlagEmbedding officielle BAAI).
+    use_fp16=False par défaut (GPU absent sur la plupart des postes dev).
+    """
+    global _bge_m3_model
+    if _bge_m3_model is None:
+        from FlagEmbedding import BGEM3FlagModel
+
+        _bge_m3_model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
+    return _bge_m3_model
+
+
+def _lexical_weights_to_sparse(weights: dict) -> SparseVector:
+    """
+    Convertit `lexical_weights` BGE-M3 ({token_id_str: weight_float32}) en
+    format Qdrant SparseVector (indices u32 int + values float32).
+    """
+    indices = [int(k) for k in weights.keys()]
+    values = [float(v) for v in weights.values()]
+    return SparseVector(indices=indices, values=values)
+
+
+def encode_with_sparse(
+    texts: list[str],
+    embed_model: str = "BAAI/bge-m3",
+    sparse_method: str = "BAAI/bge-m3",
+) -> tuple[list[list[float]], list[SparseVector]]:
+    """
+    Encode des textes en dense + sparse selon les méthodes choisies.
+
+    Combinaisons supportées :
+
+    - embed_model="BAAI/bge-m3" + sparse_method="BAAI/bge-m3"
+      → un seul forward pass FlagEmbedding, dense L2-normé + sparse natif
+    - embed_model={mistral-embed|BAAI/bge-m3} + sparse_method="bm25"
+      → dense via embed_batch standard + sparse via to_sparse_vector (BM25 maison)
+
+    Returns (dense_vectors, sparse_vectors) — listes alignées par index.
+    """
+    if not texts:
+        return [], []
+
+    if sparse_method == "BAAI/bge-m3":
+        if embed_model != "BAAI/bge-m3":
+            raise ValueError(
+                "sparse_method='BAAI/bge-m3' impose embed_model='BAAI/bge-m3' "
+                "(single forward pass dense+sparse cohérent)."
+            )
+        model = _get_bge_m3_model()
+        # FlagEmbedding gère le batching interne ; on lui passe tout d'un coup.
+        out = model.encode(texts, return_dense=True, return_sparse=True, return_colbert_vecs=False)
+        # `out["dense_vecs"]` est np.ndarray L2-normé natif par FlagEmbedding.
+        dense = [vec.tolist() for vec in out["dense_vecs"]]
+        sparse = [_lexical_weights_to_sparse(w) for w in out["lexical_weights"]]
+        return dense, sparse
+
+    if sparse_method == "bm25":
+        dense = embed_batch(texts, embed_model=embed_model)
+        sparse = [to_sparse_vector(t) for t in texts]
+        return dense, sparse
+
+    raise ValueError(f"sparse_method {sparse_method!r} non supporté. Acceptés : {SPARSE_METHODS}")
+
+
+def sparse_query(query: str, sparse_method: str = DEFAULT_SPARSE_METHOD) -> SparseVector:
+    """Génère le sparse d'une query selon la méthode. Pendant query de hybrid_search."""
+    if sparse_method == "bm25":
+        return to_sparse_vector(query)
+    if sparse_method == "BAAI/bge-m3":
+        model = _get_bge_m3_model()
+        out = model.encode(
+            [query], return_dense=False, return_sparse=True, return_colbert_vecs=False
+        )
+        return _lexical_weights_to_sparse(out["lexical_weights"][0])
+    raise ValueError(f"sparse_method {sparse_method!r} non supporté. Acceptés : {SPARSE_METHODS}")
+
+
 # ── Hybrid search Qdrant ─────────────────────────────────────────────────────
 
 
@@ -210,6 +301,7 @@ def hybrid_search(
     prefetch_multiplier: int = 4,
     fusion: str = "rrf",
     embed_model: str = DEFAULT_EMBED_MODEL,
+    sparse_method: str = DEFAULT_SPARSE_METHOD,
 ) -> list[HybridResult]:
     """
     Hybrid search : prefetch dense (mistral-embed) + sparse (BM25 IDF natif
@@ -229,8 +321,17 @@ def hybrid_search(
     """
     from qdrant_client import models
 
-    dense = embed_query(query, embed_model=embed_model)
-    sparse_data = to_sparse_vector(query)
+    # Pour BGE-M3 sparse, on peut récupérer dense + sparse en un seul forward
+    # pass (économie ~50% de latence query). Sinon, dense et sparse séparés.
+    if sparse_method == "BAAI/bge-m3" and embed_model == "BAAI/bge-m3":
+        dense_vecs, sparse_vecs = encode_with_sparse(
+            [query], embed_model=embed_model, sparse_method=sparse_method
+        )
+        dense = dense_vecs[0]
+        sparse_data = sparse_vecs[0]
+    else:
+        dense = embed_query(query, embed_model=embed_model)
+        sparse_data = sparse_query(query, sparse_method=sparse_method)
     sparse = models.SparseVector(indices=sparse_data.indices, values=sparse_data.values)
 
     must = []

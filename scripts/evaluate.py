@@ -45,7 +45,14 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from schema import DEFAULT_EMBED_MODEL, DEFAULT_TOP_K, EMBEDDING_MODELS_1024D, hybrid_search
+from schema import (
+    DEFAULT_EMBED_MODEL,
+    DEFAULT_SPARSE_METHOD,
+    DEFAULT_TOP_K,
+    EMBEDDING_MODELS_1024D,
+    SPARSE_METHODS,
+    hybrid_search,
+)
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -144,6 +151,7 @@ def run_evaluation(
     fusion: str = "rrf",
     output_suffix: str = "",
     embed_model: str = DEFAULT_EMBED_MODEL,
+    sparse_method: str = DEFAULT_SPARSE_METHOD,
     collection: str | None = None,
 ) -> None:
     if questions_file:
@@ -166,6 +174,7 @@ def run_evaluation(
     print(f"Top-k      : {top_k}")
     print(f"Fusion     : {fusion}")
     print(f"Embed      : {embed_model}")
+    print(f"Sparse     : {sparse_method}")
     if collection:
         print(f"Collection : {collection}")
     print()
@@ -184,6 +193,7 @@ def run_evaluation(
             niveau=q.get("niveau"),
             fusion=fusion,
             embed_model=embed_model,
+            sparse_method=sparse_method,
             collection=collection,
         )
         r = _score_question(q, chunks)
@@ -293,6 +303,7 @@ def run_evaluation(
                 "top_k": top_k,
                 "fusion": fusion,
                 "embed_model": embed_model,
+                "sparse_method": sparse_method,
                 "collection": collection,
                 "n_total": len(results),
                 "n_scorable": len(scorable),
@@ -348,6 +359,15 @@ def main() -> None:
         help=f"Modèle d'embedding pour la query (défaut {DEFAULT_EMBED_MODEL}).",
     )
     parser.add_argument(
+        "--sparse-method",
+        default=DEFAULT_SPARSE_METHOD,
+        choices=list(SPARSE_METHODS),
+        help=(
+            f"Méthode sparse (défaut {DEFAULT_SPARSE_METHOD}). "
+            "Doit matcher la méthode utilisée à l'ingest sur cette collection."
+        ),
+    )
+    parser.add_argument(
         "--collection",
         default=None,
         help="Override la collection Qdrant cible (sinon QDRANT_COLLECTION env).",
@@ -361,6 +381,7 @@ def main() -> None:
         fusion=args.fusion,
         output_suffix=args.output_suffix,
         embed_model=args.embed_model,
+        sparse_method=args.sparse_method,
         collection=args.collection,
     )
 

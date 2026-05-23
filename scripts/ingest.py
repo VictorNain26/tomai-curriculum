@@ -411,15 +411,18 @@ def validate_chunks(chunks: list[dict]) -> list[dict]:
 # ── Upsert Qdrant (named vectors + sparse BM25) ──────────────────────────────
 
 
-def upsert_to_qdrant(payloads: list[dict], dense_vectors: list[list[float]]) -> int:
+def upsert_to_qdrant(
+    payloads: list[dict],
+    dense_vectors: list[list[float]],
+    sparse_vectors: list | None = None,
+) -> int:
     """
-    Upsert dans la collection v2 (named vectors `dense` + sparse `bm25`).
+    Upsert dans la collection cible (named vectors `dense` + sparse `bm25`).
 
-    - ID stable : uuid5(NAMESPACE_URL, sha256(text + ":" + niveau))
+    - ID stable : uuid5(NAMESPACE_URL, sha256(matière:niveau:text))
       → idempotent : re-run = pas de doublons, modif text = nouveau point.
-    - Sparse vector calculé à partir du texte BRUT (chunk["text"]).
-      Doit utiliser la MÊME tokenisation que rag.service.ts:172-193 — d'où
-      `schema/bm25.py:to_sparse_vector` partagé.
+    - Si `sparse_vectors` fourni (BGE-M3 learned sparse), on les utilise tels
+      quels. Sinon on retombe sur le BM25 maison (parité TS via FNV-1a).
     """
     from qdrant_client import models
 
@@ -433,7 +436,7 @@ def upsert_to_qdrant(payloads: list[dict], dense_vectors: list[list[float]]) -> 
         )
 
     points = []
-    for payload, dense_vec in zip(payloads, dense_vectors, strict=True):
+    for i, (payload, dense_vec) in enumerate(zip(payloads, dense_vectors, strict=True)):
         text = payload["text"]
         niveau = payload["niveau"]
         matiere = payload["matiere"]
@@ -448,8 +451,8 @@ def upsert_to_qdrant(payloads: list[dict], dense_vectors: list[list[float]]) -> 
         text_hash = hashlib.sha256(id_seed.encode("utf-8")).hexdigest()
         point_id = str(_uuid.uuid5(_uuid.NAMESPACE_URL, text_hash))
 
-        # Sparse BM25 calculé sur le texte BRUT (cohérent avec query côté backend)
-        sparse = to_sparse_vector(text)
+        # Sparse : soit fourni (BGE-M3 learned sparse), soit BM25 maison.
+        sparse = sparse_vectors[i] if sparse_vectors is not None else to_sparse_vector(text)
         sparse_vec = models.SparseVector(
             indices=sparse.indices,
             values=sparse.values,
@@ -510,7 +513,12 @@ def show_status() -> None:
 
 
 def main() -> None:
-    from schema import DEFAULT_EMBED_MODEL, EMBEDDING_MODELS_1024D
+    from schema import (
+        DEFAULT_EMBED_MODEL,
+        DEFAULT_SPARSE_METHOD,
+        EMBEDDING_MODELS_1024D,
+        SPARSE_METHODS,
+    )
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Affiche chunks sans upserter")
@@ -523,6 +531,16 @@ def main() -> None:
         help=f"Modèle d'embedding (1024D). Défaut: {DEFAULT_EMBED_MODEL}.",
     )
     parser.add_argument(
+        "--sparse-method",
+        default=DEFAULT_SPARSE_METHOD,
+        choices=list(SPARSE_METHODS),
+        help=(
+            f"Méthode sparse (défaut: {DEFAULT_SPARSE_METHOD}). "
+            "'bm25' = tokenizer FNV-1a maison (parité TS backend), "
+            "'BAAI/bge-m3' = learned sparse natif via FlagEmbedding."
+        ),
+    )
+    parser.add_argument(
         "--collection",
         default=None,
         help=(
@@ -532,6 +550,16 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
+
+    # Validation cohérence : sparse BGE-M3 requiert dense BGE-M3 (single
+    # forward pass cohérent — sinon, vecteurs disjoints conceptuellement).
+    if args.sparse_method == "BAAI/bge-m3" and args.embed_model != "BAAI/bge-m3":
+        print(
+            "✗ --sparse-method=BAAI/bge-m3 impose --embed-model=BAAI/bge-m3 "
+            "(single forward pass dense+sparse cohérent).",
+            file=sys.stderr,
+        )
+        sys.exit(2)
 
     # Override collection si demandé (avant que upsert_to_qdrant lise la globale)
     global COLLECTION
@@ -614,19 +642,38 @@ def main() -> None:
                 unique_texts[text] = len(embed_inputs)
                 embed_inputs.append(build_contextual_text(chunk_for_prefix))
 
+        # Dense (+ sparse selon sparse-method) sur les textes uniques.
+        # Si BGE-M3 sparse demandé, on récupère dense+sparse en un seul forward
+        # pass via FlagEmbedding (cohérence + gain de latence).
         print(
-            f"  Embedding ({len(embed_inputs)} textes uniques, {args.embed_model})…",
+            f"  Embedding ({len(embed_inputs)} textes uniques, "
+            f"dense={args.embed_model}, sparse={args.sparse_method})…",
             end=" ",
             flush=True,
         )
-        unique_vectors = embed_batch(embed_inputs, embed_model=args.embed_model)
+        if args.sparse_method == "BAAI/bge-m3":
+            from schema import encode_with_sparse
+
+            unique_vectors, unique_sparse = encode_with_sparse(
+                embed_inputs,
+                embed_model=args.embed_model,
+                sparse_method=args.sparse_method,
+            )
+        else:
+            unique_vectors = embed_batch(embed_inputs, embed_model=args.embed_model)
+            unique_sparse = None  # upsert_to_qdrant retombe sur BM25 maison
         print(f"{len(unique_vectors)} vecteurs")
 
         # Broadcast : chaque payload récupère le vecteur de son texte
         dense_vectors = [unique_vectors[unique_texts[p["text"]]] for p in payloads]
+        sparse_vectors = (
+            [unique_sparse[unique_texts[p["text"]]] for p in payloads]
+            if unique_sparse is not None
+            else None
+        )
 
         print(f"  Upsert {len(payloads)} points…", end=" ", flush=True)
-        n = upsert_to_qdrant(payloads, dense_vectors)
+        n = upsert_to_qdrant(payloads, dense_vectors, sparse_vectors=sparse_vectors)
         print(f"✓ ({n} points dans '{COLLECTION}')")
         total_points += n
 
