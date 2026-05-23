@@ -1,416 +1,2675 @@
 [
   {
-    "query": "Comment calcule-t-on le périmètre d'un rectangle ?",
-    "matiere": "mathematiques",
-    "niveau": "cinquieme",
-    "expected_keywords": ["périmètre", "rectangle", "longueur", "largeur"]
+    "query": "En technologie, quand on crée un nouvel objet technique en 3ème, quelles sont les trois étapes du cycle de vie qu'on doit absolument prendre en compte pour respecter le développement durable ?",
+    "matiere": "technologie",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "cycle de vie",
+      "incidence environnementale",
+      "piliers du développement durab",
+      "contraintes sociétales"
+    ],
+    "gold_chunk_id": "f8e86808-17e2-5a52-a992-dae5062a8bc5",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
   },
   {
-    "query": "Qu'est-ce qu'un nombre relatif ?",
-    "matiere": "mathematiques",
-    "niveau": "cinquieme",
-    "expected_keywords": ["nombre relatif", "positif", "négatif"]
-  },
-  {
-    "query": "Que signifie l'égalité de deux fractions ?",
-    "matiere": "mathematiques",
-    "niveau": "cinquieme",
-    "expected_keywords": ["fraction", "égalité", "produit"]
-  },
-  {
-    "query": "Énonce le théorème de Pythagore.",
-    "matiere": "mathematiques",
-    "niveau": "quatrieme",
-    "expected_keywords": ["pythagore", "triangle rectangle", "hypoténuse", "carré"]
-  },
-  {
-    "query": "Qu'est-ce qu'une puissance d'un nombre ?",
-    "matiere": "mathematiques",
-    "niveau": "quatrieme",
-    "expected_keywords": ["puissance", "exposant", "base"]
-  },
-  {
-    "query": "Qu'est-ce qu'une fonction linéaire ?",
+    "query": "Pourquoi est-ce qu'on nous donne parfois des exercices sur des situations de la vie quotidienne ou en lien avec d'autres matières comme la géographie, au lieu de faire que des maths pures ?",
     "matiere": "mathematiques",
     "niveau": "troisieme",
-    "expected_keywords": ["fonction linéaire", "coefficient", "droite"]
+    "expected_keywords": [
+      "contextes concrets",
+      "interdisciplinaires",
+      "sens aux apprentissages",
+      "liens entre les savoirs",
+      "vie quotidienne"
+    ],
+    "gold_chunk_id": "f6d9485d-a7f1-5da3-844a-5ff1f5adeebd",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
   },
   {
-    "query": "Comment calcule-t-on le PGCD de deux entiers ?",
-    "matiere": "mathematiques",
-    "niveau": "troisieme",
-    "expected_keywords": ["pgcd", "diviseur", "euclide"]
-  },
-  {
-    "query": "Qu'est-ce qu'un récit à la première personne ?",
-    "matiere": "francais",
-    "niveau": "cinquieme",
-    "expected_keywords": ["récit", "narrateur", "personne"]
-  },
-  {
-    "query": "Quelle est la fonction d'un complément circonstanciel ?",
-    "matiere": "francais",
-    "niveau": "cinquieme",
-    "expected_keywords": ["complément circonstanciel", "circonstances", "lieu"]
-  },
-  {
-    "query": "Qu'est-ce qu'un champ lexical ?",
+    "query": "Pourquoi est-ce qu'on étudie des livres écrits dans d'autres langues ou d'autres pays en cours de français ? Ça peut vraiment nous aider à mieux écrire en français ?",
     "matiere": "francais",
     "niveau": "quatrieme",
-    "expected_keywords": ["champ lexical", "thème", "vocabulaire"]
+    "expected_keywords": [
+      "œuvres littéraires",
+      "patrimoines régional, européen",
+      "littératures francophones",
+      "contextes culturels",
+      "formes multiples d'expression"
+    ],
+    "gold_chunk_id": "27f0b1f3-3d7e-5e4a-8280-756a87d9326f",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Distingue récit et discours.",
-    "matiere": "francais",
-    "niveau": "quatrieme",
-    "expected_keywords": ["récit", "discours", "énonciation"]
-  },
-  {
-    "query": "Qu'est-ce qu'une thèse dans un texte argumentatif ?",
-    "matiere": "francais",
-    "niveau": "troisieme",
-    "expected_keywords": ["thèse", "argument", "argumentatif"]
-  },
-  {
-    "query": "Comment identifier un registre lyrique en poésie ?",
-    "matiere": "francais",
-    "niveau": "troisieme",
-    "expected_keywords": ["lyrique", "sentiment", "poésie"]
-  },
-  {
-    "query": "Quelles sont les causes de la Révolution française ?",
-    "matiere": "histoire_geo",
-    "niveau": "quatrieme",
-    "expected_keywords": ["révolution", "monarchie", "lumières"]
-  },
-  {
-    "query": "Qu'est-ce que la traite atlantique ?",
-    "matiere": "histoire_geo",
-    "niveau": "quatrieme",
-    "expected_keywords": ["traite", "esclavage", "atlantique"]
-  },
-  {
-    "query": "Qu'est-ce que la mondialisation ?",
-    "matiere": "histoire_geo",
-    "niveau": "quatrieme",
-    "expected_keywords": ["mondialisation", "échanges", "monde"]
-  },
-  {
-    "query": "Quelles sont les grandes phases de la Première Guerre mondiale ?",
-    "matiere": "histoire_geo",
-    "niveau": "troisieme",
-    "expected_keywords": ["première guerre", "tranchées", "armistice"]
-  },
-  {
-    "query": "Qu'est-ce que la Shoah ?",
-    "matiere": "histoire_geo",
-    "niveau": "troisieme",
-    "expected_keywords": ["shoah", "génocide", "juifs"]
-  },
-  {
-    "query": "Qu'est-ce qu'une aire urbaine ?",
-    "matiere": "histoire_geo",
-    "niveau": "troisieme",
-    "expected_keywords": ["aire urbaine", "banlieue", "périurbain"]
-  },
-  {
-    "query": "Qu'est-ce qu'une transformation chimique ?",
-    "matiere": "physique_chimie",
-    "niveau": "cinquieme",
-    "expected_keywords": ["transformation chimique", "réactif", "produit"]
-  },
-  {
-    "query": "Comment distinguer un mélange homogène d'un mélange hétérogène ?",
-    "matiere": "physique_chimie",
-    "niveau": "cinquieme",
-    "expected_keywords": ["mélange", "homogène", "hétérogène"]
-  },
-  {
-    "query": "Énonce le principe d'inertie.",
-    "matiere": "physique_chimie",
-    "niveau": "quatrieme",
-    "expected_keywords": ["inertie", "force", "mouvement"]
-  },
-  {
-    "query": "Qu'est-ce qu'une tension électrique ?",
-    "matiere": "physique_chimie",
-    "niveau": "quatrieme",
-    "expected_keywords": ["tension", "volt", "circuit"]
-  },
-  {
-    "query": "Qu'est-ce que la loi d'Ohm ?",
-    "matiere": "physique_chimie",
-    "niveau": "troisieme",
-    "expected_keywords": ["ohm", "tension", "intensité", "résistance"]
-  },
-  {
-    "query": "Qu'est-ce que la masse volumique ?",
-    "matiere": "physique_chimie",
-    "niveau": "troisieme",
-    "expected_keywords": ["masse volumique", "volume", "masse"]
-  },
-  {
-    "query": "Comment fonctionne la photosynthèse ?",
-    "matiere": "svt",
-    "niveau": "cinquieme",
-    "expected_keywords": ["photosynthèse", "lumière", "plante", "dioxygène"]
-  },
-  {
-    "query": "Qu'est-ce que la respiration cellulaire ?",
-    "matiere": "svt",
-    "niveau": "cinquieme",
-    "expected_keywords": ["respiration", "cellule", "dioxygène", "glucose"]
-  },
-  {
-    "query": "Qu'est-ce qu'une chaîne alimentaire ?",
-    "matiere": "svt",
-    "niveau": "cinquieme",
-    "expected_keywords": ["chaîne alimentaire", "producteur", "consommateur"]
-  },
-  {
-    "query": "Comment se déroule la reproduction sexuée chez les mammifères ?",
-    "matiere": "svt",
-    "niveau": "quatrieme",
-    "expected_keywords": ["reproduction", "gamète", "fécondation"]
-  },
-  {
-    "query": "Qu'est-ce que la tectonique des plaques ?",
-    "matiere": "svt",
-    "niveau": "quatrieme",
-    "expected_keywords": ["tectonique", "plaque", "lithosphère"]
-  },
-  {
-    "query": "Comment fonctionne le système immunitaire ?",
-    "matiere": "svt",
-    "niveau": "troisieme",
-    "expected_keywords": ["immunitaire", "anticorps", "lymphocyte"]
-  },
-  {
-    "query": "Qu'est-ce qu'un gène ?",
-    "matiere": "svt",
-    "niveau": "troisieme",
-    "expected_keywords": ["gène", "adn", "allèle"]
-  },
-  {
-    "query": "Qu'est-ce que la laïcité ?",
+    "query": "Pourquoi est-ce qu'on nous demande de signer une charte d'usage du numérique à l'école, et qu'est-ce qu'on risque si on ne la respecte pas ?",
     "matiere": "emc",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "charte d'usage du numérique",
+      "comportement responsable",
+      "réseaux sociaux",
+      "engagement moral",
+      "outils numériques"
+    ],
+    "gold_chunk_id": "6598b2c5-2275-5472-b974-5406f0cbd0cb",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cinquième, est-ce qu'on peut travailler sur un projet qui parle des métiers de la mer ou du tourisme pour notre avenir professionnel ? Si oui, avec quels autres thèmes des années suivantes ça pourrait être lié ?",
+    "matiere": "histoire_geo",
     "niveau": "cinquieme",
-    "expected_keywords": ["laïcité", "religion", "liberté"]
+    "expected_keywords": [
+      "parcours avenir",
+      "EPI possibles sur les mers et ",
+      "tourisme comme activité",
+      "mobilités humaines transnation"
+    ],
+    "gold_chunk_id": "d7773ca2-dafc-55a6-ad60-4fbf0e61a8d5",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Qu'est-ce qu'un droit fondamental ?",
-    "matiere": "emc",
-    "niveau": "quatrieme",
-    "expected_keywords": ["droit", "fondamental", "constitution"]
-  },
-  {
-    "query": "Qu'est-ce que la séparation des pouvoirs ?",
-    "matiere": "emc",
-    "niveau": "quatrieme",
-    "expected_keywords": ["séparation", "pouvoir", "exécutif", "législatif"]
-  },
-  {
-    "query": "Qu'est-ce que la démocratie représentative ?",
-    "matiere": "emc",
-    "niveau": "troisieme",
-    "expected_keywords": ["démocratie", "représentative", "élire"]
-  },
-  {
-    "query": "Qu'est-ce que la Défense nationale en France ?",
-    "matiere": "emc",
-    "niveau": "troisieme",
-    "expected_keywords": ["défense", "national", "sécurité"]
-  },
-  {
-    "query": "Qu'est-ce qu'un algorithme ?",
-    "matiere": "technologie",
-    "niveau": "cinquieme",
-    "expected_keywords": ["algorithme", "instruction", "problème"]
-  },
-  {
-    "query": "Qu'est-ce qu'un objet technique ?",
-    "matiere": "technologie",
-    "niveau": "cinquieme",
-    "expected_keywords": ["objet technique", "besoin", "fonction"]
-  },
-  {
-    "query": "À quoi sert un capteur dans un système programmé ?",
-    "matiere": "technologie",
-    "niveau": "quatrieme",
-    "expected_keywords": ["capteur", "grandeur", "actionneur"]
-  },
-  {
-    "query": "Qu'est-ce qu'un protocole de communication ?",
-    "matiere": "technologie",
-    "niveau": "quatrieme",
-    "expected_keywords": ["protocole", "communication", "échange"]
-  },
-  {
-    "query": "Qu'est-ce que l'éco-conception ?",
-    "matiere": "technologie",
-    "niveau": "troisieme",
-    "expected_keywords": ["éco-conception", "environnement", "cycle de vie"]
-  },
-  {
-    "query": "Qu'est-ce qu'un réseau informatique ?",
-    "matiere": "technologie",
-    "niveau": "troisieme",
-    "expected_keywords": ["réseau", "informatique", "données"]
-  },
-  {
-    "query": "Quelles activités langagières sont travaillées en anglais au collège ?",
-    "matiere": "anglais",
-    "niveau": "cinquieme",
-    "expected_keywords": ["activités langagières", "compréhension", "expression"]
-  },
-  {
-    "query": "Quels sont les axes culturels du programme d'anglais en 4e ?",
-    "matiere": "anglais",
-    "niveau": "quatrieme",
-    "expected_keywords": ["axes culturels", "axe", "voyage"]
-  },
-  {
-    "query": "Quels niveaux du CECRL sont visés en anglais au collège ?",
+    "query": "Pourquoi est-ce qu'on fête Juneteenth aux États-Unis et quel lien ça a avec l'histoire de la langue anglaise ?",
     "matiere": "anglais",
     "niveau": "troisieme",
-    "expected_keywords": ["cecrl", "niveau", "a2"]
+    "expected_keywords": [
+      "Juneteenth",
+      "langue anglaise",
+      "évolution",
+      "histoires",
+      "sociétés anglophones"
+    ],
+    "gold_chunk_id": "4f8143b8-5914-59a8-94a9-05c7c7dc5cf0",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
   },
   {
-    "query": "Quels axes culturels enseigne-t-on en espagnol au collège ?",
-    "matiere": "espagnol",
+    "query": "En cours d'EMC, on parle des discriminations : est-ce que le harcèlement sur les réseaux sociaux, c'est aussi une forme de discrimination ? Si non, quelle différence est-ce qu'on fait entre les deux ?",
+    "matiere": "emc",
     "niveau": "cinquieme",
-    "expected_keywords": ["axes culturels", "axe", "quotidien"]
+    "expected_keywords": [
+      "discrimination",
+      "harcèlement",
+      "réseaux sociaux",
+      "dignité humaine"
+    ],
+    "gold_chunk_id": "3d987a17-ace6-506f-9e05-3fd179e91474",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Comment se travaille la compréhension orale en espagnol ?",
-    "matiere": "espagnol",
+    "query": "En cours de physique, on parle du numérique et de son coût énergétique : est-ce qu’on va étudier des exemples concrets de systèmes qui transforment l’électricité pour la stocker après ?",
+    "matiere": "physique_chimie",
     "niveau": "quatrieme",
-    "expected_keywords": ["compréhension", "orale", "écoute"]
+    "expected_keywords": [
+      "numérique",
+      "convertir",
+      "énergie électrique",
+      "stockage"
+    ],
+    "gold_chunk_id": "c6029905-5386-52d5-bb39-0e068a327863",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Que vise l'enseignement de l'espagnol en classe de 3e ?",
-    "matiere": "espagnol",
-    "niveau": "troisieme",
-    "expected_keywords": ["niveau", "linguistique", "année"]
-  },
-  {
-    "query": "Quelles repères linguistiques sont visés en allemand au collège ?",
-    "matiere": "allemand",
+    "query": "En cours d'anglais ou d'espagnol, comment est-ce qu'on peut discuter des différences entre notre collège et ceux des autres pays, tout en parlant aussi du harcèlement ou des stéréotypes ?",
+    "matiere": "langues_vivantes",
     "niveau": "cinquieme",
-    "expected_keywords": ["repères linguistiques", "outils linguistiques", "langagières"]
+    "expected_keywords": [
+      "systèmes scolaires",
+      "harcèlement",
+      "stéréotypes",
+      "débattre"
+    ],
+    "gold_chunk_id": "cdaf74a6-3a7f-5604-96bf-3f0e5aee5bf1",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Quels sont les outils linguistiques en allemand 4e ?",
-    "matiere": "allemand",
-    "niveau": "quatrieme",
-    "expected_keywords": ["outils linguistiques", "phonologie", "lexique"]
-  },
-  {
-    "query": "Quelles activités d'expression écrite en allemand en 3e ?",
-    "matiere": "allemand",
-    "niveau": "troisieme",
-    "expected_keywords": ["expression écrite", "écrite", "production"]
-  },
-  {
-    "query": "Quels sont les axes culturels enseignés en italien ?",
-    "matiere": "italien",
-    "niveau": "cinquieme",
-    "expected_keywords": ["axes culturels", "axe", "italie"]
-  },
-  {
-    "query": "Comment l'élève apprend l'italien en 4e ?",
-    "matiere": "italien",
-    "niveau": "quatrieme",
-    "expected_keywords": ["activités langagières", "linguistique", "axe"]
-  },
-  {
-    "query": "Quels niveaux CECRL sont visés en italien au collège ?",
-    "matiere": "italien",
-    "niveau": "troisieme",
-    "expected_keywords": ["cecrl", "niveau", "linguistique"]
-  },
-  {
-    "query": "Que travaille-t-on en français au cycle 3 ?",
+    "query": "Pourquoi est-ce qu'on doit lire des œuvres du patrimoine et des textes documentaires en classe plutôt que seulement des livres qu'on choisit nous-mêmes ?",
     "matiere": "francais",
     "niveau": "sixieme",
-    "expected_keywords": ["langage oral", "lecture", "écriture"]
+    "expected_keywords": [
+      "compréhension en lecture",
+      "œuvres du patrimoine",
+      "textes documentaires",
+      "lecteurs autonomes",
+      "cycle 3"
+    ],
+    "gold_chunk_id": "55c04beb-ed95-54d0-b4cc-e04995738f21",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle3_BO2020"
   },
   {
-    "query": "Quelles compétences en lecture sont visées en 6e ?",
+    "query": "En arts plastiques, comment les outils numériques peuvent-ils créer une tension entre ce qu'on voit vraiment dans une œuvre et ce qui semble virtuel ? Donne un exemple d'analyse d'œuvre qui montre cette complémentarité.",
+    "matiere": "arts_plastiques",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "technologies numériques",
+      "tension",
+      "virtuelle de l'œuvre",
+      "complémentarité",
+      "présence concrète"
+    ],
+    "gold_chunk_id": "e0057233-56ac-59ca-8678-6417fd618869",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En anglais, comment est-ce qu'on prononce correctement le son / θ / comme dans « think » et est-ce qu'il y a une différence avec le son / ð / comme dans « this » ? Donne-moi des exemples pour les distinguer.",
+    "matiere": "anglais",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "/ θ /",
+      "/ ð /",
+      "consonne fricative"
+    ],
+    "gold_chunk_id": "a8cc6456-9884-5dae-a4bc-e65e585ae5c5",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on parle seulement des traditions ou des fêtes d'un pays précis en cours d'anglais ou d'espagnol, alors que ces sujets existent aussi ailleurs ?",
+    "matiere": "langues_vivantes",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "thèmes culturels",
+      "pays dont la langue est étudié"
+    ],
+    "gold_chunk_id": "9bc1f359-e5b3-5843-9183-84d95006eb43",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En SVT, comment est-ce qu'on peut justifier le choix d'un protocole expérimental plutôt qu'un autre quand on présente nos résultats ?",
+    "matiere": "svt",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "communiquer",
+      "démarches",
+      "argumentant",
+      "protocole expérimental",
+      "choix"
+    ],
+    "gold_chunk_id": "8ddc300a-ba65-54c0-bda9-b0e11e06fab6",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En arts plastiques, comment les artistes utilisent-ils les nouvelles technologies pour mélanger le numérique avec des techniques plus traditionnelles ? Donne des exemples de métissages possibles.",
+    "matiere": "arts_plastiques",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "métissages",
+      "arts plastiques",
+      "technologies numériques",
+      "techniques et matériaux artist"
+    ],
+    "gold_chunk_id": "a0f999e4-e606-5473-b0df-acd14b27dea4",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on doit apprendre la grammaire en espagnol alors qu'on parle déjà en cours ? Ça sert à quoi exactement pour nos conversations ?",
+    "matiere": "espagnol",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "grammaire",
+      "morphologie et syntaxe",
+      "discours",
+      "indépendance langagière",
+      "situation de communication"
+    ],
+    "gold_chunk_id": "0139df46-c438-5a00-b4a1-aba0f89accad",
+    "gold_section": "Espagnol",
+    "gold_source_file": "programme_espagnol_college_BO2025"
+  },
+  {
+    "query": "En sixième, dans quelles matières est-ce qu'on étudie principalement l'histoire des arts, et est-ce qu'on peut aussi en faire en EPS ou en sciences ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "histoire des arts",
+      "arts plastiques",
+      "éducation musicale",
+      "projets interdisciplinaires",
+      "professeur documentaliste"
+    ],
+    "gold_chunk_id": "703737e5-e860-5230-8b2c-6fe9d188437c",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'éducation musicale, on parle souvent de 'timbre et espace' ou de 'dynamique' : est-ce que ces domaines servent seulement pour écouter de la musique, ou est-ce qu'on les utilise aussi quand on chante ou qu'on joue en groupe ?",
+    "matiere": "education_musicale",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "timbre et l’espace",
+      "dynamique",
+      "production",
+      "perception",
+      "projets musicaux"
+    ],
+    "gold_chunk_id": "adccf813-8fa4-5ff9-b0cb-23ab801a3561",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'espagnol, on nous a parlé de plats typiques comme le gazpacho ou le ceviche. Est-ce qu'on doit aussi connaître les expressions pour commander au restaurant, comme 'de primero' ou 'para postre', ou est-ce que c'est seulement pour décrire les plats ?",
+    "matiere": "espagnol",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "para tomar",
+      "para empezar",
+      "de primero",
+      "de segundo",
+      "de postre"
+    ],
+    "gold_chunk_id": "211368db-2f76-55b4-bc3d-a1d6f927e09d",
+    "gold_section": "Espagnol",
+    "gold_source_file": "programme_espagnol_college_BO2025"
+  },
+  {
+    "query": "Pourquoi on étudie le latin ou le grec en cours de français alors qu’on ne parle plus ces langues aujourd’hui ? Ça sert à quoi pour comprendre les livres ou les films qu’on voit maintenant ?",
     "matiere": "francais",
-    "niveau": "sixieme",
-    "expected_keywords": ["lecture", "compréhension", "texte"]
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "langues anciennes",
+      "histoire de la langue",
+      "mythes",
+      "réécritures personnelles",
+      "transpositions modernes"
+    ],
+    "gold_chunk_id": "b540be64-5256-5f14-81ea-3adc07374ed0",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Comment apprend-on les fractions en 6e ?",
-    "matiere": "mathematiques",
-    "niveau": "sixieme",
-    "expected_keywords": ["fraction", "nombre", "calcul"]
+    "query": "Pourquoi un auteur choisit-il d'écrire une autobiographie plutôt qu'un roman autobiographique, et qu'est-ce que ça change pour le lecteur ?",
+    "matiere": "francais",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "autobiographie",
+      "roman autobiographique",
+      "recherche de la vérité",
+      "portrait de soi"
+    ],
+    "gold_chunk_id": "7a185aa0-fcfc-52ff-a39e-0602911eb606",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Que sont les grandeurs et mesures en mathématiques cycle 3 ?",
-    "matiere": "mathematiques",
-    "niveau": "sixieme",
-    "expected_keywords": ["grandeur", "mesure", "longueur"]
-  },
-  {
-    "query": "Comment l'élève découvre les sciences et technologie en 6e ?",
+    "query": "Pourquoi est-ce qu'on dit que les animaux et les plantes dépendent les uns des autres dans la nature, et comment on peut le représenter ?",
     "matiere": "sciences_technologie",
     "niveau": "sixieme",
-    "expected_keywords": ["matière", "vivant", "objet"]
+    "expected_keywords": [
+      "êtres vivants",
+      "interdépendance",
+      "réseau trophique"
+    ],
+    "gold_chunk_id": "96c6605c-c071-5158-bb62-9909c34d4cb1",
+    "gold_section": "Sciences et technologie",
+    "gold_source_file": "programme_cycle3_BO2020"
   },
   {
-    "query": "Que travaille-t-on en histoire-géographie au cycle 3 ?",
-    "matiere": "histoire_geo",
-    "niveau": "sixieme",
-    "expected_keywords": ["histoire", "temps", "géographie"]
-  },
-  {
-    "query": "Quelles activités en arts plastiques au cycle 3 ?",
+    "query": "En arts plastiques, comment est-ce qu’on peut montrer qu’une œuvre est faite pour un endroit précis, comme une cour d’école ou un couloir, sans qu’elle ressemble juste à un tableau accroché au mur ?",
     "matiere": "arts_plastiques",
-    "niveau": "sixieme",
-    "expected_keywords": ["arts", "matière", "représentation"]
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "in situ",
+      "dispositifs de présentation",
+      "mise en espace",
+      "espace public",
+      "appropriation plastique"
+    ],
+    "gold_chunk_id": "20f0bfc6-7cca-5cff-b597-b9b190df0e49",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Quels apprentissages en éducation musicale en 6e ?",
-    "matiere": "education_musicale",
-    "niveau": "sixieme",
-    "expected_keywords": ["musique", "écoute", "chant"]
+    "query": "Pourquoi dit-on que l'Europe a été un 'théâtre majeur des guerres totales' entre 1914 et 1945, et qu'est-ce que ça veut dire pour nous aujourd'hui ?",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "Europe",
+      "monde contemporain",
+      "crises"
+    ],
+    "gold_chunk_id": "66b7d978-4058-5485-98ab-d60e51609fb4",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Comment se travaille l'EPS au cycle 3 ?",
-    "matiere": "eps",
-    "niveau": "sixieme",
-    "expected_keywords": ["activité physique", "corps", "sportive"]
+    "query": "En cours de français, si je déplace ou supprime un complément circonstanciel dans ma phrase, qu'est-ce que ça change vraiment pour le sens ? Donne-moi des exemples concrets.",
+    "matiere": "francais",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "compléments circonstanciels",
+      "suppression",
+      "déplacement",
+      "sens"
+    ],
+    "gold_chunk_id": "6dd9c20a-c32e-5496-9c1b-5e4b4e89492a",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Qu'apprend-on en EMC en 6e ?",
+    "query": "En cours d'italien, comment est-ce que je peux dire à mon camarade de classe d'éteindre son téléphone sans être impoli, en utilisant une formule qu'on a apprise ?",
+    "matiere": "italien",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "conseils",
+      "consignes courantes",
+      "ordres simples",
+      "Zitto, per favore!",
+      "Ferma/i!"
+    ],
+    "gold_chunk_id": "3dc79103-73be-5571-8ea2-ffd52ec5228c",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "En cinquième, on parle de vitesse, mais est-ce qu'on apprend aussi à dire dans quelle direction et dans quel sens un objet se déplace ?",
+    "matiere": "physique_chimie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "vitesse",
+      "direction",
+      "sens",
+      "mouvement"
+    ],
+    "gold_chunk_id": "3c5385e7-710b-5cdc-b2b5-9effe32b5ca9",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En troisième, quels sont les deux axes culturels qui permettent d'étudier les villes et les innovations en italien ? Je dois préparer un exposé sur ces thèmes.",
+    "matiere": "italien",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "Repères culturels",
+      "Villes, villages, quartiers",
+      "Inventer, innover, créer",
+      "Axe"
+    ],
+    "gold_chunk_id": "c4e0e69c-311c-5f2c-9777-e2c70bae18be",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "En cours d'EMC, on parle de 'culture du jugement' : est-ce que ça veut dire qu'on va apprendre à mieux choisir entre ce qui est bien et ce qui est mal, ou est-ce qu'il y a autre chose derrière ce terme ?",
     "matiere": "emc",
     "niveau": "sixieme",
-    "expected_keywords": ["citoyen", "valeur", "république"]
+    "expected_keywords": [
+      "culture du jugement",
+      "discernement",
+      "conflits de valeurs",
+      "esprit critique"
+    ],
+    "gold_chunk_id": "f8891bce-a9fa-564c-9d50-f0a4af01bbd6",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle3_BO2020"
   },
   {
-    "query": "Quelles activités en arts plastiques au cycle 4 ?",
+    "query": "En arts plastiques, comment les outils numériques peuvent-ils créer une tension entre la présence réelle d'une œuvre et son aspect virtuel ? Donne un exemple d'analyse d'œuvre qui illustrerait ça.",
     "matiere": "arts_plastiques",
     "niveau": "quatrieme",
-    "expected_keywords": ["arts plastiques", "représentation", "création"]
+    "expected_keywords": [
+      "technologies numériques",
+      "présence concrète",
+      "virtuelle de l’œuvre",
+      "tension",
+      "dialogue entre pratiques"
+    ],
+    "gold_chunk_id": "483d4928-d194-5bd7-98b1-217449ed82a7",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Comment développer l'écoute musicale au cycle 4 ?",
+    "query": "Si je dois mesurer une longueur de 3,7 décimètres, comment est-ce que je peux l'écrire sous forme de fraction décimale pour bien comprendre à quoi ça correspond en centimètres ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "fractions décimales",
+      "nombres décimaux",
+      "unités de numération",
+      "dixième",
+      "centième"
+    ],
+    "gold_chunk_id": "ac156568-2af9-50d9-805e-eddcbb43ad12",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'espagnol, comment est-ce qu'on peut dire qu'on va faire quelque chose plus tard, comme voyager après les cours ? Donne-moi un exemple avec une phrase du texte.",
+    "matiere": "espagnol",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "projection dans l’avenir",
+      "viajaré",
+      "península",
+      "perfeccionar mi español"
+    ],
+    "gold_chunk_id": "ef3d4ca2-cc33-5820-afda-8016e74bf4bb",
+    "gold_section": "Espagnol",
+    "gold_source_file": "programme_espagnol_college_BO2025"
+  },
+  {
+    "query": "En histoire des arts, comment est-ce qu'on peut expliquer pourquoi un tableau ou une statue vient d'une certaine époque, même si on n'est pas sûr à 100 % ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "proposition argumentée",
+      "caractéristiques d’une œuvre",
+      "période",
+      "aire géographique",
+      "risque de l’erreur"
+    ],
+    "gold_chunk_id": "3ef78489-225e-533f-9154-b550bffb77f1",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi le prof nous fait utiliser la calculatrice seulement dans certains exercices et pas tout le temps ? Qu'est-ce que ça change pour nous en maths ?",
+    "matiere": "mathematiques",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "usage raisonné",
+      "surcharge cognitive",
+      "différenciation pédagogique",
+      "modélisation",
+      "raisonnement"
+    ],
+    "gold_chunk_id": "1165a60b-3aba-52ab-86b5-c638eec988e7",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
+  },
+  {
+    "query": "Dans le thème sur l'Europe après 1945, comment peut-on étudier la construction européenne en croisant les points de vue de plusieurs pays ? Donnez un exemple concret d'activité possible en classe.",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "construction européenne",
+      "regards croisés",
+      "EPI",
+      "pays européens"
+    ],
+    "gold_chunk_id": "7bd8b87c-5f4f-5c4a-8d59-f13b60ef98eb",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce que l'huile flotte sur l'eau quand on la chauffe, alors qu'elle coule quand c'est froid ? Est-ce que ça a un rapport avec la masse volumique ?",
+    "matiere": "physique_chimie",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "variation",
+      "température"
+    ],
+    "gold_chunk_id": "f8cdaa58-4396-5192-bfcc-7a694ab35284",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En classe, comment est-ce qu’on peut montrer qu’on a bien compris une histoire sans juste la raconter mot à mot ? Donne des exemples concrets qu’on pourrait faire en cours.",
+    "matiere": "francais",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "paraphrases",
+      "culture personnelle"
+    ],
+    "gold_chunk_id": "25112b83-85bc-5f35-a4c7-e1185cc2986e",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En course d’orientation, comment est-ce qu’on fait pour décider si on doit continuer ou abandonner un parcours quand on sent que c’est trop dangereux ?",
+    "matiere": "eps",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "évaluer les risques",
+      "renoncer",
+      "prise de risque",
+      "sécurité",
+      "engagement"
+    ],
+    "gold_chunk_id": "d9d21a0a-c98b-56b9-8947-d9fb9c364852",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En classe de troisième, qu'est-ce qu'on attend de moi quand je dois 'identifier des nuances' ou 'des divergences' dans un document audio ou écrit en anglais ? Est-ce que c'est juste repérer les différences ou faut-il aussi expliquer pourquoi elles existent ?",
+    "matiere": "anglais",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "divergences",
+      "oppositions",
+      "compréhension de l’oral et de "
+    ],
+    "gold_chunk_id": "e1cf2ca7-3776-5fbc-be04-2098b45f47d4",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on parle de « naissance du multiple » à la Renaissance, et quels procédés techniques ont permis aux artistes de diffuser leurs œuvres plus largement ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "naissance du multiple",
+      "gravure",
+      "imprimerie"
+    ],
+    "gold_chunk_id": "087672dd-f974-53e5-930b-9e3ef4b5e38f",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on étudie l'histoire des religions en quatrième alors qu'on l'a déjà vue en sixième ? Qu'est-ce que ça change ou qu'est-ce qu'on approfondit en particulier ?",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "histoire du fait religieux",
+      "abordée au cours de l’année de",
+      "complétée et approfondie",
+      "sixième",
+      "débats actuels"
+    ],
+    "gold_chunk_id": "bec4acf2-593b-58fb-b72f-1e598bc8bd91",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En SVT, est-ce qu'on peut travailler sur le changement climatique dans un projet avec d'autres matières comme la géographie ou les maths ? Si oui, comment ça s'appelle dans le programme ?",
+    "matiere": "svt",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "changement climatique",
+      "enseignements pratiques interd",
+      "EPI",
+      "interdisciplinaires",
+      "biodiversité"
+    ],
+    "gold_chunk_id": "f92b1d7b-20c2-58b2-8ec9-673afa2dfde2",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce que certaines espèces disparaissent au cours du temps alors que d'autres réussissent à survivre et à se reproduire ?",
+    "matiere": "svt",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "biodiversité",
+      "sélection naturelle",
+      "hasard",
+      "disparition d’espèces"
+    ],
+    "gold_chunk_id": "1c8784d5-b10a-5705-98ae-a1cbefd113fe",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Quand est-ce qu'on doit utiliser une calculatrice pour vérifier un résultat en maths, et comment on fait pour savoir si notre réponse est plausible avant même de la calculer ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "vraisemblance",
+      "calculatrice",
+      "nombres décimaux",
+      "contrôler"
+    ],
+    "gold_chunk_id": "590e4eb5-9bdf-56a2-ba66-94c8aabd079b",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on parle de « coût énergétique » quand on utilise un ordinateur ou un téléphone, et comment est-ce qu'on pourrait stocker l'énergie électrique pour éviter de la gaspiller ?",
+    "matiere": "physique_chimie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "numérique",
+      "énergie électrique",
+      "stockage",
+      "convertir"
+    ],
+    "gold_chunk_id": "da2eb8e7-523f-5c79-ab4d-8cd70bc40e47",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi le prof nous donne parfois des exercices sur des situations de la vie quotidienne ou en lien avec d'autres matières comme la géographie, alors qu’on est en cours de maths ?",
+    "matiere": "mathematiques",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "contextes concrets",
+      "interdisciplinaires",
+      "sens aux apprentissages",
+      "liens entre les savoirs",
+      "vie quotidienne"
+    ],
+    "gold_chunk_id": "de2e2d56-8a43-5be4-957d-46ac9f3a0fa0",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
+  },
+  {
+    "query": "En italien, comment on appelle le bateau utilisé par les migrants pour traverser la mer, et quels sentiments sont souvent associés à ce voyage selon le vocabulaire du programme ?",
+    "matiere": "italien",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "il barcone",
+      "la paura",
+      "la disillusione",
+      "il naufragio",
+      "sbarcare"
+    ],
+    "gold_chunk_id": "9a6adfc3-670f-5fbb-a9f0-ea6d216981be",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "En arts plastiques, comment un artiste peut-il mélanger des techniques traditionnelles comme la peinture avec des outils numériques pour créer une œuvre ? Quels effets ça peut avoir sur la façon dont on la voit ou on la comprend ?",
+    "matiere": "arts_plastiques",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "créations plastiques hybridant",
+      "outils numériques",
+      "dimension plastique",
+      "présence concrète et virtuelle",
+      "production d’œuvres"
+    ],
+    "gold_chunk_id": "41475385-f442-5966-b2f1-c299cc085693",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En EPS, on nous dit qu'on doit 'apprendre à entretenir sa santé par une activité physique régulière' : est-ce que ça veut dire qu'on va faire des activités différentes chaque trimestre ou qu'on doit en choisir une seule à pratiquer toute l'année ?",
+    "matiere": "eps",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "entretenir sa santé",
+      "activité physique régulière",
+      "parcours de formation",
+      "champs d’apprentissage"
+    ],
+    "gold_chunk_id": "a036a2ed-c9fa-53ab-808c-e1834b3f7cf2",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu’on doit étudier l’évolution des usages d’un objet technique comme un smartphone, et comment ça peut nous aider à faire un choix plus malin quand on veut en acheter un nouveau ?",
+    "matiere": "technologie",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "usages raisonnés",
+      "choix éclairé",
+      "évolution des usages",
+      "critères identifiés",
+      "système technique"
+    ],
+    "gold_chunk_id": "02e380ea-b8fa-5db4-ae3d-0022af0b3fbf",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
+  },
+  {
+    "query": "Comment est-ce que je peux apprendre à trier les informations importantes quand je prépare un exposé en anglais sans paniquer ?",
+    "matiere": "anglais",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "informations pertinentes",
+      "présentation orale",
+      "gérer ses émotions",
+      "stress"
+    ],
+    "gold_chunk_id": "9af2b7ab-b399-5218-a24f-2f06c9a0cceb",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Pourquoi mon prof corrige mes erreurs en allemand alors que j'ai peur de parler si je me trompe ? Est-ce que ça va m'aider à mieux communiquer ou juste me stresser encore plus ?",
+    "matiere": "allemand",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "erreurs",
+      "prise de parole",
+      "maitrise de la langue",
+      "expression",
+      "communiquer"
+    ],
+    "gold_chunk_id": "baacb6f9-0ae0-5333-b875-5edc39c6ae30",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En sixième, comment peut-on montrer qu'une solution en sel est saturée pendant une expérience en laboratoire ? Quels résultats peut-on observer ?",
+    "matiere": "sciences_technologie",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "transformation chimique",
+      "expériences de séparation",
+      "laboratoire"
+    ],
+    "gold_chunk_id": "e612c581-28eb-5d69-b752-09cb2e5de832",
+    "gold_section": "Sciences et technologie",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on parle d'« aménagements liés aux infrastructures de communication » quand on étudie les déplacements en France et dans le monde ?",
+    "matiere": "histoire_geo",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "déplacements",
+      "aménagements",
+      "modes et réseaux de transport"
+    ],
+    "gold_chunk_id": "06c03b9f-944f-5fce-9f3a-b21c27bc12bb",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours de sciences, on parle des états de la matière : est-ce qu'on va étudier seulement ce qu'on voit à l'œil nu, ou aussi ce qui est trop petit pour qu'on le distingue ?",
+    "matiere": "sciences_technologie",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "états",
+      "constitution de la matière",
+      "échelle macroscopique"
+    ],
+    "gold_chunk_id": "5f83832e-23d8-5ca1-8866-fc55b3447998",
+    "gold_section": "Sciences et technologie",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'allemand, comment je peux demander à mon prof de répéter ou d'expliquer un mot que je n'ai pas compris, sans utiliser toujours la même phrase ? Donne-moi des exemples précis que je pourrais écrire dans un mail aussi.",
+    "matiere": "allemand",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "répéter",
+      "clarifier",
+      "courriers très simples",
+      "Entschuldigung"
+    ],
+    "gold_chunk_id": "5bab5cfe-068d-5068-b5b0-4008c8a67866",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En cours de français, comment est-ce qu'on peut vérifier qu'on a bien compris un texte sans toujours demander au professeur ? Par exemple, quelles petites techniques on peut utiliser tout seul pour être sûr de ne pas se tromper sur le sens des mots ou des phrases ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "compréhension de l’écrit",
+      "substituts du nom",
+      "relecture",
+      "reformulation",
+      "paraphrase"
+    ],
+    "gold_chunk_id": "587a1990-85d9-5f3d-ad29-c6c22933a2d1",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi on dit que respecter autrui, c'est aussi respecter ses idées même si on n'est pas d'accord avec lui ?",
+    "matiere": "emc",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "respecter autrui",
+      "convictions philosophiques et ",
+      "laïcité",
+      "dignité"
+    ],
+    "gold_chunk_id": "95e582b6-566d-5c26-ab71-06fd2339a41e",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En technologie, si je veux faire tourner une roue avec un moteur électrique, quel mécanisme je peux utiliser pour transmettre le mouvement sans tout démonter à chaque fois ?",
+    "matiere": "technologie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "transmission de mouvements",
+      "engrenages",
+      "courroies",
+      "chaînes"
+    ],
+    "gold_chunk_id": "dda31e01-2ebc-5ba8-b8dd-d7cd5f111865",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
+  },
+  {
+    "query": "En cours d'éducation musicale, est-ce qu'on doit juste chanter ou jouer des morceaux, ou est-ce qu'on apprend aussi à en parler et à expliquer nos choix quand on travaille en groupe ?",
+    "matiere": "education_musicale",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "Échanger, partager, argumenter",
+      "culture musicale et artistique",
+      "perception"
+    ],
+    "gold_chunk_id": "71d9bee3-643d-5c5d-b793-485069569095",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi dit-on que le scrutin majoritaire donne plus de légitimité au pouvoir élu qu'un scrutin proportionnel ?",
+    "matiere": "emc",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "scrutin majoritaire",
+      "légitimité du pouvoir",
+      "démocratie représentative",
+      "fait majoritaire"
+    ],
+    "gold_chunk_id": "0d600f84-587f-57a9-96e3-244eb287d5eb",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'allemand, si je veux demander à mon camarade à quelle heure il se couche, quelle question exacte est-ce que je dois utiliser parmi celles qu'on a apprises ?",
+    "matiere": "allemand",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "Um wie viel Uhr",
+      "Wo wohnst du?",
+      "ins Bett"
+    ],
+    "gold_chunk_id": "fd591de1-6635-550a-96d8-2dc214f9b2da",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on étudie l'histoire des religions en troisième alors qu'on l'a déjà vue en sixième ? Qu'est-ce que ça nous apporte de nouveau sur les débats d'aujourd'hui ?",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "histoire du fait religieux",
+      "approfondie",
+      "débats actuels",
+      "sixième"
+    ],
+    "gold_chunk_id": "ceb3b884-eebf-5668-ba44-310189d20eb6",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on prononce le -ch différemment dans « Kirche » et « Kirsche » alors que c'est la même lettre ? Comment je peux savoir quand utiliser le ich-Laut ou le son « ch » comme dans « sch » ?",
+    "matiere": "allemand",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "ich-Laut",
+      "sch",
+      "-ch",
+      "prononciation"
+    ],
+    "gold_chunk_id": "da12004f-7683-5f29-ba8d-3123180ed22a",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En cours d'éducation musicale, comment est-ce qu'on peut utiliser les caractéristiques d'une œuvre qu'on a déjà étudiée pour créer notre propre morceau, par exemple avec un ordinateur ou une tablette ?",
+    "matiere": "education_musicale",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "outils numériques",
+      "création musicale"
+    ],
+    "gold_chunk_id": "045ea8e8-d7b4-513c-b5a3-18c874e04d15",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi le mot *operación* perd son accent quand on le met au pluriel *operaciones* ? Est-ce que ça arrive avec tous les mots en espagnol ?",
+    "matiere": "espagnol",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "accent écrit",
+      "pluriel",
+      "operación",
+      "operaciones",
+      "voyelles"
+    ],
+    "gold_chunk_id": "c1dbe9ee-24f1-54b1-a6d3-ec3c36655ae3",
+    "gold_section": "Espagnol",
+    "gold_source_file": "programme_espagnol_college_BO2025"
+  },
+  {
+    "query": "En cours, on a parlé de l'énergie cinétique avec la formule Ec = ½ mv². Est-ce que cette formule marche aussi pour calculer l'énergie d'un objet qui tombe, comme une pomme depuis un arbre ? Sinon, quelle forme d'énergie faut-il utiliser dans ce cas ?",
+    "matiere": "physique_chimie",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "énergies cinétique",
+      "conservation de l’énergie",
+      "bilan énergétique",
+      "forme d’énergie"
+    ],
+    "gold_chunk_id": "96842595-1961-5029-a170-4439b898a41b",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on utilise des puissances de dix avec des exposants négatifs quand on parle des atomes ou des microbes en sciences ?",
+    "matiere": "mathematiques",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "exposants négatifs",
+      "sciences de l'atome",
+      "microbiologie",
+      "puissances de dix",
+      "ordres de grandeur"
+    ],
+    "gold_chunk_id": "6c2c2038-d2fe-57d8-bb60-25c64627b910",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
+  },
+  {
+    "query": "En SVT en troisième, pourquoi est-ce qu'on n'étudie pas encore en détail comment les neurones fonctionnent pendant l'effort, alors qu'on parle déjà du système nerveux ?",
+    "matiere": "svt",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "système nerveux",
+      "mécanismes nerveux à l'échelle",
+      "cellulaire",
+      "fonctionnement cérébral"
+    ],
+    "gold_chunk_id": "8987f3c2-9177-5bbb-9522-7da31c26ba93",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on dit que la lumière se propage en ligne droite et comment on peut le vérifier avec une expérience simple en classe ?",
+    "matiere": "physique_chimie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "rayon lumineux",
+      "modèle du rayon lumineux",
+      "expérimentalement"
+    ],
+    "gold_chunk_id": "a1c57013-6a85-5709-a768-89fd43295a2b",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'éducation musicale, comment est-ce qu'on peut utiliser notre voix ou notre corps pour exprimer une émotion ou une idée précise ? Donne-moi des exemples concrets.",
+    "matiere": "education_musicale",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "techniques vocales",
+      "corporelles",
+      "sens",
+      "expression"
+    ],
+    "gold_chunk_id": "1fc1607e-1434-5a8b-973e-0e3a6b441a07",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'anglais, si je veux dire que je ne suis pas d'accord pour prêter mon crayon, est-ce que je peux utiliser une des expressions du chapitre ? Laquelle serait la plus naturelle ?",
+    "matiere": "anglais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "désaccord",
+      "Sorry no"
+    ],
+    "gold_chunk_id": "cc955677-3320-5838-8f04-504f798b4916",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on dit que les expressions comme « It's raining cats and dogs » montrent des particularités de la culture anglaise ?",
+    "matiere": "anglais",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "expressions idiomatiques",
+      "culture",
+      "structures syntaxiques",
+      "valeurs d’une société",
+      "communication interpersonnelle"
+    ],
+    "gold_chunk_id": "5cb5e504-9b7b-599d-9400-01eb8eb4de7e",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Si je veux comparer le périmètre de deux polygones sans utiliser de règle, quels outils du chunk est-ce que je peux utiliser et comment je fais concrètement ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "ficelle",
+      "compas",
+      "reportant les longueurs",
+      "périmètre"
+    ],
+    "gold_chunk_id": "ad055d3f-0d88-5c44-add0-6dceb93525ab",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi peut-on dire que la Première Guerre mondiale a préparé le terrain pour la révolution bolchevique en Russie ?",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "guerre totale",
+      "communisme soviétique",
+      "années 1920",
+      "civils et militaires"
+    ],
+    "gold_chunk_id": "1313857f-dc86-504c-aa38-62add0881869",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'anglais, on a parlé des règles d'un jeu de société. Quels mots précis peut-on utiliser pour expliquer ce qu'on a le droit ou pas de faire pendant la partie ?",
+    "matiere": "anglais",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "we must/we mustn’t",
+      "the rules",
+      "fair play",
+      "cheat"
+    ],
+    "gold_chunk_id": "68f8718f-574a-5158-9591-0b60759083b9",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Comment est-ce que je peux expliquer ce que je ressens en regardant un tableau ou en écoutant une musique, sans juste dire « c’est beau » ou « je n’aime pas » ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "avis argumenté",
+      "œuvre d’art",
+      "exprime",
+      "Identifier"
+    ],
+    "gold_chunk_id": "a3ee829c-1391-5106-90f1-ec01e1cc07df",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on doit lire des livres en français alors que je préfère les histoires en BD ou sur YouTube ? Est-ce que ça sert vraiment à quelque chose ?",
+    "matiere": "francais",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "littérature",
+      "construction de soi",
+      "culture littéraire",
+      "lectures personnelles",
+      "expérience"
+    ],
+    "gold_chunk_id": "1ba7415d-c1df-5529-bbf6-39d6c787e25a",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En classe de français, comment les brouillons ou les schémas peuvent-ils m'aider à mieux organiser mes idées avant d'écrire un texte ?",
+    "matiere": "francais",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "brouillons",
+      "schémas",
+      "organiser des idées",
+      "préparation à l’écriture"
+    ],
+    "gold_chunk_id": "05de415c-4406-5a57-ab0f-524e53df310c",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Si je dois décrire le Bosco Verticale pour un exposé, quels détails précis du projet devrais-je mentionner pour bien le caractériser comme dans le programme ?",
+    "matiere": "italien",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "Bosco verticale",
+      "riforestazione metropolitana",
+      "Stefano Boeri",
+      "2014",
+      "progettato"
+    ],
+    "gold_chunk_id": "aa506b34-07c5-53a5-992a-b4f4cb4094a0",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "Pourquoi on dit que la science est universelle, alors qu'elle vient surtout de la Grèce antique ? Est-ce que d'autres civilisations ont contribué aussi ?",
+    "matiere": "physique_chimie",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "universalité de la science",
+      "Grèce antique",
+      "héritage",
+      "science"
+    ],
+    "gold_chunk_id": "3d8b272a-0446-55cc-8ba0-bb83314e773e",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En 3ème, on parle d'immunité : est-ce qu'on va enfin comprendre comment la vaccination et les antibiotiques protègent vraiment notre corps contre les microbes ?",
+    "matiere": "svt",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "immunité",
+      "vaccination",
+      "antibiotiques",
+      "monde microbien"
+    ],
+    "gold_chunk_id": "cf80aee7-79a4-5065-a532-8423a2526eca",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu’on dit que 30 cm + 15 cm a du sens quand on met deux bâtons bout à bout, alors que juste additionner les nombres ne suffit pas toujours ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "mesurer une grandeur",
+      "opérations sur les grandeurs",
+      "unité",
+      "proportionnalité",
+      "estimation"
+    ],
+    "gold_chunk_id": "9348838b-3405-5633-aa9c-bc64302f42c3",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'espagnol, comment est-ce qu'on peut dire poliment qu'on n'est pas tout à fait d'accord avec un camarade sans être impoli ? Donne-moi un exemple avec une phrase du programme.",
+    "matiere": "espagnol",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "prefiero",
+      "vale",
+      "de acuerdo"
+    ],
+    "gold_chunk_id": "6285a4f2-08c7-5f1e-866f-0f540c6af31f",
+    "gold_section": "Espagnol",
+    "gold_source_file": "programme_espagnol_college_BO2025"
+  },
+  {
+    "query": "Quelles sont les deux grandes réformes administratives et sociales mises en place pendant la Révolution française et sous Napoléon Ier ? Donne des exemples précis.",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "grandes réformes",
+      "administratives",
+      "sociales",
+      "Révolution",
+      "Empire"
+    ],
+    "gold_chunk_id": "3b689f5f-8a9f-52dc-975a-84c243ec0292",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'éducation musicale, comment est-ce qu'on peut expliquer nos choix quand on invente une mélodie ou quand on chante un morceau devant la classe ?",
     "matiere": "education_musicale",
     "niveau": "cinquieme",
-    "expected_keywords": ["écoute", "musique", "perception"]
+    "expected_keywords": [
+      "justifier des choix d’interprÉ",
+      "création",
+      "point de vue"
+    ],
+    "gold_chunk_id": "cc9b7987-2398-550e-85b9-8f8bf193b6e8",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Quels grands domaines en EPS au cycle 4 ?",
+    "query": "Pourquoi est-ce qu'on utilise des extraits de films ou de chansons en cours d'allemand plutôt que des textes écrits spécialement pour les élèves ?",
+    "matiere": "allemand",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "documents authentiques",
+      "locuteurs natifs",
+      "expressions idiomatiques",
+      "variations linguistiques",
+      "supports pédagogiques"
+    ],
+    "gold_chunk_id": "ce3eff90-4193-50b2-8140-4cca46ee711c",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En cours d'italien, comment est-ce qu'on peut montrer qu'on a bien compris l'histoire qu'on vient d'écouter ou de lire, sans juste la répéter mot à mot ?",
+    "matiere": "italien",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "restituer la trame",
+      "mettre en scène",
+      "étapes simples d’un récit"
+    ],
+    "gold_chunk_id": "757c0c63-b78b-5d9d-a7ea-897921fdf00c",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "Si je vois une phrase avec 'qui' ou 'que', comment je fais pour savoir si c'est une proposition subordonnée relative et quelle est sa fonction dans la phrase ?",
+    "matiere": "francais",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "pronom relatif",
+      "fonction grammaticale",
+      "phrase complexe"
+    ],
+    "gold_chunk_id": "d55a198c-74cc-5315-b168-ee0378175908",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on apprend à reconnaître les risques auditifs en cours d'éducation musicale ?",
+    "matiere": "education_musicale",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "environnements sonores",
+      "esprit critique",
+      "appareil vocal"
+    ],
+    "gold_chunk_id": "8fa33ca8-c890-5e86-9c4e-edacb4aba7c8",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on doit écrire des textes avant d'étudier une règle de grammaire ou d'orthographe en classe ? Ça sert à quoi exactement ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "écrire avant d’étudier",
+      "stratégies d’écriture",
+      "lien entre l’écriture",
+      "étude de la langue"
+    ],
+    "gold_chunk_id": "5de5c4af-3c47-5aba-af05-6cb890090c32",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En histoire, comment est-ce qu’on fait pour savoir si un document ancien est fiable quand on l’étudie en classe ?",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "typologie des sources",
+      "contexte",
+      "analyse des documents",
+      "raisonnement historique"
+    ],
+    "gold_chunk_id": "d754f539-7e0f-5d52-a8f8-2205e7dd1301",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En géographie, comment peut-on expliquer la différence entre 'localiser un lieu' et 'caractériser un espace complexe' ? Donne un exemple concret pour chacun.",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "grands repères géographiques",
+      "espaces plus complexes",
+      "représentations analogiques"
+    ],
+    "gold_chunk_id": "8471932b-d69f-570e-b70f-f024427f34f0",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu’on doit faire attention quand on touche ou on regarde des objets dans un musée ? Donne des exemples de métiers qui s’occupent de les protéger.",
+    "matiere": "histoire_des_arts",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "métiers de la conservation",
+      "restauration",
+      "diffusion"
+    ],
+    "gold_chunk_id": "f5bfb105-ba39-545f-97de-51ebdc24b6f6",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En EPS, est-ce qu'on doit absolument tout voir dans l'année, ou est-ce que le prof peut choisir de passer plus de temps sur certains sports et en laisser d'autres de côté ?",
     "matiere": "eps",
     "niveau": "troisieme",
-    "expected_keywords": ["champ", "apprentissage", "activité"]
+    "expected_keywords": [
+      "Repères de progressivité",
+      "champs d’apprentissage",
+      "équipe pédagogique",
+      "planifier",
+      "approfondi"
+    ],
+    "gold_chunk_id": "01f37a16-d63f-55ae-9a6b-53d98db847ab",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
   },
   {
-    "query": "Qu'est-ce que l'histoire des arts au collège ?",
+    "query": "En cours d'éducation musicale, comment est-ce qu'on peut utiliser un système de codage pour organiser notre création sans tout mélanger ?",
+    "matiere": "education_musicale",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "système de codage",
+      "création",
+      "organiser",
+      "mobiliser à bon escient"
+    ],
+    "gold_chunk_id": "07e340d5-6ebd-57e6-92f9-8a2dd4e47d4f",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'allemand, on nous a demandé d'exprimer une opposition dans un texte. Est-ce qu'on peut utiliser *doch* comme *aber*, ou est-ce qu'il y a une différence ? Et comment on fait pour montrer qu'on n'est pas sûr de ce qu'on dit ?",
+    "matiere": "allemand",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "doch",
+      "aber",
+      "vielleicht",
+      "modalisateurs"
+    ],
+    "gold_chunk_id": "016c3f10-0ee2-5da4-b21a-83feec213986",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En cours d'anglais, comment est-ce que je peux deviner le sens d'un texte court comme une recette ou une poésie si je ne comprends pas tous les mots ?",
+    "matiere": "langues_vivantes",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "indices textuels",
+      "paratextuels",
+      "mots outils"
+    ],
+    "gold_chunk_id": "dd8062a7-9d36-5add-a372-1b44a22cfd5d",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En italien, est-ce qu'on doit juste répéter des phrases qu'on a apprises par cœur, ou est-ce qu'on peut aussi les modifier un peu pour raconter ce qu'on a fait pendant les vacances ?",
+    "matiere": "italien",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "répertoire mémorisé",
+      "paraphraser",
+      "phrases simples",
+      "expériences"
+    ],
+    "gold_chunk_id": "a964434e-61b0-5753-a0ef-af203cd34667",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "En technologie, quand on travaille sur des circuits électriques simples, quelles lois de l'électricité doit-on connaître pour les exploiter correctement ?",
+    "matiere": "technologie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "circuits électriques simples",
+      "lois de l'électricité",
+      "énergie",
+      "transferts",
+      "conversions"
+    ],
+    "gold_chunk_id": "57f109cf-f19a-53c0-82e4-ff29bd7d7c37",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
+  },
+  {
+    "query": "En cours d'EMC, est-ce qu'on doit juste écouter le professeur ou est-ce qu'on peut aussi discuter et donner notre avis ? Si oui, comment ça se passe exactement ?",
+    "matiere": "emc",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "discussion réglée",
+      "débat argumenté",
+      "échange d’arguments",
+      "valeurs",
+      "situations concrètes"
+    ],
+    "gold_chunk_id": "4b5a88cd-98fb-5fca-a365-12d436f3c328",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'arts plastiques, on parle de trompe-l’œil et de vitraux : comment la lumière intervient-elle pour créer ces effets ou ces couleurs dans les œuvres d’art ?",
+    "matiere": "physique_chimie",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "lumière blanche",
+      "lumières colorées",
+      "trompe-l’œil",
+      "vitrail"
+    ],
+    "gold_chunk_id": "1617dcef-4ecb-500c-b90f-b605ce237f54",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En grammaire, comment est-ce qu’on fait pour repérer un sujet quand il est très loin du verbe dans la phrase ? Par exemple, dans une phrase comme « Sous les arbres, près de la rivière, les enfants jouent bruyamment. » ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "sujet éloigné",
+      "constituants de la phrase",
+      "liens sujet – verbe"
+    ],
+    "gold_chunk_id": "fff99185-4058-5161-a0cc-2c62a5b84fee",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on fait des expériences en physique-chimie au lieu de juste lire des livres sur les lois scientifiques ?",
+    "matiere": "physique_chimie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "pratique concrète",
+      "expérimentant",
+      "mesurant",
+      "modélisant",
+      "complexité du réel"
+    ],
+    "gold_chunk_id": "6ebdd80f-41a0-5121-9b34-8ce9240c8208",
+    "gold_section": "Physique-Chimie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on étudie des textes sur les guerres mondiales en français alors que c'est aussi au programme d'histoire ? Est-ce que ces textes servent juste à raconter ce qui s'est passé ou y a-t-il une autre raison ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "textes littéraires",
+      "témoignage",
+      "engagement",
+      "rapport à l'histoire"
+    ],
+    "gold_chunk_id": "915274d8-333a-5d42-8feb-9707d41c09e3",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En troisième, comment est-ce qu'on peut utiliser la notion de fonction pour montrer qu'une situation n'est pas proportionnelle ? Donne un exemple concret avec des grandeurs.",
+    "matiere": "mathematiques",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "notion de fonction",
+      "proportionnalité",
+      "grandeurs",
+      "non proportionnalité",
+      "situations simples"
+    ],
+    "gold_chunk_id": "fecd85f0-80a9-563d-8490-fa146738ecd2",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
+  },
+  {
+    "query": "En cours d'anglais, est-ce qu'on doit apprendre par cœur des phrases toutes faites ou est-ce qu'on peut inventer nos propres phrases avec les règles de grammaire qu'on a vues ?",
+    "matiere": "langues_vivantes",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "structures et formes grammatic",
+      "répertoire mémorisé",
+      "contrôle limité"
+    ],
+    "gold_chunk_id": "29c49037-f7d5-55ad-b8d5-a22a1ae6e22e",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En EPS, comment est-ce qu’on peut utiliser notre corps pour créer une chorégraphie ou un enchaînement acrobatique original en cours ? Est-ce qu’on doit juste improviser ou y a-t-il des étapes précises à suivre ?",
+    "matiere": "eps",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "capacités expressives du corps",
+      "séquence artistique",
+      "projet artistique"
+    ],
+    "gold_chunk_id": "623bd658-c4ae-50a6-9416-d8dcf7e27d68",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En italien, comment est-ce qu'on forme le passé composé avec les verbes pronominaux comme *lavarsi* ? Est-ce que l'accord du participe passé change par rapport aux autres verbes ?",
+    "matiere": "italien",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "passé composé",
+      "verbes pronominaux",
+      "règles d’accord"
+    ],
+    "gold_chunk_id": "2fb6a3d0-0d10-5f71-8ddb-79b849b3803b",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce que le prof nous demande souvent d'expliquer à l'oral comment on a résolu un exercice de maths, même si on a déjà écrit la réponse ?",
+    "matiere": "mathematiques",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "verbalisation",
+      "raisonnements",
+      "structurer la pensée",
+      "langage formel",
+      "esprit critique"
+    ],
+    "gold_chunk_id": "efa0ea4e-a835-50c4-b477-8897307f751f",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
+  },
+  {
+    "query": "En technologie, quand on doit fabriquer une pièce en plastique, est-ce qu'on utilise plutôt le pliage ou le thermoformage pour la mettre en forme ? Justifie ta réponse avec les procédés vus en cours.",
+    "matiere": "technologie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "mise en forme",
+      "pliage",
+      "thermoformage",
+      "procédés d’obtention de pièce"
+    ],
+    "gold_chunk_id": "219dc45c-6d6d-5f7e-af00-81e650b4e92c",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
+  },
+  {
+    "query": "En histoire des arts, est-ce qu'on doit forcément visiter un musée ou rencontrer un professionnel pour réussir notre exposé sur des œuvres ?",
     "matiere": "histoire_des_arts",
     "niveau": "cinquieme",
-    "expected_keywords": ["histoire des arts", "œuvre", "période"]
+    "expected_keywords": [
+      "rencontres",
+      "pratiques vécues",
+      "rendre compte de la visite",
+      "lieu de conservation"
+    ],
+    "gold_chunk_id": "683f6efb-5c50-50ce-b71a-e804d05b32c5",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'EPS, comment on utilise une carte pour se repérer pendant une course d'orientation ? Est-ce qu'on apprend aussi à en dessiner une ?",
+    "matiere": "eps",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "orientation",
+      "cartographie",
+      "Sport et espace"
+    ],
+    "gold_chunk_id": "38255e48-2bd8-5f02-ae09-0e3815a2d9c5",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu’on doit toujours corriger nos rédactions plusieurs fois avant de les rendre ? Est-ce que c’est normal que ce ne soit jamais parfait du premier coup ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "écrit",
+      "repris",
+      "formulation",
+      "intentions",
+      "point de vue"
+    ],
+    "gold_chunk_id": "c665fe5f-c412-5df7-9caa-957a052c9dea",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En arts plastiques, comment peut-on expliquer qu'une œuvre comme *Guernica* de Picasso reflète à la fois une période historique précise et une culture particulière ? Quels éléments concrets peut-on analyser pour le montrer ?",
+    "matiere": "arts_plastiques",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "culturelles",
+      "sémantiques",
+      "symboliques",
+      "temps historique"
+    ],
+    "gold_chunk_id": "b7f196e6-a8d0-57af-9a06-3c0bd3ed3f0b",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on chante une mélodie en cours de musique alors qu'on pourrait juste l'écouter ? À quoi ça sert pour apprendre ?",
+    "matiere": "education_musicale",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "pratique vocale",
+      "écoute",
+      "chant",
+      "mélodie structurante"
+    ],
+    "gold_chunk_id": "013bd891-352e-5af9-8ca5-e70af1bec3b5",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'espagnol, on nous a demandé d'écrire un petit mot pour refuser une invitation. Quelles expressions je peux utiliser pour dire que ça ne me plaît pas du tout ou que j'ai eu très peur en lisant quelque chose dans le prospectus ?",
+    "matiere": "espagnol",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "No me gusta nada",
+      "¡qué horror!",
+      "¡Qué susto!",
+      "sentiments et des émotions"
+    ],
+    "gold_chunk_id": "4c50b77a-c650-5f7f-b9ec-f30341d7d14f",
+    "gold_section": "Espagnol",
+    "gold_source_file": "programme_espagnol_college_BO2025"
+  },
+  {
+    "query": "En histoire des arts, est-ce qu'on étudie seulement la peinture et la sculpture, ou est-ce qu'il y a d'autres formes d'art comme la bande dessinée ou les arts de la rue ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "Beaux-Arts",
+      "bande dessinée",
+      "arts de la rue",
+      "champs artistiques"
+    ],
+    "gold_chunk_id": "0702ad50-fe72-5ba8-be38-b4bf792776b9",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En allemand, comment on dit qu'on ne veut pas d'eau pétillante ? Est-ce qu'on utilise « kein » ou un autre mot ?",
+    "matiere": "allemand",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "déterminant négateur",
+      "kein",
+      "Sprudelwasser"
+    ],
+    "gold_chunk_id": "997ba0b3-6885-5b10-90ff-d6496fb5383c",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En cours d'éducation musicale, on nous dit qu'on travaille sur deux grandes compétences : la perception et la production. Mais concrètement, comment est-ce qu'on peut développer notre esprit critique juste en écoutant de la musique ?",
+    "matiere": "education_musicale",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "perception",
+      "esprit critique",
+      "écoute de la musique",
+      "avis personnels",
+      "culture artistique"
+    ],
+    "gold_chunk_id": "bab6ebda-f626-5d1e-b2d5-779628e4984e",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En géographie, comment est-ce qu’on peut expliquer la différence entre « localiser un lieu » et « caractériser un espace complexe » ? Donne-moi un exemple concret pour chaque cas.",
+    "matiere": "histoire_geo",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "repères géographiques",
+      "espaces plus complexes"
+    ],
+    "gold_chunk_id": "c3d798fa-a8fe-5882-bc0d-8e9f4a915f48",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Si je dois programmer un robot pour qu'il fasse un quart de tour à gauche puis avance de 3 cases sur un plan, quelles instructions précises je dois utiliser dans le logiciel ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "programmer les déplacements",
+      "plan",
+      "logiciel de programmation"
+    ],
+    "gold_chunk_id": "725b6199-5b12-5688-8925-7c15470c0ab4",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce que même dans les pays riches, on voit encore des gens très pauvres et d'autres très riches ? Comment la géographie peut nous aider à comprendre ces différences ?",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "inégalités sociales",
+      "richesse et pauvreté",
+      "outil cartographique",
+      "réduction des inégalités"
+    ],
+    "gold_chunk_id": "ec07b031-9077-5039-8e4e-93057e00a850",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on parle parfois de l'histoire des maths en cours de troisième ? À quoi ça sert dans notre apprentissage ?",
+    "matiere": "mathematiques",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "Prolongements possibles : mise",
+      "dimension historique",
+      "culture générale",
+      "histoire des mathématiques",
+      "contextualisation des savoirs"
+    ],
+    "gold_chunk_id": "e47e232d-e2b4-508f-8ed9-ad110c37c1f4",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
+  },
+  {
+    "query": "En allemand, comment est-ce qu'on forme l'impératif pour demander à plusieurs personnes d'ouvrir leur livre en classe ? Donne-moi un exemple avec un verbe du programme.",
+    "matiere": "allemand",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "impératif",
+      "Schlagt bitte das Buch auf",
+      "consignes de classe",
+      "verbes courants"
+    ],
+    "gold_chunk_id": "8e2253bb-069e-5d6a-87ed-e252cddf737f",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En technologie, comment est-ce qu'on passe d'une idée de projet à un prototype fonctionnel en 5ème ? Quelles étapes on doit suivre exactement ?",
+    "matiere": "technologie",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "mini-projets",
+      "prototype",
+      "fonction technique",
+      "conception et réalisation",
+      "démarche de projet"
+    ],
+    "gold_chunk_id": "60187b81-9fe2-55bc-8766-23c5bca8c1ea",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
+  },
+  {
+    "query": "En arts plastiques, comment est-ce qu’on peut montrer qu’un écoquartier utilise des progrès techniques pour réduire son impact sur l’environnement ? Donne des exemples concrets d’éléments qu’on pourrait représenter dans une création artistique.",
+    "matiere": "arts_plastiques",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "éco quartier",
+      "progrès techniques",
+      "architecture",
+      "création artistique",
+      "transition écologique"
+    ],
+    "gold_chunk_id": "ba87004b-f888-524c-a92c-28cd4e770401",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'allemand, on nous a demandé de décrire un objet moderne. Quels adjectifs du programme peut-on utiliser pour dire qu'il est à la mode ou démodé, et comment placer cet objet dans une pièce avec des mots simples ?",
+    "matiere": "allemand",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "modern",
+      "altmodisch",
+      "stehen",
+      "liegen",
+      "sitzen"
+    ],
+    "gold_chunk_id": "ab5e2f7c-a7d5-5fab-9f12-85bc1cf16b3d",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En allemand, comment est-ce qu’on peut améliorer notre expression écrite en troisième par rapport à ce qu’on faisait avant ? Par exemple, est-ce qu’on doit juste recopier ou est-ce qu’on peut ajouter des choses ?",
+    "matiere": "allemand",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "varier et ajouter",
+      "brouillon",
+      "termes et expressions à repren",
+      "A1+"
+    ],
+    "gold_chunk_id": "76a6cc58-f2b7-5195-a10e-ef82ef502744",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on dit que l'histoire et la géographie sont des disciplines scientifiques en cinquième ?",
+    "matiere": "histoire_geo",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "disciplines scientifiques",
+      "phénomènes sociaux",
+      "évolution historique",
+      "organisation géographique"
+    ],
+    "gold_chunk_id": "a31ff78d-ce64-55d7-8396-3894fc8dc213",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'arts plastiques, est-ce qu'on peut travailler avec d'autres matières comme le sport ou la musique pour créer des projets ? Si oui, comment ça peut nous aider à mieux comprendre ce qu'on fait en classe ?",
+    "matiere": "arts_plastiques",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "enseignements pratiques interd",
+      "Culture et création artistiqu",
+      "démarche de construction des s",
+      "pratique et culture artistiqu"
+    ],
+    "gold_chunk_id": "f352c3c8-643a-59d4-8d94-288773f07062",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En EPS, comment est-ce qu'on peut comparer nos performances en course, saut et lancer pour savoir qui a fait le meilleur total ?",
+    "matiere": "eps",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "performance cumulée",
+      "mesurer",
+      "quantifier",
+      "représentations graphiques",
+      "classer"
+    ],
+    "gold_chunk_id": "67e6e652-1210-56ef-9a7c-c240fde1d156",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En allemand, est-ce qu'on doit apprendre par cœur les terminaisons des adjectifs épithètes au nominatif ou à l'accusatif en quatrième, ou est-ce qu'on peut juste les imiter sans tout mémoriser ?",
+    "matiere": "allemand",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "adjectif épithète",
+      "nominatif",
+      "accusatif",
+      "production imitative",
+      "marquage casuel"
+    ],
+    "gold_chunk_id": "2868de5e-91e7-5041-a62a-e2818faafe97",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En cours d'arts plastiques, comment peut-on expliquer qu'une peinture de la Renaissance italienne et une sculpture africaine du XIXe siècle n'ont pas les mêmes symboles, alors qu'elles sont toutes les deux considérées comme des œuvres d'art importantes ?",
+    "matiere": "arts_plastiques",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "symboliques",
+      "œuvre",
+      "aire géographique",
+      "temps historique"
+    ],
+    "gold_chunk_id": "68c6dded-5fcf-5eb0-82d7-dde5262e47c7",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En troisième, est-ce qu'on doit juste donner notre avis ou aussi essayer de convaincre les autres quand on parle en anglais ou en espagnol ?",
+    "matiere": "langues_vivantes",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "Exprimer son opinion",
+      "Argumenter",
+      "Niveau B1"
+    ],
+    "gold_chunk_id": "98b0439a-5a27-5bd3-8a34-f2d80014950a",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En histoire des arts, comment les Enseignements Pratiques Interdisciplinaires (EPI) peuvent-ils nous aider à travailler sur des projets avec d'autres matières comme les sciences ou le sport ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "Enseignements Pratiques Interd",
+      "projets",
+      "disciplines scientifiques",
+      "éducation physique et sportive",
+      "parcours d’éducation artistiqu"
+    ],
+    "gold_chunk_id": "54b4d1b2-394c-5186-93b9-3ebff1c4322a",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En classe de troisième, comment peut-on utiliser une boucle conditionnelle pour structurer un programme et éviter de répéter plusieurs fois la même instruction ?",
+    "matiere": "mathematiques",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "boucle conditionnelle",
+      "structurer des programmes",
+      "variables",
+      "conditions composées"
+    ],
+    "gold_chunk_id": "007db95d-78cc-5bde-9a7f-1fc86af4bd89",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_maths_cycle4_BO2026"
+  },
+  {
+    "query": "En EPS, on nous parle souvent de travailler en équipe ou de respecter des règles. Est-ce que c'est lié à l'une des cinq compétences qu'on doit apprendre ? Si oui, laquelle et pourquoi ?",
+    "matiere": "eps",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "partager des règles",
+      "assumer des rôles",
+      "responsabilités",
+      "compétences"
+    ],
+    "gold_chunk_id": "915a1b01-8ea3-5e59-90a4-f24d9068c6aa",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'éducation musicale, comment peut-on reconnaître une forme simple comme le couplet/refrain ou ABA quand on écoute un morceau ?",
+    "matiere": "education_musicale",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "couplet/refrain",
+      "ABA",
+      "forme simple",
+      "écoutes préparées"
+    ],
+    "gold_chunk_id": "74267eb0-8311-5273-bbfc-245627df945b",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En SVT en quatrième, on parle de trois grandes thématiques : est-ce qu'on étudie aussi comment les humains agissent sur la nature dans ce programme ?",
+    "matiere": "svt",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "planète Terre",
+      "environnement et l’action huma",
+      "thématiques"
+    ],
+    "gold_chunk_id": "f9687815-0db2-52f6-852b-dcf1f0a93123",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on parle de « changement global » quand on étudie les problèmes d'aménagement des territoires en géographie ?",
+    "matiere": "histoire_geo",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "changement global",
+      "aménagement",
+      "territoires",
+      "durabilité",
+      "mondialisation"
+    ],
+    "gold_chunk_id": "38b9ea71-1db0-5760-8c71-b7ba0a39aa1c",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'EMC, on nous dit qu'il faut accepter les différences, mais comment est-ce que je peux vraiment faire pour respecter la dignité de quelqu'un qui a des opinions ou un mode de vie très différent du mien ?",
+    "matiere": "emc",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "dignité",
+      "intégrité de la personne",
+      "différences",
+      "jugements moraux",
+      "discernement"
+    ],
+    "gold_chunk_id": "6e24ca56-5846-56b6-bb8c-af056ee47e52",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'éducation musicale, on parle d'une « chaîne économique et professionnelle » : est-ce que ça veut dire qu'il y a plusieurs métiers différents entre le moment où un musicien compose une chanson et celui où je l'écoute en concert ou sur mon téléphone ?",
+    "matiere": "education_musicale",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "artiste créateur",
+      "spectateur-auditeur"
+    ],
+    "gold_chunk_id": "92f00920-553c-5ea2-8695-5cf9a0a9bf05",
+    "gold_section": "Éducation musicale",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'EPS, comment est-ce qu'on peut utiliser les maths pour calculer la vitesse ou les distances pendant une course d'orientation ?",
+    "matiere": "eps",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "distance",
+      "vitesse",
+      "proportionnalité",
+      "repérage",
+      "déplacement"
+    ],
+    "gold_chunk_id": "4f27406f-aa06-5228-84bf-3237033f6660",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu’on trouve plus de fourmis dans un coin ensoleillé de la cour que sous un arbre à l’ombre, et est-ce que ça change selon les saisons ?",
+    "matiere": "sciences_technologie",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "peuplement des milieux",
+      "conditions physico-chimiques",
+      "saisons",
+      "écosystème",
+      "répartition des êtres vivants"
+    ],
+    "gold_chunk_id": "4ab35c8b-376c-5353-9c11-2fbd54bd7799",
+    "gold_section": "Sciences et technologie",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'EMC, on parle d'engagement politique, social ou associatif : est-ce que s'engager dans l'armée avec les dispositifs Armée-jeunesse, ça compte comme une forme d'engagement ? Et pourquoi c'est important pour la démocratie ?",
+    "matiere": "emc",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "engagement",
+      "démocratie",
+      "formes de l’engagement",
+      "Armée –jeunesse",
+      "citoyens"
+    ],
+    "gold_chunk_id": "ec5acd07-bc53-569c-87ba-e2bf3dff057f",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En classe de français, comment est-ce qu'on peut varier les exercices d'écriture pour ne pas toujours faire la même chose ? Par exemple, est-ce qu'on va écrire des textes courts et des textes longs, ou changer le public à qui on s'adresse ?",
+    "matiere": "francais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "démarche d’écriture",
+      "destinataire",
+      "pratique régulière et diversif"
+    ],
+    "gold_chunk_id": "3d70a293-158c-5b19-b4d5-695d4dc78d29",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En arts plastiques, quelles méthodes peut-on utiliser pour bien présenter notre production et la faire comprendre à un public ?",
+    "matiere": "arts_plastiques",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "Présentation",
+      "mise en scène",
+      "appropriation de l'espace",
+      "transmettre à un public"
+    ],
+    "gold_chunk_id": "2a04a669-1ba9-5959-bfb4-9272ce4be4d2",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce que deux personnes peuvent percevoir une même couleur différemment, alors que la lumière qui arrive dans leurs yeux est identique ?",
+    "matiere": "svt",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "organes sensoriels",
+      "relativité des perceptions",
+      "défauts de vision",
+      "propagation de la lumière",
+      "cerveau"
+    ],
+    "gold_chunk_id": "16dc16bd-86f4-512b-b1ef-c023d2a4950e",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cinquième, est-ce que je peux continuer à faire du sport au collège même en dehors des cours d'EPS, et si oui, comment ?",
+    "matiere": "eps",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "association sportive",
+      "élèves volontaires",
+      "cadre associatif",
+      "pratique physique"
+    ],
+    "gold_chunk_id": "50b3820d-62c2-503f-aa15-a5dc5c6796c9",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En espagnol, comment est-ce qu'on peut expliquer ce qu'on va faire ce week-end sans se tromper dans l'ordre des idées ? Est-ce qu'il y a des mots spéciaux à utiliser pour relier les phrases ?",
+    "matiere": "espagnol",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "projets dans un futur proche",
+      "connecteurs simples",
+      "activités quotidiennes",
+      "vocabulaire de tous les jours"
+    ],
+    "gold_chunk_id": "15d56b80-302c-56ed-90d2-ed21d6637de0",
+    "gold_section": "Espagnol",
+    "gold_source_file": "programme_espagnol_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce que je dois obéir aux règles à l'école alors que certaines ne me semblent pas justes ? Comment faire la différence entre ce qui est bon pour moi et ce qui est bon pour toute la classe ?",
+    "matiere": "emc",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "obéissance aux règles",
+      "intérêt particulier",
+      "intérêt général",
+      "société démocratique"
+    ],
+    "gold_chunk_id": "28aaa7ec-b140-5e81-bfe1-bb4f5627edcc",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cinquième, comment est-ce que les profs de sciences ou de sport peuvent participer à un projet en histoire des arts, et pourquoi c'est utile ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "disciplines scientifiques",
+      "éducation physique et sportive",
+      "Enseignements Pratiques Interd",
+      "parcours d’éducation artist",
+      "projets"
+    ],
+    "gold_chunk_id": "9f7583f5-12aa-5538-8670-dc9b840430f4",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'anglais, on nous a parlé d'un dispositif où on apprend une matière comme les sciences ou l'histoire directement dans une langue étrangère. Comment ça s'appelle et comment ça marche concrètement avec des exemples de ressources qu'on pourrait utiliser ?",
+    "matiere": "langues_vivantes",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "EMILE",
+      "ressources pédagogiques numéri",
+      "eTwinning",
+      "enseignement d’une matière"
+    ],
+    "gold_chunk_id": "cd6837d6-06b5-5b60-a45d-577dca16921e",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En technologie, quand on veut ajouter une nouvelle fonction à un objet technique en 4ème, quelles méthodes doit-on utiliser pour présenter notre solution avant de la fabriquer ?",
+    "matiere": "technologie",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "croquis",
+      "schéma",
+      "graphique",
+      "algorithme",
+      "modélisation"
+    ],
+    "gold_chunk_id": "49801c4a-0730-573c-8c63-326f1aba9178",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
+  },
+  {
+    "query": "En cours d'anglais, on me demande parfois de parler d'un sujet simple avec un camarade, mais je bloque souvent après deux phrases. Est-ce que c'est normal au niveau A2, et comment je peux faire pour améliorer ça sans que l'autre doive tout le temps m'aider ?",
+    "matiere": "anglais",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "niveau A2",
+      "échange d'information simple",
+      "soutenir une conversation",
+      "sujets familiers"
+    ],
+    "gold_chunk_id": "2d07bf64-07ac-5f82-9eec-1360c642a74f",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "En cours d'allemand, on a parlé des énergies propres. Est-ce qu'on doit aussi savoir expliquer pourquoi la *Solarenergie* ou la *Windenergie* sont meilleures pour *die Umwelt* que *die Atomenergie* ?",
+    "matiere": "allemand",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "Solarenergie",
+      "Windenergie",
+      "Atomenergie",
+      "die Umwelt"
+    ],
+    "gold_chunk_id": "eb5e6798-cf75-5148-a490-dd854965124c",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce que le prof nous demande d'écrire les corrections des exercices dans notre cahier d'anglais, alors qu'on les a déjà faites à l'oral en classe ? À quoi ça sert vraiment ?",
+    "matiere": "anglais",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "trace écrite",
+      "appropriation des savoirs",
+      "mémorisation",
+      "production",
+      "bilans lexicaux"
+    ],
+    "gold_chunk_id": "12f73216-dfa8-5519-b488-c287d1e5c7e8",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Pourquoi certaines œuvres d'art deviennent-elles célèbres dans le monde entier, et comment les gens les comprenaient-ils à l'époque où elles ont été créées ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "œuvres emblématiques",
+      "patrimoine mondial",
+      "genèse",
+      "codes",
+      "réception"
+    ],
+    "gold_chunk_id": "b85afaba-a3a4-5620-a708-fc98566ea560",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En SVT, on parle parfois de biotechnologies : est-ce qu'on utilise aussi ce qu'on apprend en technologie pour comprendre ces sujets ? Si oui, comment ça se voit dans les cours ?",
+    "matiere": "svt",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "biotechnologies",
+      "technologie",
+      "croisements"
+    ],
+    "gold_chunk_id": "04b4a6c5-0f83-59e7-ad97-2f7376630cac",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En SVT, comment est-ce qu'on peut faire la différence entre un fait scientifique et une simple idée quand on étudie un phénomène naturel ?",
+    "matiere": "svt",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "faits",
+      "idées",
+      "savoirs scientifiques"
+    ],
+    "gold_chunk_id": "69d52de0-10b6-581f-ae52-eb340fb255f2",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En technologie et en maths, on parle des quatre piliers de l'informatique : est-ce qu'on peut m'expliquer à quoi servent exactement les « données et leurs représentations » dans une chaîne d'information ?",
+    "matiere": "technologie",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "chaîne d'information",
+      "quatre piliers",
+      "science informatique"
+    ],
+    "gold_chunk_id": "c1ef5fc7-5153-53b5-b3cd-32232f62f9b9",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
+  },
+  {
+    "query": "En cours d'allemand, on a parlé de la RDA et de la RFA. Est-ce que la Stasi était une police secrète des deux côtés ou seulement dans un des deux États ? Et quel rôle elle jouait exactement dans le régime communiste ?",
+    "matiere": "allemand",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "die DDR",
+      "die BRD",
+      "die Staatssicherheit (Stasi)",
+      "der Kommunismus",
+      "das Regime"
+    ],
+    "gold_chunk_id": "f14fcea4-0ebc-5698-a467-118e0afce6db",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "Pourquoi dit-on que la laïcité est une valeur de la République française et pas seulement un principe ? Est-ce que ça change quelque chose pour nous au collège ?",
+    "matiere": "emc",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "laïcité",
+      "valeurs",
+      "principes",
+      "République française",
+      "enseignement moral et civique"
+    ],
+    "gold_chunk_id": "1096a1f7-2dba-51be-8baf-eb3994eef2be",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En classe, on nous a demandé de mesurer l'aire d'un rectangle avec des nombres décimaux. Quels instruments est-ce qu'on doit utiliser pour vérifier que notre calcul est juste ?",
+    "matiere": "mathematiques",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "aire",
+      "nombres décimaux",
+      "instruments de mesures",
+      "grandeurs géométriques"
+    ],
+    "gold_chunk_id": "a6b888ec-4cde-537d-b6b2-fb3965e979cb",
+    "gold_section": "Mathématiques",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi l'école a-t-elle la mission de nous apprendre les valeurs de la République plutôt que de laisser ça seulement à nos familles ?",
+    "matiere": "emc",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "valeurs de la République",
+      "démarche de coéducation",
+      "Constitution",
+      "pacte républicain",
+      "article L 111-1"
+    ],
+    "gold_chunk_id": "adbfbf6e-d0ff-5086-8219-3654181ee376",
+    "gold_section": "Enseignement moral et civique",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'allemand, comment est-ce qu'on peut décrire simplement les activités qu'on fait après l'école, comme dans l'exemple du chunk ? Donne-moi des exemples précis de phrases qu'on pourrait utiliser.",
+    "matiere": "allemand",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "Freizeitaktivitäten",
+      "Nachmittags",
+      "AGs",
+      "Schulgarten arbeiten"
+    ],
+    "gold_chunk_id": "824c4765-e9fe-5c7f-aad2-c871b9bf2911",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "En arts plastiques, pourquoi est-ce qu'on utilise parfois des glacis au lieu d'un aplat pour peindre une surface, et quel effet ça donne sur le support ?",
+    "matiere": "arts_plastiques",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "glacis",
+      "aplat",
+      "supports",
+      "matière colorée",
+      "effets visuels"
+    ],
+    "gold_chunk_id": "1d8d6210-b293-5be0-8ced-4cf0eb17d750",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En arts plastiques, comment est-ce qu’on peut montrer qu’un bâtiment ancien et un écoquartier moderne racontent tous les deux l’histoire d’une ville en mutation ? Donne des exemples précis d’éléments à observer ou à représenter.",
+    "matiere": "arts_plastiques",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "ville en mutation",
+      "éco quartier",
+      "hétérogénéité architecturale",
+      "représenter",
+      "architecture"
+    ],
+    "gold_chunk_id": "f15847f3-3167-5d05-b7ba-91157e7e32c9",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'anglais, comment est-ce qu’on peut faire si on ne connaît pas un mot pendant qu’on parle ? Est-ce qu’on a le droit de se tromper et de se corriger après ?",
+    "matiere": "langues_vivantes",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "manque lexical",
+      "s’autocorriger",
+      "reformuler",
+      "prise de parole"
+    ],
+    "gold_chunk_id": "7b2a91a6-edce-551d-9767-d0202a902b86",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En EPS, quels rôles est-ce que je peux tenir pendant une compétition d'athlétisme pour aider mes camarades sans forcément courir ou sauter moi-même ?",
+    "matiere": "eps",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "rôles sociaux",
+      "juge d’appel",
+      "chronométreur",
+      "juge de mesure",
+      "organisateur"
+    ],
+    "gold_chunk_id": "0f5ed7ab-70f8-55d7-a05d-a26ec1a8b7f5",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'italien, on parle de *sensibilizzare* à travers les médias : est-ce que ça veut dire qu’on doit apprendre à utiliser les réseaux comme *i social media* ou *il podcast* pour faire passer un message important, par exemple sur *l’inquinamento* ?",
+    "matiere": "italien",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "sensibilizzare",
+      "i social media",
+      "il podcast",
+      "l’inquinamento"
+    ],
+    "gold_chunk_id": "e7846911-dc30-5eed-af79-8746a00e5551",
+    "gold_section": "Italien",
+    "gold_source_file": "programme_italien_college_BO2025"
+  },
+  {
+    "query": "Pourquoi dit-on que la gravure et l'imprimerie ont permis la 'naissance du multiple' dans l'art entre le XIVᵉ et le XVIIᵉ siècle ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "naissance du multiple",
+      "gravure",
+      "imprimerie"
+    ],
+    "gold_chunk_id": "d325188a-2427-5b01-8fe5-426c1f3d3cd6",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'EPS, pourquoi est-ce qu'on doit parfois faire l'arbitre ou observer les autres pendant un jeu comme le béret ou le handball ?",
+    "matiere": "eps",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "rôles simples d’arbitre",
+      "observateur",
+      "coopérer",
+      "jeux collectifs",
+      "accepter"
+    ],
+    "gold_chunk_id": "341bfad5-371a-5a2a-82cb-95f169132b62",
+    "gold_section": "Éducation physique et sportive",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "Pourquoi le prof nous fait parfois travailler en groupes plutôt qu'individuellement en cours d'anglais ? Est-ce que ça sert vraiment à mieux apprendre ?",
+    "matiere": "anglais",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "modalités de travail",
+      "objectifs linguistiques",
+      "travail coopératif",
+      "progression",
+      "altérité"
+    ],
+    "gold_chunk_id": "b2b8bee6-ad22-513d-a5d5-f8ac35ceacdd",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "En cours d'anglais, quand on parle d'un film comme *Sofia Coppola’s vision*, quels types de questions le professeur peut nous poser pour qu’on explique plus en détail ce qu’on en pense ? Donne-moi des exemples précis comme dans le programme.",
+    "matiere": "anglais",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "relancer",
+      "reformuler",
+      "verbes de perception"
+    ],
+    "gold_chunk_id": "8dee7f6f-1227-5cba-8e24-2a3436378918",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "Pourquoi on étudie des œuvres d'art de différentes époques et de différents pays en histoire des arts, alors que c'est pas juste pour apprendre des dates ou des noms ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "courants artistiques",
+      "mouvements culturels",
+      "expérience esthétique",
+      "thématiques transversales",
+      "repères historiques"
+    ],
+    "gold_chunk_id": "0d624b0d-8e5f-5012-9a57-72e1b634cf84",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En arts plastiques, quelles méthodes peut-on utiliser pour bien présenter notre travail à un public et le rendre plus intéressant ?",
+    "matiere": "arts_plastiques",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "Présentation",
+      "mise en scène",
+      "appropriation de l'espace",
+      "valoriser une production",
+      "transmettre à un public"
+    ],
+    "gold_chunk_id": "41f8ab26-68cb-585b-acf0-32106e715157",
+    "gold_section": "Arts plastiques",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on dit que les activités humaines s'intègrent dans le fonctionnement des écosystèmes locaux ? Donne un exemple concret qu'on pourrait étudier en classe.",
+    "matiere": "svt",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "écosystèmes",
+      "activités humaines",
+      "ressources naturelles",
+      "fonctionnement"
+    ],
+    "gold_chunk_id": "4b04ae7f-83c1-5cb1-b216-18435150d984",
+    "gold_section": "Sciences de la vie et de la Terre",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi on dit que l'allemand a des mots « transparents » et est-ce que ça veut dire qu'ils ressemblent au français ?",
+    "matiere": "allemand",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "mots transparents",
+      "langue allemande",
+      "clichés",
+      "allemand",
+      "plasticité"
+    ],
+    "gold_chunk_id": "92d4d644-26ad-5a18-9842-e50b31176120",
+    "gold_section": "Allemand",
+    "gold_source_file": "programme_allemand_college_BO2025"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on fait parfois des activités tout seul et d'autres fois en groupe en cours d'anglais ? À quoi ça sert ?",
+    "matiere": "anglais",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "modalités de travail",
+      "objectifs linguistiques",
+      "travail coopératif",
+      "projet pédagogique",
+      "autonome"
+    ],
+    "gold_chunk_id": "7f111f58-3528-5d04-b682-06894adfbf46",
+    "gold_section": "Anglais",
+    "gold_source_file": "programme_anglais_college_BO2025"
+  },
+  {
+    "query": "En histoire, pourquoi dit-on que la religion était un facteur important pour expliquer l'unité ou la division des empires entre le VIe et le XIIIe siècle ? Donne des exemples de fonctions politiques ou religieuses de cette époque.",
+    "matiere": "histoire_geo",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "religion",
+      "calife",
+      "basileus",
+      "empereur"
+    ],
+    "gold_chunk_id": "7e2c5786-7236-53e8-8ed9-176450a17838",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En cours d'anglais, est-ce qu'on va devoir comprendre des phrases compliquées sur des sujets qu'on ne connaît pas, ou seulement des mots simples sur notre vie quotidienne ?",
+    "matiere": "langues_vivantes",
+    "niveau": "sixieme",
+    "expected_keywords": [
+      "mots familiers",
+      "expressions très courantes",
+      "environnement immédiat",
+      "niveau A1"
+    ],
+    "gold_chunk_id": "7e7d4962-e35e-5ff9-9ccf-cbfd25a37be4",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle3_BO2020"
+  },
+  {
+    "query": "En cours d'anglais, comment est-ce qu’on peut deviner le sens d’un reportage radio si on ne comprend pas tous les mots ? Est-ce qu’il y a des astuces pour suivre l’histoire sans tout traduire ?",
+    "matiere": "langues_vivantes",
+    "niveau": "cinquieme",
+    "expected_keywords": [
+      "indices extralinguistiques",
+      "schémas prosodiques",
+      "situation d’énonciation",
+      "émettre des hypothèses",
+      "construire du sens"
+    ],
+    "gold_chunk_id": "2dd458db-17a7-5e30-ab57-1adb93c9dc33",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En classe de troisième, comment est-ce qu'on apprend à comprendre un texte qui ne dit pas tout clairement, par exemple quand l'auteur utilise des sous-entendus ou des références à d'autres œuvres ?",
+    "matiere": "francais",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "implicite",
+      "intertextuelles",
+      "interprétation",
+      "cohérence textuelle",
+      "genres"
+    ],
+    "gold_chunk_id": "38e6d208-286a-5423-a26a-8438958c6f82",
+    "gold_section": "Français",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "Pourquoi est-ce qu'on étudie Copernic et Galilée en histoire en troisième, alors qu'ils sont des scientifiques ? Quel lien ça a avec la société de leur époque ?",
+    "matiere": "histoire_geo",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "démarche scientifique",
+      "science et société",
+      "Copernic",
+      "Galilée"
+    ],
+    "gold_chunk_id": "49e8a9df-518f-5d74-9d88-a9b97f44c30f",
+    "gold_section": "Histoire et géographie",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En histoire des arts, comment peut-on transformer un tableau et un morceau de musique en une petite scène de théâtre ou en une bande dessinée pour raconter une histoire ? Quelles formes peut prendre cette narration ?",
+    "matiere": "histoire_des_arts",
+    "niveau": "troisieme",
+    "expected_keywords": [
+      "tableau",
+      "morceau de musique",
+      "narration",
+      "scène dramatique",
+      "bande dessinée"
+    ],
+    "gold_chunk_id": "76d96708-84ac-5a14-985c-0e4af2be1617",
+    "gold_section": "Histoire des arts",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En quatrième, est-ce qu'on doit savoir écrire seulement des phrases courtes ou aussi des textes un peu plus longs comme une petite biographie ou un poème ?",
+    "matiere": "langues_vivantes",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "niveau A2",
+      "biographies imaginaires",
+      "poèmes courts et simples",
+      "court récit"
+    ],
+    "gold_chunk_id": "07c28ad8-cc71-5a1c-80b9-251c5ab62b60",
+    "gold_section": "Langues vivantes (étrangères ou régionales)",
+    "gold_source_file": "programme_cycle4_BO2020"
+  },
+  {
+    "query": "En technologie, comment est-ce qu'on fait pour inventer un nouvel objet qui respecte l'environnement tout en répondant à un vrai besoin ? Est-ce qu'on doit d'abord regarder ce qui existe déjà ?",
+    "matiere": "technologie",
+    "niveau": "quatrieme",
+    "expected_keywords": [
+      "solutions existantes",
+      "fonction technique",
+      "besoin",
+      "développement durable"
+    ],
+    "gold_chunk_id": "5a58dc37-ef37-5ec5-87a0-b938eee4fb73",
+    "gold_section": "Technologie",
+    "gold_source_file": "programme_technologie_cycle4_BO2024"
   }
 ]

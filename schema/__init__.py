@@ -13,24 +13,34 @@ from .document import (
 )
 from .golden import GoldenQuestion, GoldenSet
 from .retrieval import (
+    DEFAULT_EMBED_MODEL,
+    DEFAULT_SPARSE_METHOD,
     DEFAULT_TOP_K,
     EMBEDDING_DIM,
     EMBEDDING_MODEL,
+    EMBEDDING_MODELS_1024D,
+    SPARSE_METHODS,
     HybridResult,
     embed_batch,
     embed_query,
+    encode_with_sparse,
     get_collection_name,
     get_mistral_client,
     get_qdrant_client,
     hybrid_search,
     l2_normalize,
+    sparse_query,
 )
 
 __all__ = [
+    "DEFAULT_EMBED_MODEL",
+    "DEFAULT_SPARSE_METHOD",
     "DEFAULT_TOP_K",
     "EMBEDDING_DIM",
     "EMBEDDING_MODEL",
+    "EMBEDDING_MODELS_1024D",
     "MATIERE_LABELS",
+    "SPARSE_METHODS",
     "Chunk",
     "Cycle",
     "GoldenQuestion",
@@ -46,11 +56,13 @@ __all__ = [
     "derive_niveaux_from_file",
     "embed_batch",
     "embed_query",
+    "encode_with_sparse",
     "get_collection_name",
     "get_mistral_client",
     "get_qdrant_client",
     "hybrid_search",
     "l2_normalize",
+    "sparse_query",
     "to_sparse_vector",
     "tokenize_fr",
 ]

@@ -12,7 +12,7 @@ inutile.
 
 Référence amont : `rag.service.ts:172-193` (FNV-1a 32-bit, masqué 31-bit, regex
 FR incluant œ/æ/ç). Tout changement ici doit être miroir-é côté TS et inversement,
-ou les deux doivent importer un package partagé (chantier futur, voir ADR-0007).
+ou les deux doivent importer un package partagé (chantier futur).
 
 Source Qdrant : https://qdrant.tech/articles/sparse-vectors
 """

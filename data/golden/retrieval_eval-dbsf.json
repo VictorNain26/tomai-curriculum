@@ -1,14 +1,15 @@
 {
   "top_k": 5,
+  "fusion": "dbsf",
   "n_total": 189,
   "n_scorable": 189,
   "n_chunk_id_scorable": 189,
-  "chunk_id_recall_at_k": 0.8095238095238095,
-  "chunk_id_mrr": 0.5757248677248678,
+  "chunk_id_recall_at_k": 0.8148148148148148,
+  "chunk_id_mrr": 0.6333968253968254,
   "n_kw_scorable": 189,
-  "kw_avg_recall_at_k": 0.8750476190476191,
-  "kw_mrr": 0.7937195767195767,
-  "kw_all_keywords_count": 152,
+  "kw_avg_recall_at_k": 0.8847460317460318,
+  "kw_mrr": 0.851042328042328,
+  "kw_all_keywords_count": 153,
   "results": [
     {
       "query": "En technologie, quand on crée un nouvel objet technique en 3ème, quelles sont les trois étapes du cycle de vie qu'on doit absolument prendre en compte pour respecter le développement durable ?",
@@ -20,8 +21,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 5,
-      "chunk_id_mrr": 0.2,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -32,10 +33,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -46,8 +47,8 @@
       "hits": 1,
       "recall_at_k": 0.2,
       "all_keywords_found": false,
-      "first_hit_rank": 4,
-      "mrr": 0.25,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
       "chunk_id_hit_rank": null,
       "chunk_id_mrr": 0.0,
       "skipped": false
@@ -130,10 +131,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -183,13 +184,13 @@
       "matiere": "langues_vivantes",
       "niveau": "quatrieme",
       "n_keywords": 2,
-      "hits": 2,
-      "recall_at_k": 1.0,
-      "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 5,
-      "chunk_id_mrr": 0.2,
+      "hits": 1,
+      "recall_at_k": 0.5,
+      "all_keywords_found": false,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -270,10 +271,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -314,8 +315,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -326,10 +327,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -356,8 +357,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -384,8 +385,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 1,
-      "chunk_id_mrr": 1.0,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -393,8 +394,8 @@
       "matiere": "italien",
       "niveau": "troisieme",
       "n_keywords": 4,
-      "hits": 2,
-      "recall_at_k": 0.5,
+      "hits": 3,
+      "recall_at_k": 0.75,
       "all_keywords_found": false,
       "first_hit_rank": 1,
       "mrr": 1.0,
@@ -440,8 +441,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -468,8 +469,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -564,10 +565,10 @@
       "hits": 3,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "first_hit_rank": 2,
+      "mrr": 0.5,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -608,8 +609,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -620,10 +621,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 1,
-      "mrr": 1.0,
-      "chunk_id_hit_rank": 1,
-      "chunk_id_mrr": 1.0,
+      "first_hit_rank": 2,
+      "mrr": 0.5,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -648,10 +649,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 4,
-      "mrr": 0.25,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -662,10 +663,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "first_hit_rank": 5,
+      "mrr": 0.2,
+      "chunk_id_hit_rank": 5,
+      "chunk_id_mrr": 0.2,
       "skipped": false
     },
     {
@@ -692,8 +693,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -704,10 +705,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 5,
-      "chunk_id_mrr": 0.2,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -718,10 +719,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 1,
-      "mrr": 1.0,
-      "chunk_id_hit_rank": 1,
-      "chunk_id_mrr": 1.0,
+      "first_hit_rank": 2,
+      "mrr": 0.5,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -729,13 +730,13 @@
       "matiere": "allemand",
       "niveau": "troisieme",
       "n_keywords": 5,
-      "hits": 5,
-      "recall_at_k": 1.0,
-      "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "hits": 3,
+      "recall_at_k": 0.6,
+      "all_keywords_found": false,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -785,13 +786,13 @@
       "matiere": "allemand",
       "niveau": "quatrieme",
       "n_keywords": 4,
-      "hits": 2,
-      "recall_at_k": 0.5,
-      "all_keywords_found": false,
-      "first_hit_rank": 1,
-      "mrr": 1.0,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "hits": 4,
+      "recall_at_k": 1.0,
+      "all_keywords_found": true,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": 5,
+      "chunk_id_mrr": 0.2,
       "skipped": false
     },
     {
@@ -869,13 +870,13 @@
       "matiere": "allemand",
       "niveau": "sixieme",
       "n_keywords": 3,
-      "hits": 0,
-      "recall_at_k": 0.0,
-      "all_keywords_found": false,
-      "first_hit_rank": null,
-      "mrr": 0.0,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "hits": 3,
+      "recall_at_k": 1.0,
+      "all_keywords_found": true,
+      "first_hit_rank": 4,
+      "mrr": 0.25,
+      "chunk_id_hit_rank": 4,
+      "chunk_id_mrr": 0.25,
       "skipped": false
     },
     {
@@ -916,8 +917,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -928,10 +929,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 1,
-      "mrr": 1.0,
-      "chunk_id_hit_rank": 1,
-      "chunk_id_mrr": 1.0,
+      "first_hit_rank": 2,
+      "mrr": 0.5,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -942,10 +943,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -972,8 +973,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 1,
-      "chunk_id_mrr": 1.0,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -1000,8 +1001,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -1012,8 +1013,8 @@
       "hits": 1,
       "recall_at_k": 0.5,
       "all_keywords_found": false,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
       "chunk_id_hit_rank": null,
       "chunk_id_mrr": 0.0,
       "skipped": false
@@ -1026,10 +1027,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1084,8 +1085,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "chunk_id_hit_rank": 5,
+      "chunk_id_mrr": 0.2,
       "skipped": false
     },
     {
@@ -1096,10 +1097,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 5,
-      "chunk_id_mrr": 0.2,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1196,8 +1197,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1210,8 +1211,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "chunk_id_hit_rank": 5,
+      "chunk_id_mrr": 0.2,
       "skipped": false
     },
     {
@@ -1222,10 +1223,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -1236,10 +1237,10 @@
       "hits": 3,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 4,
+      "mrr": 0.25,
+      "chunk_id_hit_rank": 4,
+      "chunk_id_mrr": 0.25,
       "skipped": false
     },
     {
@@ -1278,10 +1279,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 5,
-      "mrr": 0.2,
-      "chunk_id_hit_rank": 5,
-      "chunk_id_mrr": 0.2,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -1334,10 +1335,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1420,8 +1421,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1499,11 +1500,11 @@
       "matiere": "langues_vivantes",
       "niveau": "sixieme",
       "n_keywords": 3,
-      "hits": 0,
-      "recall_at_k": 0.0,
-      "all_keywords_found": false,
-      "first_hit_rank": null,
-      "mrr": 0.0,
+      "hits": 3,
+      "recall_at_k": 1.0,
+      "all_keywords_found": true,
+      "first_hit_rank": 5,
+      "mrr": 0.2,
       "chunk_id_hit_rank": null,
       "chunk_id_mrr": 0.0,
       "skipped": false
@@ -1532,8 +1533,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -1558,10 +1559,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1586,10 +1587,10 @@
       "hits": 3,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 5,
-      "chunk_id_mrr": 0.2,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -1600,10 +1601,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1614,10 +1615,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1630,8 +1631,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "chunk_id_hit_rank": 4,
+      "chunk_id_mrr": 0.25,
       "skipped": false
     },
     {
@@ -1639,13 +1640,13 @@
       "matiere": "espagnol",
       "niveau": "cinquieme",
       "n_keywords": 4,
-      "hits": 0,
-      "recall_at_k": 0.0,
-      "all_keywords_found": false,
-      "first_hit_rank": null,
-      "mrr": 0.0,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "hits": 4,
+      "recall_at_k": 1.0,
+      "all_keywords_found": true,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -1656,10 +1657,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -1737,13 +1738,13 @@
       "matiere": "mathematiques",
       "niveau": "troisieme",
       "n_keywords": 5,
-      "hits": 0,
-      "recall_at_k": 0.0,
-      "all_keywords_found": false,
-      "first_hit_rank": null,
-      "mrr": 0.0,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "hits": 5,
+      "recall_at_k": 1.0,
+      "all_keywords_found": true,
+      "first_hit_rank": 2,
+      "mrr": 0.5,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -1784,8 +1785,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 1,
-      "chunk_id_mrr": 1.0,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -1807,11 +1808,11 @@
       "matiere": "allemand",
       "niveau": "troisieme",
       "n_keywords": 4,
-      "hits": 2,
-      "recall_at_k": 0.5,
+      "hits": 1,
+      "recall_at_k": 0.25,
       "all_keywords_found": false,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
+      "first_hit_rank": 4,
+      "mrr": 0.25,
       "chunk_id_hit_rank": null,
       "chunk_id_mrr": 0.0,
       "skipped": false
@@ -1966,8 +1967,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -1980,8 +1981,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -1994,8 +1995,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -2020,10 +2021,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -2036,8 +2037,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -2059,13 +2060,13 @@
       "matiere": "francais",
       "niveau": "cinquieme",
       "n_keywords": 3,
-      "hits": 3,
-      "recall_at_k": 1.0,
-      "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "hits": 1,
+      "recall_at_k": 0.333,
+      "all_keywords_found": false,
+      "first_hit_rank": 5,
+      "mrr": 0.2,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -2104,10 +2105,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -2115,11 +2116,11 @@
       "matiere": "espagnol",
       "niveau": "troisieme",
       "n_keywords": 4,
-      "hits": 4,
-      "recall_at_k": 1.0,
-      "all_keywords_found": true,
-      "first_hit_rank": 5,
-      "mrr": 0.2,
+      "hits": 0,
+      "recall_at_k": 0.0,
+      "all_keywords_found": false,
+      "first_hit_rank": null,
+      "mrr": 0.0,
       "chunk_id_hit_rank": null,
       "chunk_id_mrr": 0.0,
       "skipped": false
@@ -2146,10 +2147,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -2171,13 +2172,13 @@
       "matiere": "technologie",
       "niveau": "quatrieme",
       "n_keywords": 5,
-      "hits": 5,
-      "recall_at_k": 1.0,
-      "all_keywords_found": true,
+      "hits": 1,
+      "recall_at_k": 0.2,
+      "all_keywords_found": false,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -2246,8 +2247,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 3,
-      "chunk_id_mrr": 0.333,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -2258,10 +2259,10 @@
       "hits": 3,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -2286,10 +2287,10 @@
       "hits": 5,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 3,
+      "mrr": 0.333,
+      "chunk_id_hit_rank": 3,
+      "chunk_id_mrr": 0.333,
       "skipped": false
     },
     {
@@ -2339,13 +2340,13 @@
       "matiere": "allemand",
       "niveau": "quatrieme",
       "n_keywords": 4,
-      "hits": 1,
-      "recall_at_k": 0.25,
-      "all_keywords_found": false,
-      "first_hit_rank": 5,
-      "mrr": 0.2,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "hits": 4,
+      "recall_at_k": 1.0,
+      "all_keywords_found": true,
+      "first_hit_rank": 2,
+      "mrr": 0.5,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -2367,13 +2368,13 @@
       "matiere": "arts_plastiques",
       "niveau": "cinquieme",
       "n_keywords": 5,
-      "hits": 1,
-      "recall_at_k": 0.2,
-      "all_keywords_found": false,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
-      "chunk_id_hit_rank": null,
-      "chunk_id_mrr": 0.0,
+      "hits": 5,
+      "recall_at_k": 1.0,
+      "all_keywords_found": true,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -2412,10 +2413,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 2,
-      "mrr": 0.5,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -2442,8 +2443,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 2,
-      "chunk_id_mrr": 0.5,
+      "chunk_id_hit_rank": 1,
+      "chunk_id_mrr": 1.0,
       "skipped": false
     },
     {
@@ -2493,13 +2494,13 @@
       "matiere": "arts_plastiques",
       "niveau": "quatrieme",
       "n_keywords": 5,
-      "hits": 5,
-      "recall_at_k": 1.0,
-      "all_keywords_found": true,
+      "hits": 2,
+      "recall_at_k": 0.4,
+      "all_keywords_found": false,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "chunk_id_hit_rank": null,
+      "chunk_id_mrr": 0.0,
       "skipped": false
     },
     {
@@ -2596,8 +2597,8 @@
       "all_keywords_found": true,
       "first_hit_rank": 1,
       "mrr": 1.0,
-      "chunk_id_hit_rank": 5,
-      "chunk_id_mrr": 0.2,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -2636,10 +2637,10 @@
       "hits": 4,
       "recall_at_k": 1.0,
       "all_keywords_found": true,
-      "first_hit_rank": 4,
-      "mrr": 0.25,
-      "chunk_id_hit_rank": 4,
-      "chunk_id_mrr": 0.25,
+      "first_hit_rank": 2,
+      "mrr": 0.5,
+      "chunk_id_hit_rank": 2,
+      "chunk_id_mrr": 0.5,
       "skipped": false
     },
     {
@@ -2647,11 +2648,11 @@
       "matiere": "technologie",
       "niveau": "quatrieme",
       "n_keywords": 4,
-      "hits": 2,
-      "recall_at_k": 0.5,
+      "hits": 1,
+      "recall_at_k": 0.25,
       "all_keywords_found": false,
-      "first_hit_rank": 3,
-      "mrr": 0.333,
+      "first_hit_rank": 1,
+      "mrr": 1.0,
       "chunk_id_hit_rank": null,
       "chunk_id_mrr": 0.0,
       "skipped": false

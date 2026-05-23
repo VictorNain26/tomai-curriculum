@@ -2,19 +2,30 @@
 """
 Évaluation RETRIEVAL du RAG curriculum — métriques déterministes.
 
-Mesure UNIQUEMENT la qualité de l'INDEX (recall@k, MRR, all_keywords@k),
+Mesure UNIQUEMENT la qualité de l'INDEX (chunk_id recall, MRR, keyword recall),
 pas la qualité des réponses LLM. La couche LLM (faithfulness, hallucination,
 style socratique) est la responsabilité du backend (tomai-monorepo/apps/server).
-Voir docs/adr/0007.
+Voir docs/ARCHITECTURE.md.
 
-Métriques (aucun appel LLM, juste embed + Qdrant) :
-  - Recall@k          : combien des `expected_keywords` apparaissent dans le top-k ?
-  - All keywords@k    : binaire — tous les keywords présents dans le top-k ?
-  - First hit rank    : rang du premier chunk contenant ≥ 1 keyword
-  - MRR               : 1 / first_hit_rank (0 si jamais touché)
+Deux signaux complémentaires, sans appel LLM :
 
-Format golden (`data/golden/questions.json`) :
-  {"query": "...", "matiere": "...", "niveau": "...", "expected_keywords": [...]}
+  - **[primary] chunk_id recall@k** : le `gold_chunk_id` (UUID5 du chunk
+    source) est-il dans le top-k ? Disponible pour les questions générées
+    par `generate_golden.py` (document-grounded). Signal propre, immune
+    aux faux positifs lexicaux. Référence : arXiv 2510.21440 (Redefining
+    Retrieval Evaluation), CoFE-RAG arXiv 2410.12248.
+
+  - **[secondary] keyword recall@k** : fraction des `expected_keywords`
+    présents dans n'importe quel chunk du top-k (sous-chaîne casefold).
+    Robuste si les keywords sont extraits du chunk (cas généré) ; biaisé
+    si keywords "supposés" (cas seed humain — surestime le recall).
+    Conservé pour comparaison historique et pour les golden sets seed.
+
+Format golden (`data/golden/questions.json`) — schema Pydantic
+`schema.golden.GoldenQuestion` :
+  {"query": "...", "matiere": "...", "niveau": "...",
+   "expected_keywords": [...], "gold_chunk_id": "...", "gold_section": "...",
+   "gold_source_file": "..."}
 
 Usage :
   uv run python scripts/evaluate.py                                # golden défaut
@@ -34,7 +45,14 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from schema import DEFAULT_TOP_K, hybrid_search
+from schema import (
+    DEFAULT_EMBED_MODEL,
+    DEFAULT_SPARSE_METHOD,
+    DEFAULT_TOP_K,
+    EMBEDDING_MODELS_1024D,
+    SPARSE_METHODS,
+    hybrid_search,
+)
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -126,7 +144,16 @@ def _score_question(q: dict, chunks: list[Any]) -> dict:
     }
 
 
-def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> None:
+def run_evaluation(
+    questions_file: str | None,
+    top_k: int,
+    by_matiere: bool,
+    fusion: str = "rrf",
+    output_suffix: str = "",
+    embed_model: str = DEFAULT_EMBED_MODEL,
+    sparse_method: str = DEFAULT_SPARSE_METHOD,
+    collection: str | None = None,
+) -> None:
     if questions_file:
         path = Path(questions_file)
     else:
@@ -144,7 +171,13 @@ def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> 
         if "query" not in q and "question" in q:
             q["query"] = q["question"]
 
-    print(f"Top-k      : {top_k}\n")
+    print(f"Top-k      : {top_k}")
+    print(f"Fusion     : {fusion}")
+    print(f"Embed      : {embed_model}")
+    print(f"Sparse     : {sparse_method}")
+    if collection:
+        print(f"Collection : {collection}")
+    print()
 
     results = []
     skipped = 0
@@ -158,6 +191,10 @@ def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> 
             top_k=top_k,
             matiere=q.get("matiere"),
             niveau=q.get("niveau"),
+            fusion=fusion,
+            embed_model=embed_model,
+            sparse_method=sparse_method,
+            collection=collection,
         )
         r = _score_question(q, chunks)
         results.append(r)
@@ -194,35 +231,41 @@ def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> 
     print("\n" + "─" * 70)
     print(f"AGRÉGATS GLOBAUX (top-{top_k}, {len(scorable)}/{len(results)} scorables)")
     print("─" * 70)
-    if kw_scorable:
-        avg_recall = sum(r["recall_at_k"] for r in kw_scorable) / len(kw_scorable)
-        avg_mrr = sum(r["mrr"] for r in kw_scorable) / len(kw_scorable)
-        n_all = sum(1 for r in kw_scorable if r["all_keywords_found"])
-        n_any = sum(1 for r in kw_scorable if r["hits"] > 0)
-        print(f"  [keyword] Recall@{top_k}     : {avg_recall:.3f}")
-        print(f"  [keyword] MRR             : {avg_mrr:.3f}")
-        print(
-            f"  [keyword] All kw @{top_k}     : {n_all}/{len(kw_scorable)} "
-            f"({n_all / len(kw_scorable):.0%})"
-        )
-        print(
-            f"  [keyword] ≥1 kw @{top_k}      : {n_any}/{len(kw_scorable)} "
-            f"({n_any / len(kw_scorable):.0%})"
-        )
-    else:
-        avg_recall = avg_mrr = 0.0
-        n_all = n_any = 0
+    # [primary] chunk_id recall affiché EN PREMIER — métrique propre,
+    # document-grounded (arXiv 2510.21440, CoFE-RAG arXiv 2410.12248).
     if cid_scorable:
         cid_hits = sum(1 for r in cid_scorable if r["chunk_id_hit_rank"])
         cid_recall = cid_hits / len(cid_scorable)
         cid_mrr = sum(r["chunk_id_mrr"] for r in cid_scorable) / len(cid_scorable)
         print(
-            f"  [chunk_id] Recall@{top_k}    : {cid_recall:.3f} "
-            f"({cid_hits}/{len(cid_scorable)}) — signal propre, document-grounded"
+            f"  [PRIMARY] chunk_id Recall@{top_k} : {cid_recall:.3f} "
+            f"({cid_hits}/{len(cid_scorable)})"
         )
-        print(f"  [chunk_id] MRR            : {cid_mrr:.3f}")
+        print(f"  [PRIMARY] chunk_id MRR        : {cid_mrr:.3f}")
     else:
         cid_recall = cid_mrr = 0.0
+        print(
+            f"  [PRIMARY] chunk_id Recall@{top_k} : N/A "
+            "(régénérer le golden via scripts/generate_golden.py)"
+        )
+    if kw_scorable:
+        avg_recall = sum(r["recall_at_k"] for r in kw_scorable) / len(kw_scorable)
+        avg_mrr = sum(r["mrr"] for r in kw_scorable) / len(kw_scorable)
+        n_all = sum(1 for r in kw_scorable if r["all_keywords_found"])
+        n_any = sum(1 for r in kw_scorable if r["hits"] > 0)
+        print(f"  [secondary] keyword Recall@{top_k}: {avg_recall:.3f}")
+        print(f"  [secondary] keyword MRR       : {avg_mrr:.3f}")
+        print(
+            f"  [secondary] All kw @{top_k}       : {n_all}/{len(kw_scorable)} "
+            f"({n_all / len(kw_scorable):.0%})"
+        )
+        print(
+            f"  [secondary] ≥1 kw @{top_k}        : {n_any}/{len(kw_scorable)} "
+            f"({n_any / len(kw_scorable):.0%})"
+        )
+    else:
+        avg_recall = avg_mrr = 0.0
+        n_all = n_any = 0
     if skipped:
         print(f"  Skippées (no keywords / no gold_chunk_id) : {skipped}")
 
@@ -247,25 +290,32 @@ def run_evaluation(questions_file: str | None, top_k: int, by_matiere: bool) -> 
             )
             mat_mrr = sum(r["mrr"] for r in kw_rs) / len(kw_rs) if kw_rs else 0.0
             print(
-                f"  {mat:<22} | n={len(rs):3} | kw_recall={mat_kw:.3f} "
-                f"| cid_recall={mat_cid:.3f} | mrr={mat_mrr:.3f}"
+                f"  {mat:<22} | n={len(rs):3} | cid_recall={mat_cid:.3f} "
+                f"| kw_recall={mat_kw:.3f} | mrr={mat_mrr:.3f}"
             )
 
     GOLDEN_DIR.mkdir(parents=True, exist_ok=True)
-    out = GOLDEN_DIR / "retrieval_eval.json"
+    out_name = f"retrieval_eval{output_suffix}.json"
+    out = GOLDEN_DIR / out_name
     out.write_text(
         json.dumps(
             {
                 "top_k": top_k,
+                "fusion": fusion,
+                "embed_model": embed_model,
+                "sparse_method": sparse_method,
+                "collection": collection,
                 "n_total": len(results),
                 "n_scorable": len(scorable),
-                "n_kw_scorable": len(kw_scorable),
+                # [primary] chunk_id metrics first (document-grounded signal propre)
                 "n_chunk_id_scorable": len(cid_scorable),
+                "chunk_id_recall_at_k": cid_recall,
+                "chunk_id_mrr": cid_mrr,
+                # [secondary] keyword metrics (biaisé sur seed sets)
+                "n_kw_scorable": len(kw_scorable),
                 "kw_avg_recall_at_k": avg_recall,
                 "kw_mrr": avg_mrr,
                 "kw_all_keywords_count": n_all,
-                "chunk_id_recall_at_k": cid_recall,
-                "chunk_id_mrr": cid_mrr,
                 "results": results,
             },
             indent=2,
@@ -290,9 +340,50 @@ def main() -> None:
         action="store_true",
         help="Ventile les métriques par matière",
     )
+    parser.add_argument(
+        "--fusion",
+        choices=["rrf", "dbsf"],
+        default="rrf",
+        help="Méthode de fusion hybrid search (rrf par défaut, dbsf = "
+        "Distribution-Based Score Fusion Qdrant 1.11+).",
+    )
+    parser.add_argument(
+        "--output-suffix",
+        default="",
+        help="Suffixe pour le fichier de sortie (ex: '-dbsf' → retrieval_eval-dbsf.json)",
+    )
+    parser.add_argument(
+        "--embed-model",
+        default=DEFAULT_EMBED_MODEL,
+        choices=list(EMBEDDING_MODELS_1024D),
+        help=f"Modèle d'embedding pour la query (défaut {DEFAULT_EMBED_MODEL}).",
+    )
+    parser.add_argument(
+        "--sparse-method",
+        default=DEFAULT_SPARSE_METHOD,
+        choices=list(SPARSE_METHODS),
+        help=(
+            f"Méthode sparse (défaut {DEFAULT_SPARSE_METHOD}). "
+            "Doit matcher la méthode utilisée à l'ingest sur cette collection."
+        ),
+    )
+    parser.add_argument(
+        "--collection",
+        default=None,
+        help="Override la collection Qdrant cible (sinon QDRANT_COLLECTION env).",
+    )
     args = parser.parse_args()
 
-    run_evaluation(args.questions, args.top_k, args.by_matiere)
+    run_evaluation(
+        args.questions,
+        args.top_k,
+        args.by_matiere,
+        fusion=args.fusion,
+        output_suffix=args.output_suffix,
+        embed_model=args.embed_model,
+        sparse_method=args.sparse_method,
+        collection=args.collection,
+    )
 
 
 if __name__ == "__main__":

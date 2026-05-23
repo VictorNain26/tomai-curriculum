@@ -7,14 +7,12 @@ Config canonique :
 - Quantization scalar int8 always_ram (4× compression RAM, <1% perte recall)
 - Payload indexes KEYWORD sur : niveau, matiere, cycle, source_file
 
-App pas en prod → pas de versioning v1/v2/_v2 dans le nom de collection.
-Nom unique : `tomai_educational` (configurable via QDRANT_COLLECTION).
+Collection unique : `tomai_educational` (configurable via QDRANT_COLLECTION).
 
 Usage :
-  uv run python scripts/migrate_collection.py                  # crée si absente
-  uv run python scripts/migrate_collection.py --recreate       # drop+create (DESTRUCTIF)
-  uv run python scripts/migrate_collection.py --status         # état des collections
-  uv run python scripts/migrate_collection.py --drop-stale     # supprime collections orphelines
+  uv run python scripts/migrate_collection.py             # crée si absente
+  uv run python scripts/migrate_collection.py --recreate  # drop+create (DESTRUCTIF)
+  uv run python scripts/migrate_collection.py --status    # état des collections
 
 Sources :
 - https://qdrant.tech/documentation/concepts/indexing/ (sparse + payload index)
@@ -37,9 +35,6 @@ load_dotenv()
 
 COLLECTION_NAME = os.environ.get("QDRANT_COLLECTION", "tomai_educational")
 
-# Anciens noms suffixés à nettoyer si présents (legacy PoC pre-prod)
-STALE_NAMES = (f"{COLLECTION_NAME}_v1", f"{COLLECTION_NAME}_v2")
-
 PAYLOAD_INDEX_FIELDS = ("niveau", "matiere", "cycle", "source_file")
 
 
@@ -48,8 +43,7 @@ def get_client() -> QdrantClient:
     api_key = os.environ.get("QDRANT_API_KEY")
     if not url or not api_key:
         raise RuntimeError("QDRANT_URL et QDRANT_API_KEY sont obligatoires (.env)")
-    # check_compatibility=True : warn si client/server diffèrent — ne pas le couper
-    # silencieusement, voir AUDIT_RAG_2026-05-18.md P2-1.
+    # check_compatibility=True : warn si client/server diffèrent — drift catch.
     return QdrantClient(url=url, api_key=api_key, check_compatibility=True)
 
 
@@ -116,18 +110,6 @@ def _ensure_payload_indexes(client: QdrantClient) -> None:
                 raise
 
 
-def drop_stale_collections(client: QdrantClient) -> None:
-    """Supprime les collections legacy avec suffixes _v1/_v2 (PoC pre-prod)."""
-    existing = {c.name for c in client.get_collections().collections}
-    for stale in STALE_NAMES:
-        if stale not in existing:
-            print(f"· '{stale}' n'existe pas — rien à supprimer")
-            continue
-        print(f"⚠ Suppression collection legacy '{stale}'")
-        client.delete_collection(stale)
-        print(f"  ✓ '{stale}' supprimée")
-
-
 def show_status(client: QdrantClient) -> None:
     """Affiche l'état actuel des collections + aliases."""
     collections = client.get_collections().collections
@@ -157,11 +139,6 @@ def show_status(client: QdrantClient) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--recreate", action="store_true", help="Drop + create (destructif)")
-    parser.add_argument(
-        "--drop-stale",
-        action="store_true",
-        help="Supprime les collections legacy _v1/_v2",
-    )
     parser.add_argument("--status", action="store_true", help="Affiche état des collections")
     args = parser.parse_args()
 
@@ -169,9 +146,6 @@ def main() -> None:
 
     if args.status:
         show_status(client)
-        return
-    if args.drop_stale:
-        drop_stale_collections(client)
         return
 
     # Défaut : créer la collection canonique (idempotent)

@@ -202,3 +202,69 @@ def test_build_question_raises_when_only_one_valid_keyword():
     }
     with pytest.raises(ValueError, match="keywords insuffisants"):
         _build_question(chunk, data)
+
+
+# ── Robustesse Unicode (NFKC + apostrophe-fold) ─────────────────────────────
+
+
+def test_build_question_matches_curly_vs_straight_apostrophe():
+    """Keyword avec apostrophe typographique `’` doit matcher chunk avec
+    apostrophe droite `'` (et vice-versa). Cause documentée de ~10% de
+    rejets sur le golden généré : Mistral large produit parfois U+2019,
+    les sources Éduscol parfois U+0027.
+    """
+    chunk = {
+        "text": "L'aisance à l'oral est un objectif central du programme.",
+        "source_file": "test",
+        "matiere": "anglais",
+        "section": "Oral",
+        "chunk_index": 0,
+        "niveau": "cinquieme",
+    }
+    # LLM Mistral produit des apostrophes typographiques
+    data = {
+        "query": "Quel objectif central concerne l'expression orale ?",
+        "expected_keywords": ["l’aisance", "à l’oral", "programme"],
+    }
+    q = _build_question(chunk, data)
+    assert len(q.expected_keywords) == 3  # tous matchent après normalisation
+
+
+def test_build_question_matches_nfkc_ligatures():
+    """Variantes Unicode compatibles (e.g. ﬁ ligature) normalisées via NFKC."""
+    chunk = {
+        "text": "Les coefficients de l'affinité expriment une relation linéaire.",
+        "source_file": "test",
+        "matiere": "mathematiques",
+        "section": "Fonctions",
+        "chunk_index": 0,
+        "niveau": "troisieme",
+    }
+    # Le LLM peut produire la ligature `ﬁ` (U+FB01) qui NFKC fold en `fi`
+    data = {
+        "query": "Que représentent les coefﬁcients ?",  # ﬁ ligature
+        "expected_keywords": ["coefﬁcients", "afﬁnité", "linéaire"],  # ligatures
+    }
+    q = _build_question(chunk, data)
+    assert "linéaire" in q.expected_keywords  # match basique
+    # NFKC fold rend les ligatures matchables
+    assert len(q.expected_keywords) >= 2  # au moins 2 keywords valides
+
+
+def test_build_question_case_insensitive_german():
+    """Allemand `ß` doit folder vers `ss` via casefold (lower() ne le fait pas)."""
+    chunk = {
+        "text": "Die Straße ist groß und schön in der Stadt.",
+        "source_file": "test",
+        "matiere": "allemand",
+        "section": "Vocabulaire",
+        "chunk_index": 0,
+        "niveau": "cinquieme",
+    }
+    # Si Mistral produit STRASSE (majuscule expanded), casefold doit matcher Straße
+    data = {
+        "query": "Que dit le texte sur la rue ?",
+        "expected_keywords": ["STRASSE", "GROSS", "schön"],
+    }
+    q = _build_question(chunk, data)
+    assert len(q.expected_keywords) >= 2

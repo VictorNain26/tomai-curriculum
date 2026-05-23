@@ -22,8 +22,8 @@ compréhension des sections pédagogiques). Le script est OFFLINE one-shot,
 contre la règle "curriculum = index only / pas de LLM runtime" : c'est
 acceptable car la génération du golden set est un step de TEST AUTHORING
 (pas de runtime de tutorat), produit un artefact versionné (`data/golden/
-questions.json`), et la couche RAGAS-judge runtime reste explicitement
-côté backend (ADR-0007 D9).
+questions.json`), et la couche LLM-judge runtime reste explicitement
+côté backend (cf. docs/ARCHITECTURE.md).
 
 Usage :
   uv run python scripts/generate_golden.py                  # 200 questions
@@ -41,6 +41,7 @@ import os
 import random
 import sys
 import time
+import unicodedata
 import uuid as _uuid
 from collections import defaultdict
 from pathlib import Path
@@ -69,7 +70,11 @@ DEFAULT_MODEL = "mistral-large-latest"
 DEFAULT_TEMPERATURE = 0.7
 DEFAULT_MAX_TOKENS = 400
 
-# JSON Schema strict de la réponse attendue du LLM.
+# JSON Schema strict de la réponse attendue du LLM (Mistral structured outputs).
+# Ref: docs.mistral.ai/capabilities/structured-output/ — name + strict + schema requis.
+# maxLength=30 sur chaque keyword force des termes courts (1-3 mots) que le LLM
+# copiera textuellement, au lieu de paraphraser des phrases longues (cause #1
+# des rejets sur la première itération : 161/300 questions perdues).
 QUESTION_SCHEMA: dict[str, Any] = {
     "name": "golden_question",
     "strict": True,
@@ -86,10 +91,10 @@ QUESTION_SCHEMA: dict[str, Any] = {
             },
             "expected_keywords": {
                 "type": "array",
-                "description": "3 à 5 mots-clés ou expressions extraits TEXTUELLEMENT "
-                "du chunk fourni (pas reformulés). Doivent suffire à identifier "
-                "le chunk parmi d'autres.",
-                "items": {"type": "string", "minLength": 2, "maxLength": 60},
+                "description": "3 à 5 termes COURTS (1-3 mots max) copiés "
+                "TEXTUELLEMENT du chunk fourni — pas de phrases, pas de "
+                "reformulation. Choisis des termes techniques spécifiques.",
+                "items": {"type": "string", "minLength": 2, "maxLength": 30},
                 "minItems": 3,
                 "maxItems": 5,
             },
@@ -109,10 +114,12 @@ questions de test RAG ancrées sur des extraits de programmes officiels
 - éviter les généralités vagues ("Qu'apprend-on en X ?") ;
 - préférer une notion précise du chunk.
 
-Les `expected_keywords` doivent être 3 à 5 expressions présentes
-TEXTUELLEMENT dans le chunk (pas reformulées, pas inventées). Choisis
-des termes spécifiques qui suffisent à reconnaître ce chunk parmi
-d'autres de la même matière."""
+Les `expected_keywords` sont 3 à 5 termes COURTS (1 à 3 mots maximum)
+copiés-collés DU CHUNK, pas reformulés. Exemples valides : "hypoténuse",
+"théorème de Pythagore", "fonction linéaire", "révolution néolithique".
+Exemples INVALIDES : phrases entières, paraphrases, généralités. Le filtre
+de validation rejette toute question dont moins de 2 keywords sont
+présents textuellement dans le chunk."""
 
 
 # ── Sampling stratifié ──────────────────────────────────────────────────────
@@ -256,11 +263,33 @@ def _generate_one(
     return None
 
 
+def _normalize_for_match(s: str) -> str:
+    """
+    Normalisation robuste pour le substring matching keyword↔chunk.
+
+    NFKC fold les variantes compatibles (e.g. ligatures, formes étroites),
+    apostrophe-fold force les variantes typographiques `’` (U+2019) `‘`
+    (U+2018) vers `'` ASCII. `casefold()` est plus strict que `lower()` sur
+    les langues à casse complexe (allemand ß → ss, etc).
+
+    Sans ça, le filtre rejette ~10% des keywords corrects qui diffèrent
+    uniquement par l'apostrophe ou la casse Unicode-spécifique.
+    """
+    s = unicodedata.normalize("NFKC", s)
+    s = s.replace("’", "'").replace("‘", "'")
+    return s.casefold()
+
+
 def _build_question(chunk: dict[str, Any], data: dict[str, Any]) -> GoldenQuestion:
     """
     Construit la `GoldenQuestion` Pydantic-validée. Le `gold_chunk_id` est
     calculé localement à partir de `(matière, niveau, text)` pour matcher
     celui que `ingest.upsert_to_qdrant` aurait inséré.
+
+    Filtre anti-hallucination : ne garde que les keywords présents
+    textuellement dans le chunk après normalisation NFKC + apostrophe-fold
+    + casefold. Si <2 keywords valides, lève — la question serait
+    inutilisable pour scorer un recall.
     """
     matiere = chunk["matiere"]
     niveau_str = chunk["niveau"]
@@ -269,12 +298,11 @@ def _build_question(chunk: dict[str, Any], data: dict[str, Any]) -> GoldenQuesti
     except ValueError:
         niveau = NiveauLycee(niveau_str)
 
-    # Filtre des keywords : on ne garde que ceux effectivement dans le
-    # chunk (lowercase substring match). Si <2 valides, on lève — la
-    # question serait inutilisable pour scorer un recall sur keywords.
-    text_lower = chunk["text"].lower()
+    text_normalized = _normalize_for_match(chunk["text"])
     raw_keywords = data.get("expected_keywords", []) or []
-    valid = [k for k in raw_keywords if isinstance(k, str) and k.lower() in text_lower]
+    valid = [
+        k for k in raw_keywords if isinstance(k, str) and _normalize_for_match(k) in text_normalized
+    ]
     if len(valid) < 2:
         raise ValueError(f"keywords insuffisants après filtre (raw={raw_keywords}, valid={valid})")
 
