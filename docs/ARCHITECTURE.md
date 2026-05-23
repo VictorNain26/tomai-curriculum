@@ -25,7 +25,8 @@ Frontière non négociable :
 
 Toute la stack passe par des fournisseurs ou modèles EU-déployables :
 
-- **Embeddings** : `mistral-embed` (1024D)
+- **Embeddings** : `BAAI/bge-m3` (1024D, dense + sparse natif via FlagEmbedding)
+  Auto-hébergeable sur Scaleway (souverain de facto, poids MIT)
 - **Génération offline du golden set** : `mistral-large-latest`
 - **Index vectoriel** : Qdrant Cloud, région `fr-par`
 - **Veille** : data.gouv.fr + Légifrance (PISTE)
@@ -48,7 +49,7 @@ data/raw/*.md
        │                           Mistral, cascade règles markdown
        ├─ expand_for_niveaux()     duplique 1 chunk × N niveaux du cycle
        ├─ validate_chunks()        Pydantic Chunk → payload Qdrant
-       ├─ embed_batch()            mistral-embed batch 50, L2 normalize
+       ├─ encode_with_sparse()     BGE-M3 dense+sparse single forward pass
        │                           (préfixe contextuel hiérarchique sans LLM)
        └─ upsert_to_qdrant()       named {dense, bm25}, idempotent
                                    uuid5(NAMESPACE_URL, sha256(matière:niveau:text))
@@ -139,21 +140,34 @@ Config (`scripts/migrate_collection.py`) :
 
 `schema/retrieval.py:hybrid_search()` :
 
-- Prefetch dense (mistral-embed) — `top_k * 4`
-- Prefetch sparse BM25 (Qdrant calcule l'IDF server-side) — `top_k * 4`
+- Prefetch dense (`embed_model`) — `top_k * 4`
+- Prefetch sparse (`sparse_method`, Qdrant calcule l'IDF server-side) — `top_k * 4`
 - Fusion RRF native via `models.FusionQuery(fusion=models.Fusion.RRF)`
 - Filtres exact-match sur `matiere`, `niveau`, `cycle` (KEYWORD indexes)
 
-`schema/retrieval.py` est l'**unique** point d'accès Mistral + Qdrant.
-Source de vérité pour `embed_query`, `embed_batch`, `l2_normalize`,
-`hybrid_search`. Aucune duplication dans les scripts.
+Configurations supportées (`embed_model`, `sparse_method`) :
 
-## BM25 sparse : parité stricte Python ↔ TypeScript
+- `("BAAI/bge-m3", "BAAI/bge-m3")` — **cible production** depuis le bench
+  du 2026-05-23 (single forward pass FlagEmbedding, cid_recall=0.894)
+- `("BAAI/bge-m3", "bm25")` — dense BGE-M3, sparse BM25 maison (compat backend)
+- `("mistral-embed", "bm25")` — config historique, conservée pour migration
 
-Qdrant ne tokenise pas côté serveur : il reçoit `{indices: u32[], values:
-f32[]}` et calcule l'IDF. Pour que l'IDF soit cohérent, le **même**
-algorithme de tokenisation + hash doit être utilisé à l'ingestion (ce repo)
-ET à la query (backend `tomai-monorepo/apps/server/src/services/rag.service.ts`).
+`schema/retrieval.py` est l'**unique** point d'accès embed + Qdrant.
+Source de vérité pour `embed_query`, `embed_batch`, `encode_with_sparse`,
+`sparse_query`, `hybrid_search`. Aucune duplication dans les scripts.
+
+## BM25 sparse — legacy / chemin de migration
+
+> **Cible production = sparse natif BGE-M3** via FlagEmbedding (single
+> forward pass dense+sparse). Le BM25 maison décrit ci-dessous reste
+> implémenté pour : (a) la transition pendant que le backend
+> migre, (b) l'option `--sparse-method=bm25` pour bench A/B.
+
+Quand `sparse_method="bm25"` : Qdrant ne tokenise pas côté serveur — il
+reçoit `{indices: u32[], values: f32[]}` et calcule l'IDF. Pour que l'IDF
+soit cohérent, le **même** algorithme de tokenisation + hash doit être
+utilisé à l'ingestion (ce repo) ET à la query (backend
+`tomai-monorepo/apps/server/src/services/rag.service.ts`).
 
 Algorithme (`schema/bm25.py`) :
 
@@ -167,12 +181,17 @@ indexé à un indice, queryé à un autre → recall écroulé.
 Validation : `tests/test_bm25.py` (14 tests) + fixture export
 `scripts/dump_bm25_fixture.py` consommée par le test TS côté monorepo.
 
-## L2 normalize obligatoire
+## L2 normalize
 
-`mistral-embed` ne garantit pas que les vecteurs retournés sont normalisés
-L2. Sans normalisation client-side, `Distance.COSINE` Qdrant est instable.
-`schema/retrieval.py:l2_normalize()` est appliqué systématiquement sur
-embed_query et embed_batch.
+- **BGE-M3 (FlagEmbedding)** : produit du L2 natif (l'attribut `dense_vecs`
+  est déjà normé). Aucune normalisation client-side nécessaire.
+- **sentence-transformers** : `normalize_embeddings=True` (utilisé partout
+  dans `_embed_sentence_transformer`).
+- **mistral-embed (API)** : ne garantit pas la normalisation L2. La
+  fonction `schema/retrieval.py:l2_normalize()` est appliquée systémati-
+  quement après chaque appel API Mistral (config legacy uniquement).
+
+Sans normalisation, `Distance.COSINE` Qdrant est instable.
 
 ## Evaluation retrieval
 
@@ -279,34 +298,51 @@ couche `qdrant.service.ts` + `rag.service.ts`. **Contrats critiques** :
 - **Payload Qdrant** stable : `text, section, matiere, niveau, cycle,
   source_file, chunk_index`. Tout ajout/retrait de champ doit être planifié
   avec le backend.
-- **Tokenizer BM25** strictement identique (FNV-1a 32-bit + regex FR
-  documentée plus haut). Toute divergence casse l'IDF Qdrant silencieusement.
+- **Embedding query** : doit utiliser `BAAI/bge-m3` via FlagEmbedding
+  (single forward pass dense+sparse). Plus de tokenizer BM25 maison —
+  le backend doit exposer un service Python embed ou appeler un endpoint
+  dédié (cf. §Recommandations backend).
 - **Nom de collection** partagé via variable d'env `QDRANT_COLLECTION`.
 
-## Pistes à mesurer (sans engagement prématuré)
+## Décision benchmark embedder (2026-05-23)
 
-Ces leviers ont été identifiés par recherche état de l'art mai 2026 ; à
-benchmarker sur la baseline `chunk_id_recall` avant tout commit de
-migration :
+Trois configurations mesurées sur 189 questions document-grounded
+(top-5, RRF fusion) :
+
+| Configuration | cid_recall@5 | MRR | min par matière |
+|---|---|---|---|
+| mistral-embed + BM25 maison (baseline) | 0.810 | 0.576 | 0.429 (espagnol) |
+| BGE-M3 + BM25 maison | 0.857 | 0.654 | 0.583 (anglais) |
+| **BGE-M3 + BGE-M3 sparse natif** (adopté) | **0.894** | **0.739** | **0.625 (italien)** |
+
+Gains adoption sur les matières bloquantes :
+
+- allemand : 0.600 → **0.933** (+0.333)
+- espagnol : 0.429 → **0.714** (+0.285)
+- arts_plastiques : 0.692 → **0.923** (+0.231)
+- anglais : 0.750 stable (récupéré après régression intermédiaire)
+- MRR global : 0.576 → **0.739** (+0.163, ranking nettement meilleur)
+
+Régressions résiduelles à surveiller : technologie (-0.222), italien
+(n=8 trop petit pour conclure).
+
+Procédure de bascule : la collection `tomai_educational_bge_native`
+(sandbox du bench) devient la collection prod via alias Qdrant.
+L'ancienne `tomai_educational` (mistral-embed) reste en backup nommée
+`tomai_educational_legacy_mistral` le temps que le backend migre.
+
+## Pistes restantes (sans engagement prématuré)
 
 1. **`chunk_size` 400 → 512 tokens** — consensus 2025-2026 (Vecta, Firecrawl,
-   PreMAI). Gain attendu ~2-5 %.
-2. ~~**`Fusion.RRF` → `Fusion.DBSF`** (Qdrant 1.11+)~~ — **mesuré** :
-   inconclusif au défaut. DBSF aide DE/ES (+0.13/+0.14 cid_recall) et MRR
-   global (+0.057), mais régresse français (-0.125) et techno (-0.111).
-   `evaluate.py --fusion=dbsf` disponible comme option ; RRF reste défaut.
-   À retester avec golden élargi (≥30 q/matière) pour conclure.
+   PreMAI). Gain attendu ~2-5 %. À tester sur la nouvelle baseline BGE-M3.
+2. ~~**`Fusion.RRF` → `Fusion.DBSF`** (Qdrant 1.11+)~~ — **mesuré** sur
+   mistral-embed : inconclusif (gagne DE/ES, régresse français). À retester
+   sur BGE-M3 + sparse natif maintenant qu'on a une nouvelle baseline.
 3. **Bump `pymupdf4llm`** à la dernière release ([github.com/pymupdf/pymupdf4llm/releases](https://github.com/pymupdf/pymupdf4llm/releases))
    pour gains perf et extras `[layout]`.
-4. **Embedder multilingue alternatif pour Allemand / Espagnol / Italien**.
-   Baseline mesurée (139 q document-grounded) : `cid_recall@5` à 0.50-0.56
-   sur DE/ES/IT vs 0.83-1.00 sur FR et même 0.83 sur anglais. Confirme un
-   déficit structurel de `mistral-embed` sur ces langues (modèle non
-   officiellement multilingue selon la doc Mistral). Candidats self-host
-   Scaleway à benchmarker dans `evaluate.py` : BGE-M3 (MIT, 1024D, sparse
-   natif → simplifierait le BM25), multilingual-e5-large-instruct (MIT,
-   US-origin weights). Décision produit nécessaire sur la définition de
-   souveraineté (poids self-hostés ≠ origine EU).
+4. **Investiguer technologie + italien** — re-générer un golden ciblé
+   (50 questions chacun) pour départager bruit statistique vs vraie
+   régression structurelle de BGE-M3 sur ces matières.
 
 ## Recommandations à traiter côté backend
 
@@ -316,12 +352,30 @@ de l'art mai 2026 mais ne peuvent **pas** être benchmarkées utilement ici
 (la mesure offline en Python sur CPU local n'est ni représentative de la
 latence prod ni de l'implémentation TS finale).
 
-### Reranker de second étage
+### #1 — Exécuter BGE-M3 côté backend (impose un service Python)
+
+**Bloquant suite à la décision benchmark embedder du 2026-05-23.** Le
+sparse natif BGE-M3 est appris (learned sparse via FlagEmbedding), donc
+non reproductible en TS pur — contrairement au BM25 FNV-1a qu'on avait.
+
+Options à arbitrer côté backend :
+
+- **Service Python embed local** (FastAPI + FlagEmbedding) sur Scaleway,
+  appelé par `rag.service.ts` en HTTP. Latence ~50-150 ms / query (CPU).
+- **Endpoint Scaleway Inference** dédié BGE-M3 (GPU = ~10 ms / query
+  mais coût mensuel fixe).
+- **Hugging Face Inference Endpoints** souverain EU (réseau US si
+  acheminé mal — à vérifier juridiquement).
+
+Pas d'implémentation TS pur possible : BGE-M3 nécessite l'inférence du
+transformeur pour produire dense + sparse cohérents.
+
+### #2 — Reranker de second étage (gain additionnel attendu)
 
 Anthropic Contextual Retrieval mesure −67 % failure rate avec rerank
-contre −49 % sans (sur corpus non-structurés). Sur notre corpus structuré
-le gain attendu est probablement moindre mais reste significatif,
-notamment pour les matières LV où le retrieval bi-encoder est faible.
+contre −49 % sans. Sur notre corpus la baseline post-BGE-M3 est déjà à
+0.894 cid_recall ; le rerank apportera surtout du gain sur les matières
+résiduelles faibles (italien, technologie).
 
 **Candidat recommandé** :
 [`mxbai-rerank-large-v2`](https://www.mixedbread.com/docs/models/reranking/mxbai-rerank-large-v2)
@@ -330,6 +384,9 @@ DE/ES/IT, BEIR nDCG@10 57.49.
 
 Alternatives écartées : Jina v3 = CC-BY-NC (licence commerciale Jina
 obligatoire), BGE = origine Chine (souveraineté discutable), Cohere = US.
+
+Synergie : si #1 expose déjà un service Python pour BGE-M3, ajouter
+`mxbai-rerank` dans le même service mutualise l'infra.
 
 **À mesurer côté backend** : latence prod (cible <300 ms total avec
 hybrid_search + rerank), gain `chunk_id_recall@5` en conditions réelles,

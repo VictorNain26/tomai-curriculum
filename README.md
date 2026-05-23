@@ -19,35 +19,40 @@ Aucun SaaS hors UE.
 | Niveaux couverts | 6e, 5e, 4e, 3e (collège complet) |
 | Matières | 16 (tronc commun + LV + arts + EPS + sciences-techno) |
 | Coverage sections BO | **100 %** sur toutes les matières (audit 2026-05-18, sans faux positif) |
-| Retrieval baseline | `chunk_id_recall@5 = 0.810` / MRR=0.576 sur 189 questions document-grounded (sample stratifié matière × niveau, 61 strates) |
-| Tests | 83 pass · ruff clean |
+| Retrieval baseline | `chunk_id_recall@5 = **0.894**` / MRR=**0.739** sur 189 questions document-grounded — BGE-M3 dense + sparse natif via FlagEmbedding |
+| Tests | 82 pass · ruff clean |
 
-### Baseline par matière (top-5, golden 189 questions)
+### Baseline par matière (top-5, golden 189 questions, BGE-M3 + sparse natif)
 
 | Matière | n | cid_recall@5 | MRR |
 |---|---|---|---|
-| eps, histoire_geo, physique_chimie | 36 | **1.000** | 0.73-0.94 |
-| mathematiques | 14 | 0.929 | 0.827 |
-| education_musicale, emc | 22 | 0.909 | 1.000 |
-| svt | 10 | 0.900 | 0.900 |
-| technologie | 9 | 0.889 | 0.796 |
-| francais | 16 | 0.875 | 0.736 |
-| anglais | 12 | 0.750 | 0.667 |
+| eps, histoire_geo, mathematiques, education_musicale, physique_chimie, svt | 71 | **1.000** | 0.83-1.00 |
+| allemand | 15 | 0.933 | 0.811 |
+| arts_plastiques | 13 | 0.923 | 0.923 |
+| langues_vivantes | 10 | 0.900 | 0.883 |
+| emc | 11 | 0.909 | 1.000 |
+| francais | 16 | 0.875 | 0.771 |
+| histoire_des_arts | 13 | 0.846 | 0.833 |
+| anglais | 12 | 0.750 | 0.794 |
 | sciences_technologie | 4 | 0.750 | 1.000 |
-| arts_plastiques, histoire_des_arts | 26 | 0.692 | 0.718-0.872 |
-| italien | 8 | 0.625 | 0.542 |
-| **allemand, langues_vivantes** | 25 | **0.600** | 0.647-0.725 |
-| **espagnol** | 7 | **0.429** | 0.433 |
+| espagnol | 7 | 0.714 | 0.857 |
+| technologie | 9 | 0.667 | 0.781 |
+| italien | 8 | 0.625 | 0.875 |
 
 **Findings** :
-- Contenu FR sciences (cycle 4 + EPS + HG) atteint ou approche le plafond
-- **Anglais correct (0.75)** — mistral-embed gère bien l'anglais
-- **Allemand / espagnol / italien faibles (0.43-0.63)** — déficit structurel
-  de `mistral-embed` sur ces langues (modèle non officiellement multilingue
-  selon la doc Mistral). Candidats alternatifs self-host à benchmarker :
-  BGE-M3 (MIT, sparse natif), multilingual-e5-large-instruct (MIT).
-- Arts plastiques + histoire_des_arts à 0.69 = vocabulaire conceptuel
-  abstrait, à investiguer.
+- Switch d'embedder réalisé suite au bench du 2026-05-23 : BGE-M3 (BAAI,
+  MIT, self-host Scaleway) remplace mistral-embed. Justification chiffrée
+  dans `docs/ARCHITECTURE.md §Décision benchmark embedder`.
+- Gains majeurs : **allemand** 0.60→0.93 (+0.33), **espagnol** 0.43→0.71
+  (+0.28), **arts_plastiques** 0.69→0.92 (+0.23). MRR global +0.16.
+- Italien (n=8) et technologie restent les 2 matières à investiguer
+  (golden ciblé requis pour départager bruit vs vraie régression).
+
+> **Note backend** : le switch BGE-M3 + sparse natif (learned sparse via
+> FlagEmbedding) obsolète le tokenizer BM25 maison FNV-1a précédemment
+> reproductible en TS pur. Le backend doit exécuter BGE-M3 pour ses
+> queries via un service Python ou un endpoint dédié. Cf. ARCHITECTURE.md
+> §Recommandations backend pour les options détaillées.
 
 ## Architecture
 

@@ -24,15 +24,16 @@ from .bm25 import SparseVector, to_sparse_vector
 # Modèles d'embedding supportés. Tous produisent du 1024D pour rester compatibles
 # avec la config Qdrant (named vector "dense" 1024 COSINE).
 EMBEDDING_MODELS_1024D = ("mistral-embed", "BAAI/bge-m3")
-DEFAULT_EMBED_MODEL = "mistral-embed"
+# Cible production : BGE-M3 (bench du 2026-05-23, cf. docs/ARCHITECTURE.md).
+DEFAULT_EMBED_MODEL = "BAAI/bge-m3"
 
 # Méthodes sparse supportées :
 # - "bm25"        : tokenizer FNV-1a maison (schema/bm25.py), Qdrant IDF natif.
-#                   Parité stricte Python↔TS pour le backend.
+#                   Legacy — parité TS reproductible mais inférieur en recall.
 # - "BAAI/bge-m3" : learned sparse natif de BGE-M3 via FlagEmbedding.
-#                   Dense + sparse en un seul forward pass.
+#                   Dense + sparse en un seul forward pass. Cible production.
 SPARSE_METHODS = ("bm25", "BAAI/bge-m3")
-DEFAULT_SPARSE_METHOD = "bm25"
+DEFAULT_SPARSE_METHOD = "BAAI/bge-m3"
 
 EMBEDDING_DIM = 1024
 EMBEDDING_BATCH_SIZE = 50
