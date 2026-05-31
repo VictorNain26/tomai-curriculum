@@ -21,11 +21,9 @@ dependencies = [
 dev = [
     "ruff>=0.8",
     "pytest>=8.0",
+    "mypy>=1.13",
 ]
 eval = [
-    "langchain-mistralai>=0.2",
-    "litellm>=1.85.0",
-    "ragas>=0.4",
     "sentence-transformers>=3.0",
     "FlagEmbedding>=1.3",
 ]
@@ -43,3 +41,16 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+
+# mypy : périmètre restreint à schema/ (bibliothèque partagée, API publique
+# typée strictement). Les scripts CLI restent hors scope pour l'instant — ils
+# parlent à des SDK non typés (chonkie, pymupdf4llm) et le coût de typage n'est
+# pas justifié tant qu'ils ne sont pas importés ailleurs.
+[tool.mypy]
+files = ["schema"]
+python_version = "3.11"
+strict = true
+# Les SDK externes (qdrant-client, mistralai, FlagEmbedding, sentence-
+# transformers) n'exposent pas tous des stubs complets : on ignore les imports
+# manquants plutôt que de polluer le code avec des `type: ignore`.
+ignore_missing_imports = true
