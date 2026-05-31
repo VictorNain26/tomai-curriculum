@@ -15,9 +15,13 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .bm25 import SparseVector, to_sparse_vector
+
+if TYPE_CHECKING:
+    from mistralai import Mistral
+    from qdrant_client import QdrantClient
 
 # ── Constantes ───────────────────────────────────────────────────────────────
 
@@ -41,19 +45,18 @@ DEFAULT_TOP_K = 5
 
 DEFAULT_COLLECTION = "tomai_educational"
 
-# Alias rétro-compatibilité (anciens scripts).
-EMBEDDING_MODEL = DEFAULT_EMBED_MODEL
-
 
 # ── Clients lazy singleton ───────────────────────────────────────────────────
 
-_mistral_client = None
-_qdrant_client = None
+_mistral_client: Mistral | None = None
+_qdrant_client: QdrantClient | None = None
+# bordure SDK : sentence-transformers et FlagEmbedding ne fournissent pas de
+# stubs — leurs objets sont Any, type justifié à la frontière externe.
 _st_models: dict[str, Any] = {}  # sentence-transformers models cache
 _bge_m3_model: Any = None  # FlagEmbedding BGEM3FlagModel singleton (dense+sparse)
 
 
-def get_mistral_client():
+def get_mistral_client() -> Mistral:
     """Singleton lazy du client Mistral."""
     global _mistral_client
     if _mistral_client is None:
@@ -66,7 +69,7 @@ def get_mistral_client():
     return _mistral_client
 
 
-def get_qdrant_client():
+def get_qdrant_client() -> QdrantClient:
     """Singleton lazy du client Qdrant. check_compatibility=True pour catch les
     désalignements de version client/server (voir AUDIT P2-1)."""
     global _qdrant_client
@@ -104,15 +107,19 @@ def l2_normalize(vec: list[float]) -> list[float]:
 # ── Retry exponentiel transient errors Mistral ───────────────────────────────
 
 
-def _call_with_retry(fn, label: str, max_attempts: int = 5):
+def _embed_mistral_batch(
+    client: Mistral, batch: list[str], label: str, max_attempts: int = 5
+) -> Any:
     """
-    Retry exponentiel sur 429 / 5xx Mistral. Le SDK mistralai 1.5+ a son propre
-    RetryConfig mais on garde un wrapper externe simple pour rester lisible et
-    indépendant de la stratégie SDK.
+    Appelle mistral-embed sur un batch avec retry exponentiel sur 429 / 5xx.
+    Le SDK mistralai 1.5+ a son propre RetryConfig mais on garde un wrapper
+    externe simple pour rester lisible et indépendant de la stratégie SDK.
+
+    Retour Any : EmbeddingResponse mistralai n'est pas typé strictement (bordure SDK).
     """
     for attempt in range(max_attempts):
         try:
-            return fn()
+            return client.embeddings.create(model="mistral-embed", inputs=batch)
         except Exception as e:
             msg = str(e).lower()
             transient = "429" in msg or "rate" in msg or "timeout" in msg or "503" in msg
@@ -127,10 +134,11 @@ def _call_with_retry(fn, label: str, max_attempts: int = 5):
 # ── Embeddings (avec normalisation L2 systématique) ──────────────────────────
 
 
-def _get_sentence_transformer(model_name: str):
+def _get_sentence_transformer(model_name: str) -> Any:
     """
     Charge un modèle sentence-transformers (BGE-M3 etc.) en cache module.
     Lib mature, normalize_embeddings=True applique L2 nativement.
+    Retour Any : sentence-transformers ne fournit pas de stubs (bordure SDK).
     Doc : https://www.sbert.net/
     """
     if model_name not in _st_models:
@@ -146,11 +154,11 @@ def _embed_mistral(texts: list[str]) -> list[list[float]]:
     vectors: list[list[float]] = []
     for i in range(0, len(texts), EMBEDDING_BATCH_SIZE):
         batch = texts[i : i + EMBEDDING_BATCH_SIZE]
-        response = _call_with_retry(
-            lambda b=batch: client.embeddings.create(model="mistral-embed", inputs=b),
-            label=f"embed_mistral[{i}:{i + len(batch)}]",
-        )
-        vectors.extend(l2_normalize(e.embedding) for e in response.data)
+        response = _embed_mistral_batch(client, batch, label=f"embed_mistral[{i}:{i + len(batch)}]")
+        # bordure SDK mistralai : e.embedding peut être None, filtré avant normalize.
+        for e in response.data:
+            if e.embedding:
+                vectors.append(l2_normalize(e.embedding))
     return vectors
 
 
@@ -165,7 +173,8 @@ def _embed_sentence_transformer(texts: list[str], model_name: str) -> list[list[
         show_progress_bar=False,
         convert_to_numpy=True,
     )
-    return arr.tolist()
+    result: list[list[float]] = arr.tolist()
+    return result
 
 
 def embed_batch(texts: list[str], embed_model: str = DEFAULT_EMBED_MODEL) -> list[list[float]]:
@@ -194,11 +203,12 @@ def embed_query(query: str, embed_model: str = DEFAULT_EMBED_MODEL) -> list[floa
 # ── BGE-M3 dense + sparse natif (FlagEmbedding) ──────────────────────────────
 
 
-def _get_bge_m3_model():
+def _get_bge_m3_model() -> Any:
     """
     Singleton lazy BGEM3FlagModel. Charge ~2.4 GB au premier appel puis cache.
     Doc : https://huggingface.co/BAAI/bge-m3 (lib FlagEmbedding officielle BAAI).
     use_fp16=False par défaut (GPU absent sur la plupart des postes dev).
+    Retour Any : FlagEmbedding ne fournit pas de stubs (bordure SDK).
     """
     global _bge_m3_model
     if _bge_m3_model is None:
@@ -208,7 +218,7 @@ def _get_bge_m3_model():
     return _bge_m3_model
 
 
-def _lexical_weights_to_sparse(weights: dict) -> SparseVector:
+def _lexical_weights_to_sparse(weights: dict[str, float]) -> SparseVector:
     """
     Convertit `lexical_weights` BGE-M3 ({token_id_str: weight_float32}) en
     format Qdrant SparseVector (indices u32 int + values float32).
@@ -335,14 +345,15 @@ def hybrid_search(
         sparse_data = sparse_query(query, sparse_method=sparse_method)
     sparse = models.SparseVector(indices=sparse_data.indices, values=sparse_data.values)
 
-    must = []
+    must: list[models.FieldCondition] = []
     if matiere:
         must.append(models.FieldCondition(key="matiere", match=models.MatchValue(value=matiere)))
     if niveau:
         must.append(models.FieldCondition(key="niveau", match=models.MatchValue(value=niveau)))
     if cycle:
         must.append(models.FieldCondition(key="cycle", match=models.MatchValue(value=cycle)))
-    query_filter = models.Filter(must=must) if must else None
+    conditions: list[models.Condition] = list(must)
+    query_filter = models.Filter(must=conditions) if conditions else None
 
     prefetch_limit = max(top_k * prefetch_multiplier, 20)
 
@@ -363,23 +374,30 @@ def hybrid_search(
         with_payload=True,
     )
 
-    return [
-        HybridResult(
-            text=r.payload["text"],
-            matiere=r.payload["matiere"],
-            niveau=r.payload["niveau"],
-            section=r.payload.get("section", ""),
-            score=r.score,
-            payload=r.payload,
-            id=str(r.id) if r.id is not None else None,
+    results: list[HybridResult] = []
+    for r in response.points:
+        # with_payload=True garantit un payload non nul ; on skippe par sûreté
+        # (qdrant-client type payload: dict | None à la frontière).
+        payload = r.payload
+        if payload is None:
+            continue
+        results.append(
+            HybridResult(
+                text=payload["text"],
+                matiere=payload["matiere"],
+                niveau=payload["niveau"],
+                section=payload.get("section", ""),
+                score=r.score,
+                payload=payload,
+                id=str(r.id) if r.id is not None else None,
+            )
         )
-        for r in response.points
-    ]
+    return results
 
 
 # ── Sparse vector helper (réexporté pour ergonomie) ──────────────────────────
 
 
-def query_to_sparse(query: str):
+def query_to_sparse(query: str) -> SparseVector:
     """Convertit une query en sparse vector Qdrant — alias ergonomique."""
     return to_sparse_vector(query)

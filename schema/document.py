@@ -224,7 +224,7 @@ class Chunk(BaseModel):
     def matiere_label(self) -> str:
         return MATIERE_LABELS[self.matiere]
 
-    def to_qdrant_payload(self) -> dict:
+    def to_qdrant_payload(self) -> dict[str, str | int]:
         """
         Payload Qdrant canonique — schema pur sans alias compat.
 
