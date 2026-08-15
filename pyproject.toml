@@ -14,13 +14,13 @@ dependencies = [
     "qdrant-client>=1.18",
     "chonkie[sentence]>=1.6",
     "pymupdf4llm>=0.0.21",
-    "python-dotenv>=1.0",
+    "python-dotenv>=1.2.2",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.8",
-    "pytest>=8.0",
+    "pytest>=9.0.3",
 ]
 eval = [
     "langchain-mistralai>=0.2",
