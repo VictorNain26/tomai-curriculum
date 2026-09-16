@@ -118,6 +118,25 @@ def test_chunk_id_hit_top1():
     assert r["chunk_id_mrr"] == 1.0
 
 
+def test_chunk_id_hit_rank3():
+    """gold_chunk_id présent au rang 3 → cid_hit_rank=3, mrr=1/3."""
+    q = {
+        "query": "test",
+        "expected_keywords": ["pythagore"],
+        "gold_chunk_id": "gold-xyz",
+    }
+    chunks = _chunks(
+        "Chunk 1.",
+        "Chunk 2.",
+        "Chunk 3 avec Pythagore.",
+        ids=["a-1", "b-2", "gold-xyz"],
+    )
+    r = _score_question(q, chunks)
+
+    assert r["chunk_id_hit_rank"] == 3
+    assert r["chunk_id_mrr"] == round(1 / 3, 3)
+
+
 def test_chunk_id_miss():
     """gold_chunk_id absent du top-k → cid_hit_rank=None, mrr=0."""
     q = {
@@ -126,6 +145,24 @@ def test_chunk_id_miss():
         "gold_chunk_id": "missing-id",
     }
     chunks = _chunks("Le théorème de Pythagore.", ids=["abc-123"])
+    r = _score_question(q, chunks)
+
+    assert r["chunk_id_hit_rank"] is None
+    assert r["chunk_id_mrr"] == 0.0
+
+
+def test_chunk_id_miss_when_all_ids_none():
+    """gold_chunk_id attendu mais résultats sans id (.id=None) → miss propre.
+
+    Couvre la vraie shape HybridResult quand Qdrant ne renvoie pas d'id : on ne
+    doit jamais matcher par accident (payload n'a jamais contenu l'id)."""
+    q = {
+        "query": "test",
+        "expected_keywords": ["pythagore"],
+        "gold_chunk_id": "gold-xyz",
+    }
+    chunks = _chunks("Le théorème de Pythagore.", "Autre chunk.")  # ids défaut = None
+
     r = _score_question(q, chunks)
 
     assert r["chunk_id_hit_rank"] is None

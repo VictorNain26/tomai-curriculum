@@ -113,16 +113,14 @@ def _score_question(q: dict, chunks: list[Any]) -> dict:
             first_rank = i + 1
             break
 
-    # Chunk-id recall (signal propre quand dispo)
+    # Chunk-id recall (signal propre quand dispo). L'ID Qdrant (UUID5 calculé à
+    # l'ingest) vit sur `HybridResult.id` — il N'est PAS dans le payload. On lit
+    # donc `.id` directement ; le rang du gold_chunk_id dans le top-k est immune
+    # aux faux positifs lexicaux (CoFE-RAG arXiv 2410.12248).
     chunk_id_hit_rank: int | None = None
     if gold_id:
         for i, c in enumerate(chunks):
-            cid = getattr(c, "payload", {}).get("id") if hasattr(c, "payload") else None
-            # Le payload Qdrant ne stocke pas l'ID — il est dans `r.id` côté
-            # response.points. On le retrouve via `c.payload` si stocké ou
-            # via `getattr(c, "id", None)` selon la shape HybridResult.
-            cid = cid or getattr(c, "id", None)
-            if cid and str(cid) == gold_id:
+            if c.id is not None and str(c.id) == gold_id:
                 chunk_id_hit_rank = i + 1
                 break
 

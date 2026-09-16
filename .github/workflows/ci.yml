@@ -43,6 +43,9 @@ jobs:
       - name: Format check (ruff format)
         run: uv run ruff format --check .
 
+      - name: Type check (mypy schema/)
+        run: uv run mypy
+
       - name: Tests (pytest)
         env:
           # Active le test chunk_text qui charge le tokenizer Mistral (~500 MB).
