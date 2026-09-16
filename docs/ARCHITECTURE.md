@@ -261,7 +261,8 @@ distracteur). Mesure runtime → backend.
   endpoint `consult/lastNJo` + `jorfCont` pour détecter les arrêtés MENE*
   (Éducation) publiés au JO
 
-Workflow hebdomadaire (lundi 8h UTC) :
+Workflow à déclenchement manuel (`workflow_dispatch`, auparavant chaque
+lundi à 8h UTC) :
 
 1. Détecte changements + télécharge nouveaux PDFs
 2. Commit `data/raw/.veille_state.json`

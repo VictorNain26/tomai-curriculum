@@ -144,7 +144,7 @@ RUN_MISTRAL_TOKENIZER_TESTS=1 uv run pytest tests/
 
 GitHub Actions :
 - `ci.yml` — lint + tests à chaque PR / push main
-- `veille_bo.yml` — veille Eduscol hebdomadaire (issue GitHub si changement)
+- `veille_bo.yml` — veille Eduscol, déclenchement manuel (issue GitHub si changement)
 
 ## Sources officielles
 
