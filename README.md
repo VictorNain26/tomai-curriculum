@@ -1,21 +1,36 @@
-# TomAI Curriculum — Index RAG souverain EU
+# TomAI Curriculum — Index RAG construit, mesuré, puis retiré
 
 Pipeline d'indexation des **programmes officiels Éduscol** (collège 6e → 3e)
-pour le RAG du tuteur TomAI.
+conçu pour le RAG du tuteur TomAI, avec une évaluation retrieval offline.
 
-**Scope** : ce repo gère **UNIQUEMENT l'index** (PDF → markdown → chunks →
-Qdrant). La couche LLM (chat socratique, prompting, hallucination eval) est
-la responsabilité du backend `tomai-monorepo/apps/server`. Source de vérité
-architecture : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+> **Statut : projet retiré.** L'index n'a jamais été servi à des
+> utilisateurs. Le cluster Qdrant Cloud a été supprimé le 2026-08-24 et le
+> backend TomAI a retiré toute sa couche RAG le même jour (commit `8f5011f`
+> de `tomai-monorepo`). Ce repo reste public comme trace d'un RAG construit
+> et mesuré :
+>
+> - pipeline d'ingestion complet (PDF → markdown → chunks → embeddings →
+>   Qdrant), rejouable sur une instance Qdrant à fournir ;
+> - golden set de 189 questions document-grounded et résultats d'eval
+>   versionnés dans [`data/golden/`](data/golden/) ;
+> - benchmark d'embedder du 2026-05-23 : mistral-embed + BM25 maison →
+>   BGE-M3 dense + sparse natif, `chunk_id_recall@5` **0.81 → 0.89**, MRR
+>   0.58 → 0.74 (détail : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)).
 
-**Souveraineté EU stricte** : Mistral (embeddings) + Qdrant Cloud (fr-par).
-Aucun SaaS hors UE.
+**Scope** : ce repo gère **uniquement l'index** (PDF → markdown → chunks →
+Qdrant) et son évaluation retrieval. La couche LLM (chat socratique,
+prompting, hallucination eval) relevait du backend `tomai-monorepo/apps/server`.
+Source de vérité architecture : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-## État
+**Souveraineté EU stricte** : BGE-M3 (BAAI, poids MIT, auto-hébergeable)
+pour les embeddings, Mistral pour la génération offline du golden set,
+Qdrant Cloud (fr-par) pour l'index. Aucun SaaS hors UE.
+
+## État à la dernière mesure (2026-05-23)
 
 | Indicateur | Valeur |
 |---|---|
-| Collection Qdrant | `tomai_educational` (5238 points uniques) |
+| Collection Qdrant | `tomai_educational` — 5238 points uniques au dernier comptage (cluster supprimé depuis) |
 | Niveaux couverts | 6e, 5e, 4e, 3e (collège complet) |
 | Matières | 16 (tronc commun + LV + arts + EPS + sciences-techno) |
 | Coverage sections BO | **100 %** sur toutes les matières (audit 2026-05-18, sans faux positif) |
@@ -48,20 +63,21 @@ Aucun SaaS hors UE.
 - Italien (n=8) et technologie restent les 2 matières à investiguer
   (golden ciblé requis pour départager bruit vs vraie régression).
 
-> **Note backend** : le switch BGE-M3 + sparse natif (learned sparse via
-> FlagEmbedding) obsolète le tokenizer BM25 maison FNV-1a précédemment
-> reproductible en TS pur. Le backend doit exécuter BGE-M3 pour ses
-> queries via un service Python ou un endpoint dédié. Cf. ARCHITECTURE.md
-> §Recommandations backend pour les options détaillées.
+> **Conséquence côté backend** : le sparse natif BGE-M3 (learned sparse via
+> FlagEmbedding) n'est pas reproductible en TS pur, contrairement au BM25
+> maison FNV-1a. Le backend aurait dû exécuter BGE-M3 pour ses queries via un
+> service Python ou un endpoint dédié (options dans ARCHITECTURE.md
+> §Recommandations backend). Ce service n'a jamais été mis en production :
+> le backend a retiré le RAG le 2026-08-24.
 
 ## Architecture
 
 ```
 schema/
 ├── document.py        Pydantic Chunk + dérivation niveaux + MATIERE_LABELS
-├── bm25.py            Tokenizer FR + FNV-1a (parité stricte avec backend)
+├── bm25.py            Tokenizer FR + FNV-1a (sparse legacy, bench A/B)
 ├── contextual.py      Préfixe contextuel hiérarchique (gratuit, sans LLM)
-└── retrieval.py       Accès Mistral/Qdrant partagé (embed, hybrid_search, L2 normalize)
+└── retrieval.py       Accès embedders + Qdrant partagé (embed, hybrid_search, L2 normalize)
 
 scripts/
 ├── extract_pdfs.py        PDF → markdown via pymupdf4llm (vrais H2)
@@ -71,7 +87,7 @@ scripts/
 ├── evaluate.py            Métriques retrieval déterministes (chunk_id recall, MRR)
 ├── generate_golden.py     Génère le golden set document-grounded
 ├── audit_coverage.py      % titres BO indexés + `--list-missing` debug
-├── dump_bm25_fixture.py   Exporte fixture parité BM25 pour le backend TS
+├── dump_bm25_fixture.py   Exporte la fixture de parité BM25 (ancien backend TS)
 └── veille_programmes.py   Détecte changements BO (data.gouv + Légifrance)
 
 data/
@@ -83,6 +99,11 @@ docs/audits/               Rapports coverage horodatés
 ```
 
 ## Quickstart
+
+Les étapes 3 à 5 et l'évaluation (étape 7) écrivent ou lisent dans Qdrant :
+le cluster d'origine n'existe plus, `QDRANT_URL` et `QDRANT_API_KEY` doivent
+pointer vers une instance à fournir, puis l'index doit être ré-ingéré avant
+de relancer `evaluate.py`.
 
 ```bash
 # 1. Setup
