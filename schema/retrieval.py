@@ -1,5 +1,5 @@
 """
-Couche d'accès Mistral + Qdrant partagée.
+Couche d'accès embedders (BGE-M3, mistral-embed) + Qdrant partagée.
 
 Centralise ce que `ingest.py`, `query.py`, `evaluate.py` faisaient en triple :
 - Setup des clients (Mistral, Qdrant) avec retry et check_compatibility
@@ -28,14 +28,14 @@ if TYPE_CHECKING:
 # Modèles d'embedding supportés. Tous produisent du 1024D pour rester compatibles
 # avec la config Qdrant (named vector "dense" 1024 COSINE).
 EMBEDDING_MODELS_1024D = ("mistral-embed", "BAAI/bge-m3")
-# Cible production : BGE-M3 (bench du 2026-05-23, cf. docs/ARCHITECTURE.md).
+# Défaut : BGE-M3 (bench du 2026-05-23, cf. docs/ARCHITECTURE.md).
 DEFAULT_EMBED_MODEL = "BAAI/bge-m3"
 
 # Méthodes sparse supportées :
 # - "bm25"        : tokenizer FNV-1a maison (schema/bm25.py), Qdrant IDF natif.
 #                   Legacy — parité TS reproductible mais inférieur en recall.
 # - "BAAI/bge-m3" : learned sparse natif de BGE-M3 via FlagEmbedding.
-#                   Dense + sparse en un seul forward pass. Cible production.
+#                   Dense + sparse en un seul forward pass. Défaut.
 SPARSE_METHODS = ("bm25", "BAAI/bge-m3")
 DEFAULT_SPARSE_METHOD = "BAAI/bge-m3"
 
@@ -71,7 +71,7 @@ def get_mistral_client() -> Mistral:
 
 def get_qdrant_client() -> QdrantClient:
     """Singleton lazy du client Qdrant. check_compatibility=True pour catch les
-    désalignements de version client/server (voir AUDIT P2-1)."""
+    désalignements de version client/server, sinon silencieux."""
     global _qdrant_client
     if _qdrant_client is None:
         from qdrant_client import QdrantClient

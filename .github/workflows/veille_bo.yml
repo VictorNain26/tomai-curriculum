@@ -1,9 +1,6 @@
 name: Veille BO — programmes Éduscol
 
 on:
-  schedule:
-    # Chaque lundi à 8h UTC (après la publication du BO hebdomadaire du jeudi)
-    - cron: "0 8 * * 1"
   workflow_dispatch:
     inputs:
       force:

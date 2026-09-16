@@ -3,14 +3,20 @@
 Source de vérité unique sur l'architecture du pipeline RAG des programmes
 officiels Éduscol.
 
+> **Statut : retiré.** L'index n'a jamais été servi à des utilisateurs. Le
+> cluster Qdrant Cloud a été supprimé le 2026-08-24 et le backend a retiré sa
+> couche RAG le même jour (`tomai-monorepo` commit `8f5011f`). Ce document
+> décrit l'architecture telle que construite et mesurée ; les sections sur le
+> backend sont historiques.
+
 ## Scope
 
 Ce repo gère **uniquement l'index RAG** : extraction PDF → markdown →
 chunking → embeddings → indexation Qdrant. La couche LLM (chat socratique,
-prompting, faithfulness/hallucination eval, mémoire élève) est la
-responsabilité du backend `tomai-monorepo/apps/server`.
+prompting, faithfulness/hallucination eval, mémoire élève) relevait du
+backend `tomai-monorepo/apps/server`.
 
-Frontière non négociable :
+Frontière telle que conçue :
 
 | Curriculum (ce repo) | Backend (`apps/server`) |
 |---|---|
@@ -28,7 +34,7 @@ Toute la stack passe par des fournisseurs ou modèles EU-déployables :
 - **Embeddings** : `BAAI/bge-m3` (1024D, dense + sparse natif via FlagEmbedding)
   Auto-hébergeable sur Scaleway (souverain de facto, poids MIT)
 - **Génération offline du golden set** : `mistral-large-latest`
-- **Index vectoriel** : Qdrant Cloud, région `fr-par`
+- **Index vectoriel** : Qdrant Cloud, région `fr-par` (cluster supprimé le 2026-08-24)
 - **Veille** : data.gouv.fr + Légifrance (PISTE)
 
 Aucun appel sortant vers OpenAI, Anthropic, Cohere, Google, Voyage.
@@ -147,10 +153,10 @@ Config (`scripts/migrate_collection.py`) :
 
 Configurations supportées (`embed_model`, `sparse_method`) :
 
-- `("BAAI/bge-m3", "BAAI/bge-m3")` — **cible production** depuis le bench
-  du 2026-05-23 (single forward pass FlagEmbedding, cid_recall=0.894)
-- `("BAAI/bge-m3", "bm25")` — dense BGE-M3, sparse BM25 maison (compat backend)
-- `("mistral-embed", "bm25")` — config historique, conservée pour migration
+- `("BAAI/bge-m3", "BAAI/bge-m3")` — **défaut** depuis le bench du
+  2026-05-23 (single forward pass FlagEmbedding, cid_recall=0.894)
+- `("BAAI/bge-m3", "bm25")` — dense BGE-M3, sparse BM25 maison (reproductible en TS)
+- `("mistral-embed", "bm25")` — config historique, baseline du bench
 
 `schema/retrieval.py` est l'**unique** point d'accès embed + Qdrant.
 Source de vérité pour `embed_query`, `embed_batch`, `encode_with_sparse`,
@@ -158,16 +164,15 @@ Source de vérité pour `embed_query`, `embed_batch`, `encode_with_sparse`,
 
 ## BM25 sparse — legacy / chemin de migration
 
-> **Cible production = sparse natif BGE-M3** via FlagEmbedding (single
-> forward pass dense+sparse). Le BM25 maison décrit ci-dessous reste
-> implémenté pour : (a) la transition pendant que le backend
-> migre, (b) l'option `--sparse-method=bm25` pour bench A/B.
+> **Défaut = sparse natif BGE-M3** via FlagEmbedding (single forward pass
+> dense+sparse). Le BM25 maison décrit ci-dessous reste implémenté pour
+> l'option `--sparse-method=bm25` (bench A/B).
 
 Quand `sparse_method="bm25"` : Qdrant ne tokenise pas côté serveur — il
 reçoit `{indices: u32[], values: f32[]}` et calcule l'IDF. Pour que l'IDF
 soit cohérent, le **même** algorithme de tokenisation + hash doit être
-utilisé à l'ingestion (ce repo) ET à la query (backend
-`tomai-monorepo/apps/server/src/services/rag.service.ts`).
+utilisé à l'ingestion (ce repo) ET à la query (côté backend,
+`tomai-monorepo/apps/server/src/services/rag.service.ts` avant son retrait).
 
 Algorithme (`schema/bm25.py`) :
 
@@ -179,7 +184,8 @@ Sans parité stricte, l'IDF Qdrant est cassée silencieusement — même mot
 indexé à un indice, queryé à un autre → recall écroulé.
 
 Validation : `tests/test_bm25.py` (14 tests) + fixture export
-`scripts/dump_bm25_fixture.py` consommée par le test TS côté monorepo.
+`scripts/dump_bm25_fixture.py`, consommée par le test TS du monorepo
+jusqu'au retrait du RAG.
 
 ## L2 normalize
 
@@ -212,8 +218,8 @@ Deux signaux complémentaires :
   vs human-judged relevance. Conservé pour comparaison historique et
   golden sets seed (sans `gold_chunk_id`).
 
-Toute eval LLM-judge (Faithfulness, hallucination, style socratique) est
-backend.
+Toute eval LLM-judge (Faithfulness, hallucination, style socratique)
+relevait du backend.
 
 ## Golden set
 
@@ -255,7 +261,8 @@ distracteur). Mesure runtime → backend.
   endpoint `consult/lastNJo` + `jorfCont` pour détecter les arrêtés MENE*
   (Éducation) publiés au JO
 
-Workflow hebdomadaire (lundi 8h UTC) :
+Workflow à déclenchement manuel (`workflow_dispatch`, auparavant chaque
+lundi à 8h UTC) :
 
 1. Détecte changements + télécharge nouveaux PDFs
 2. Commit `data/raw/.veille_state.json`
@@ -290,18 +297,17 @@ Rapport horodaté : `docs/audits/coverage_YYYY-MM-DD.md`.
 Dernière mesure (2026-05-18) : 100 % texte indexé sur toutes les matières,
 couverture sections BO 79 % (maths) à 100 % (SVT, EMC).
 
-## Frontière des contrats avec le backend
+## Frontière des contrats avec le backend (historique)
 
-Le backend (`tomai-monorepo/apps/server`) consomme l'index Qdrant via une
-couche `qdrant.service.ts` + `rag.service.ts`. **Contrats critiques** :
+Le backend (`tomai-monorepo/apps/server`) devait consommer l'index via
+`qdrant.service.ts` + `rag.service.ts`, supprimés le 2026-08-24. Contrats tels
+qu'ils étaient définis :
 
 - **Payload Qdrant** stable : `text, section, matiere, niveau, cycle,
-  source_file, chunk_index`. Tout ajout/retrait de champ doit être planifié
-  avec le backend.
-- **Embedding query** : doit utiliser `BAAI/bge-m3` via FlagEmbedding
-  (single forward pass dense+sparse). Plus de tokenizer BM25 maison —
-  le backend doit exposer un service Python embed ou appeler un endpoint
-  dédié (cf. §Recommandations backend).
+  source_file, chunk_index`.
+- **Embedding query** : `BAAI/bge-m3` via FlagEmbedding (single forward pass
+  dense+sparse), ce qui imposait au backend un service Python embed ou un
+  endpoint dédié (cf. §Recommandations backend).
 - **Nom de collection** partagé via variable d'env `QDRANT_COLLECTION`.
 
 ## Décision benchmark embedder (2026-05-23)
@@ -326,10 +332,13 @@ Gains adoption sur les matières bloquantes :
 Régressions résiduelles à surveiller : technologie (-0.222), italien
 (n=8 trop petit pour conclure).
 
-Procédure de bascule : la collection `tomai_educational_bge_native`
-(sandbox du bench) devient la collection prod via alias Qdrant.
-L'ancienne `tomai_educational` (mistral-embed) reste en backup nommée
-`tomai_educational_legacy_mistral` le temps que le backend migre.
+Bascule prévue : la collection `tomai_educational_bge_native` (sandbox du
+bench) devait devenir la collection servie via alias Qdrant, l'ancienne
+`tomai_educational` (mistral-embed) restant en backup le temps que le backend
+migre. Le backend n'a jamais migré et le cluster a été supprimé le
+2026-08-24 ; les résultats du bench restent dans `data/golden/`
+(`retrieval_eval.json` pour la baseline, `retrieval_eval-bge-m3.json`,
+`retrieval_eval-bge-native.json`).
 
 ## Pistes restantes (sans engagement prématuré)
 
@@ -346,6 +355,9 @@ L'ancienne `tomai_educational` (mistral-embed) reste en backup nommée
 
 ## Recommandations à traiter côté backend
 
+> Rédigées avant le retrait du RAG côté backend ; aucune n'a été implémentée.
+> Conservées comme analyse.
+
 Le **runtime** (chemin emprunté à chaque question d'élève) appartient au
 backend. Les recommandations ci-dessous sont issues de la recherche état
 de l'art mai 2026 mais ne peuvent **pas** être benchmarkées utilement ici
@@ -354,7 +366,7 @@ latence prod ni de l'implémentation TS finale).
 
 ### #1 — Exécuter BGE-M3 côté backend (impose un service Python)
 
-**Bloquant suite à la décision benchmark embedder du 2026-05-23.** Le
+**Prérequis bloquant après la décision benchmark embedder du 2026-05-23.** Le
 sparse natif BGE-M3 est appris (learned sparse via FlagEmbedding), donc
 non reproductible en TS pur — contrairement au BM25 FNV-1a qu'on avait.
 
