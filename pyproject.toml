@@ -23,9 +23,6 @@ dev = [
     "pytest>=8.0",
 ]
 eval = [
-    "langchain-mistralai>=0.2",
-    "litellm>=1.85.0",
-    "ragas>=0.4",
     "sentence-transformers>=3.0",
     "FlagEmbedding>=1.3",
 ]
