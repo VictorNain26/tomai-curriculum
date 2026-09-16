@@ -2,8 +2,13 @@
 
 Repo Python qui gère **uniquement l'index RAG** des programmes officiels Éduscol
 (PDF → markdown → chunks → Qdrant). La couche LLM (chat, prompting,
-hallucination eval) appartient EXCLUSIVEMENT au backend
+hallucination eval) relevait EXCLUSIVEMENT du backend
 `tomai-monorepo/apps/server`.
+
+**Statut : projet retiré.** L'index n'a jamais été servi à des utilisateurs,
+le cluster Qdrant Cloud a été supprimé le 2026-08-24 et le backend a retiré sa
+couche RAG le même jour (`tomai-monorepo` commit `8f5011f`). Aucun consommateur
+n'existe : toute ré-ingestion vise une instance Qdrant à fournir.
 
 ## Périmètre
 
@@ -24,7 +29,8 @@ Couvert ici :
 
 ## Règles générales
 
-- **Souveraineté EU stricte** — Mistral (embeddings) + Qdrant Cloud (fr-par).
+- **Souveraineté EU stricte** — BGE-M3 (embeddings), Mistral (golden set
+  offline), Qdrant Cloud (fr-par).
   Aucun SaaS hors UE. Pas d'OpenAI, Cohere, Anthropic, Google, Voyage.
 - **Pas d'invention dans le dataset** — source de vérité = `data/raw/*.txt|md`
   (programmes officiels Éduscol). Aucun contenu généré par LLM dans
@@ -36,7 +42,7 @@ Couvert ici :
   partagés entre matières (préambules langues) ne se piétinent pas.
 - **Validation stricte** — chaque chunk passe par `Chunk` Pydantic avant
   upsert. Erreur explicite si section regex échoue (pas de silence).
-- **DRY** — accès Mistral/Qdrant centralisé dans `schema/retrieval.py`.
+- **DRY** — accès embedders/Qdrant centralisé dans `schema/retrieval.py`.
   Pas de duplication entre scripts.
 - **Pas de scripts jetables** — si tu as besoin d'une fonction diagnostique,
   l'intégrer comme sous-commande du script permanent existant (ex:
@@ -76,9 +82,9 @@ RUN_MISTRAL_TOKENIZER_TESTS=1 uv run pytest tests/
 ```
 schema/                    Bibliothèque partagée (importée par tous les scripts)
 ├── document.py            Pydantic Chunk + derive_niveaux_from_file + MATIERE_LABELS
-├── bm25.py                Tokenizer FR + FNV-1a (parité stricte avec backend TS)
+├── bm25.py                Tokenizer FR + FNV-1a (sparse legacy, bench A/B)
 ├── contextual.py          Préfixe contextuel hiérarchique (sans LLM)
-└── retrieval.py           Accès Mistral/Qdrant : embed, hybrid_search, L2 normalize
+└── retrieval.py           Accès embedders + Qdrant : embed, hybrid_search, L2 normalize
 
 scripts/                   CLI permanents (jamais de _tmp_*.py jetable)
 ├── extract_pdfs.py        PDF → markdown (pymupdf4llm — préserve les H2)
@@ -109,12 +115,14 @@ data/raw/*.md
   └─ chunk_text()           chonkie RecursiveChunker + tokenizer Mistral vrais tokens
   └─ expand_for_niveaux()   duplique 1 chunk × N niveaux du cycle
   └─ validate_chunks()      Pydantic Chunk → payload Qdrant
-  └─ embed_batch()          mistral-embed batch 50 + normalisation L2 (déduplique textes)
+  └─ encode_with_sparse()   BGE-M3 dense + sparse natif, un seul forward pass (déduplique textes)
+                            (legacy : embed_batch() mistral-embed + L2, sparse BM25 maison)
   └─ upsert_to_qdrant()     named {dense, bm25} + uuid5(matiere+niveau+text) idempotent
 ```
 
 Collection cible : `tomai_educational` (variable d'env `QDRANT_COLLECTION`).
-- `dense` (1024D cosine, mistral-embed) + sparse `bm25` (Modifier.IDF natif)
+- `dense` (1024D cosine, BGE-M3) + sparse `bm25` (nom historique du named
+  vector, rempli par le sparse BGE-M3 par défaut ; Modifier.IDF natif)
 - Scalar int8 quantization always_ram (4× compression, <1 % perte recall)
 - Payload indexes KEYWORD : `niveau`, `matiere`, `cycle`, `source_file`
 
@@ -141,15 +149,15 @@ Collection cible : `tomai_educational` (variable d'env `QDRANT_COLLECTION`).
 
 URLs + procédure de régénération : `data/raw/sources_officielles.md`.
 
-## Frontière avec le backend
+## Frontière avec le backend (historique)
 
-Le backend (`tomai-monorepo/apps/server`) consomme l'index Qdrant produit ici
-via une couche `qdrant.service.ts` + `rag.service.ts`. **Contrats critiques** :
+Le backend (`tomai-monorepo/apps/server`) devait consommer l'index via
+`qdrant.service.ts` + `rag.service.ts`, supprimés le 2026-08-24. Contrats tels
+qu'ils étaient définis :
 
-- Le **payload** Qdrant doit rester stable : `text, section, matiere, niveau,
-  cycle, source_file, chunk_index` (+ aliases `title`, `content` pour compat).
-- Le **tokenizer BM25** (FNV-1a 32-bit + regex FR) doit rester strictement
-  identique entre `schema/bm25.py` ici et `rag.service.ts:172-193` côté backend.
-  Toute divergence casse l'IDF Qdrant silencieusement.
-- Le nom de collection / alias se gère par variable d'env partagée
-  (`QDRANT_COLLECTION`).
+- **Payload** Qdrant stable : `text, section, matiere, niveau, cycle,
+  source_file, chunk_index` (+ aliases `title`, `content` pour compat).
+- **Tokenizer BM25** (FNV-1a 32-bit + regex FR) identique entre
+  `schema/bm25.py` et `rag.service.ts:172-193` — ne concerne plus que la
+  config legacy `--sparse-method=bm25`.
+- Nom de collection / alias via variable d'env partagée (`QDRANT_COLLECTION`).
